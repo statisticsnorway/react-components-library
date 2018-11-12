@@ -13,4 +13,3 @@ export function dataFetcher (url) {
   })
 }
 
-export default dataFetcher;
