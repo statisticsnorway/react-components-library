@@ -1,7 +1,7 @@
 # dc-react-components-library
 DC React Components Library
 
-###How this library was created
+### How this library was created
 - Created by create-react-app
 - Added Rollup for bundling the code and babel for transpiling JSX into native javascript.
 
