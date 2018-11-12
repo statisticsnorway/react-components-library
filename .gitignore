@@ -11,9 +11,6 @@
 # testing
 /coverage
 
-# intellij
-.idea
-
 # build
 /build
 
