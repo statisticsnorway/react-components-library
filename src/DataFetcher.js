@@ -1,7 +1,7 @@
 import React from 'react'
 import axios from 'axios'
 
-export const dataFetcher = (url) => {
+export function dataFetcher (url) {
   return new Promise((resolve, reject) => {
     axios.get(url)
       .then(response => {

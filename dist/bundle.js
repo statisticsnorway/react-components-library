@@ -7,7 +7,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 require('react');
 var axios = _interopDefault(require('axios'));
 
-var dataFetcher = function dataFetcher(url) {
+function dataFetcher(url) {
   return new Promise(function (resolve, reject) {
     axios.get(url).then(function (response) {
       resolve(response.data);
@@ -15,6 +15,6 @@ var dataFetcher = function dataFetcher(url) {
       reject(error);
     });
   });
-};
+}
 
 exports.dataFetcher = dataFetcher;
