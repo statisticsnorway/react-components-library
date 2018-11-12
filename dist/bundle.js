@@ -17,4 +17,4 @@ var dataFetcher = function dataFetcher(url) {
   });
 };
 
-exports.DataFetcher = dataFetcher;
+exports.dataFetcher = dataFetcher;
