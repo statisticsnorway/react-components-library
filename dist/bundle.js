@@ -17,4 +17,19 @@ function dataFetcher(url) {
   });
 }
 
+function dataSaver(url, data) {
+  return new Promise(function (resolve, reject) {
+    axios.put(url, data, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(function (response) {
+      resolve(response.statusText);
+    }).catch(function (error) {
+      reject(error);
+    });
+  });
+}
+
 exports.dataFetcher = dataFetcher;
+exports.dataSaver = dataSaver;
