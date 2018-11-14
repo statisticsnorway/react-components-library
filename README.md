@@ -17,13 +17,42 @@ DC React Components Library
 ### Test it yourself
 An App.js is added to the library for test purpose. Run `yarn start` and navigate to `http://localhost:3000/`
 
-### Examples of functions in use
+### Examples of functions in use with linked-data-store
+Precondition:
+lds is up and running on localhost:9090
+
 dataFetcher 
 
     const url = 'http://localhost:9090/data/AgentInRole/'
     
     dataFetcher(url).then((result) => console.log('Result from url ' + url + ': ',result)).catch((reason) => console.log('Error: ', reason))
 
+dataSaver
 
+    let ldsSaveUrl = 'http://localhost:9090/data/Agent/b02e7d00-e740-11e8-9e27-758293bd596e'
+
+    let data = {
+      "id": "b02e7d00-e740-11e8-9e27-758293bd596e",
+      "name":
+        [{"languageCode": "nb",
+          "languageText": "c"}],
+      "description":
+        [{"languageCode": "nb",
+          "languageText": "c"}],
+      "createdDate": "2018-11-13T12:36:53.092Z",
+      "createdBy": "Test",
+      "version": "1.0.0",
+      "versionValidFrom": "2018-11-13T12:36:53.093Z",
+      "lastUpdatedDate": "2018-11-13T12:36:53.093Z",
+      "lastUpdatedBy": "Test",
+      "validFrom": "2018-11-13T12:36:53.093Z",
+      "validUntil": "2019-11-13T12:36:53.093Z",
+      "agentType": "ORGANIZATION",
+      "isExternal": false
+    }
+
+    dataSaver(ldsSaveUrl, data).then((result) => console.log('Result from url ' + ldsSaveUrl + ': ', result)).catch((reason) => console.log('Error: ', reason))
+    
+    
 
 
