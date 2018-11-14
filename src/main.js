@@ -1,2 +1,2 @@
-//export { dataFetcher } from './DataFetcher'
+export { dataFetcher } from './DataFetcher'
 export { dataSaver } from './DataSaver'
