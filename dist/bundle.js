@@ -7,16 +7,6 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 require('react');
 var axios = _interopDefault(require('axios'));
 
-function dataFetcher(url) {
-  return new Promise(function (resolve, reject) {
-    axios.get(url).then(function (response) {
-      resolve(response.data);
-    }).catch(function (error) {
-      reject(error);
-    });
-  });
-}
-
 function dataSaver(url, data) {
   return new Promise(function (resolve, reject) {
     axios.put(url, data, {
@@ -31,5 +21,6 @@ function dataSaver(url, data) {
   });
 }
 
-exports.dataFetcher = dataFetcher;
+//export { dataFetcher } from './DataFetcher'
+
 exports.dataSaver = dataSaver;
