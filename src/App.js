@@ -6,15 +6,15 @@ import { Form, Segment, Header, Divider, Button } from 'semantic-ui-react'
 class App extends Component {
 
   handleOnClickFetch () {
-    let ldsFetchUrl = 'http://localhost:9090/data/Agent/'
+    const ldsFetchUrl = 'http://localhost:9090/data/Agent/'
 
     dataFetcher(ldsFetchUrl).then((result) => console.log('Result from url ' + ldsFetchUrl + ': ', result)).catch((reason) => console.log('Error: ', reason))
   }
 
   handleOnClickSave () {
-    let ldsSaveUrl = 'http://localhost:9090/data/Agent/b02e7d00-e740-11e8-9e27-758293bd596e'
+    const ldsSaveUrl = 'http://localhost:9090/data/Agent/b02e7d00-e740-11e8-9e27-758293bd596e'
 
-    let data = {
+    const data = {
       "id": "b02e7d00-e740-11e8-9e27-758293bd596e",
       "name":
         [{"languageCode": "nb",
