@@ -43,10 +43,11 @@ class App extends Component {
   }
 
   handleOnClickDelete () {
-    const ldsDeleteUrl = 'http://localhost:9090/data/Agent/'
+    const startUrl = 'http://localhost:9090/data/Agent'
     const id = 'b02e7d00-e740-11e8-9e27-758293bd596e'
+    const ldsDeleteUrl = startUrl + '/' + id
 
-    dataDeleter(ldsDeleteUrl, id).then((result) => console.log('Result from url ' + ldsDeleteUrl + ': ', result)).catch((reason) => console.log('Error: ', reason))
+    dataDeleter(ldsDeleteUrl).then((result) => console.log('Result from url ' + ldsDeleteUrl + ': ', result)).catch((reason) => console.log('Error: ', reason))
   }
 
   render () {

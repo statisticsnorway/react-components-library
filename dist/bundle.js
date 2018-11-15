@@ -31,9 +31,9 @@ function dataSaver(url, data) {
   });
 }
 
-function dataDeleter(url, id) {
+function dataDeleter(url) {
   return new Promise(function (resolve, reject) {
-    axios.delete(url + id, {
+    axios.delete(url, {
       headers: {
         'Content-Type': 'application/json'
       }

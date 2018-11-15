@@ -1,9 +1,9 @@
 import React from 'react'
 import axios from 'axios'
 
-export function dataDeleter (url, id) {
+export function dataDeleter (url) {
   return new Promise((resolve, reject) => {
-    axios.delete(url + id, {
+    axios.delete(url, {
       headers: {
         'Content-Type': 'application/json'
       }
