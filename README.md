@@ -29,9 +29,9 @@ dataFetcher
 
 dataSaver
 
-    let ldsSaveUrl = 'http://localhost:9090/data/Agent/b02e7d00-e740-11e8-9e27-758293bd596e'
+    const ldsSaveUrl = 'http://localhost:9090/data/Agent/b02e7d00-e740-11e8-9e27-758293bd596e'
 
-    let data = {
+    const data = {
       "id": "b02e7d00-e740-11e8-9e27-758293bd596e",
       "name":
         [{"languageCode": "nb",
@@ -53,6 +53,11 @@ dataSaver
 
     dataSaver(ldsSaveUrl, data).then((result) => console.log('Result from url ' + ldsSaveUrl + ': ', result)).catch((reason) => console.log('Error: ', reason))
     
+dataDeleter
     
+     const ldsDeleteUrl = 'http://localhost:9090/data/Agent/'
+     const id = 'b02e7d00-e740-11e8-9e27-758293bd596e'
+    
+      dataDeleter(ldsDeleteUrl, id).then((result) => console.log('Result from url ' + ldsDeleteUrl + ': ', result)).catch((reason) => console.log('Error: ', reason))    
 
 
