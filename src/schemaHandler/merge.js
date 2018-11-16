@@ -1,78 +1,45 @@
 export function mergeDefaultUiSchema(schema, defaultUi) {
-  let jsonSchema = JSON.parse(schema)
-  let uiDefaultSchema = JSON.parse(defaultUi)
+  const returnSchema = JSON.parse(schema)
+  const defaultUiSchema = JSON.parse(defaultUi)
+  const name = returnSchema.$ref.replace('#/definitions/', '')
+  const properties = returnSchema.definitions[name].properties
 
-  let definitions = jsonSchema.definitions
-  let uiDefaultTypes = uiDefaultSchema.ui
-
-  for(let definition in definitions) {
-    if(definitions.hasOwnProperty(definition)){
-      let properties = definitions[definition].properties
-      for(let property in properties) {
-        if(properties.hasOwnProperty(property)){
-          let propertyList = properties[property]
-          for(let propertyValue in propertyList) {
-            if(propertyList.hasOwnProperty(propertyValue)){
-              if(propertyValue === 'type'){
-                if(uiDefaultTypes.hasOwnProperty(propertyList[propertyValue])){
-                  let defaultProperty = uiDefaultTypes[propertyList[propertyValue]]
-                  for(let key in defaultProperty) {
-                    if(defaultProperty.hasOwnProperty(key)){
-                      propertyList[key] = defaultProperty[key]
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+  Object.keys(properties).forEach(key => {
+    if(defaultUiSchema.ui.hasOwnProperty(properties[key].type)){
+      returnSchema.definitions[name].properties[key].component = defaultUiSchema.ui[properties[key].type].component
     }
-  }
-  jsonSchema.definitions = definitions
-  return jsonSchema
+  })
+
+  return returnSchema
 }
 
-export function mergeUiSchemas(schema, uiSchemaFiles) {
+export function mergeUiSchema(schema, uiSchemaFiles) {
+  const returnSchema = JSON.parse(schema)
+  const name = returnSchema.$ref.replace('#/definitions/', '')
 
-  let jsonSchema = JSON.parse(schema)
-  let jsonDefinitions = jsonSchema.definitions
+  const uiSchemaFileName = 'UISchema_' + name + '.json'
+  console.log(uiSchemaFileName)
 
-  const length = uiSchemaFiles.length
+  const properties = returnSchema.definitions[name].properties
 
-  for(let i = 0, l = length; i < l; i++) {
-    const file = uiSchemaFiles[i]
-    let fileReader = new FileReader()
-    fileReader.readAsText(file);
-    fileReader.onloadend = () => {
-      let data = fileReader.result
-
-      let fileName = file.name.toString().substring(file.name.toString().indexOf('_') + 1, file.name.toString().length)
-      fileName = fileName.replace(/\.[^/.]+$/, "");
-
-      for(let definition in jsonDefinitions) {
-        if(jsonDefinitions.hasOwnProperty(definition)){
-          if(fileName === definition){
-            let jsonObjects = jsonDefinitions[definition]['properties']
-            let uiSchema = JSON.parse(data.toString())
-
-            let uiSchemaObjects = uiSchema[definition]
-            for(let jsonObject in jsonObjects) {
-              if(jsonObjects.hasOwnProperty(jsonObject)){
-                if(uiSchemaObjects.hasOwnProperty(jsonObject)){
-                  let jsonProperties = jsonObjects[jsonObject]
-                  let uiSchemaProperties = uiSchemaObjects[jsonObject]
-                  for(let uiSchemaProperty in uiSchemaProperties) {
-                    jsonProperties[uiSchemaProperty] = uiSchemaProperties[uiSchemaProperty]
-                  }
-                }
-              }
-            }
+  Object.keys(uiSchemaFiles).forEach(key => {
+    const fileName = uiSchemaFiles[key].name
+    if(fileName === uiSchemaFileName){
+      let fileReader = new FileReader()
+      fileReader.readAsText(uiSchemaFiles[key]);
+      fileReader.onloadend = () => {
+        let data = fileReader.result
+        let uiSchema = JSON.parse(data.toString())
+        Object.keys(properties).forEach(key => {
+          if(uiSchema[name].hasOwnProperty(key)){
+            Object.keys(uiSchema[name][key]).forEach(property => {
+              let temp = uiSchema[name][key][property]
+              returnSchema.definitions[name].properties[key][property] = uiSchema[name][key][property]
+            })
           }
-          jsonSchema.definitions[definition] = jsonDefinitions[definition]
-        }
+        })
       }
     }
-  }
-  return jsonSchema
+  })
+  return returnSchema
 }

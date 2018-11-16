@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Step, Icon, Button, Divider, Grid } from 'semantic-ui-react'
 import { UnControlled as CodeMirror } from 'react-codemirror2'
-import { mergeDefaultUiSchema, mergeUiSchemas } from "./merge";
+import { mergeDefaultUiSchema, mergeUiSchema } from "./merge";
 import 'codemirror/lib/codemirror.css';
 import ui from '../utilities/DefaultUISchema'
 import '../index.css'
@@ -81,7 +81,7 @@ class JsonSchemaHandler extends Component {
     }
 
     if(event.target.name === 'mergeUiSchema'){
-      let jsonSchemaMerged = mergeUiSchemas(this.state.mergedDefaultUiJsonSchema, this.state.uiSchemaFiles)
+      let jsonSchemaMerged = mergeUiSchema(this.state.mergedDefaultUiJsonSchema, this.state.uiSchemaFiles)
       setTimeout(() => {
         this.setState({
           ...this.state,
@@ -94,7 +94,7 @@ class JsonSchemaHandler extends Component {
   }
 
   render() {
-    console.log(this.state)
+
     const {jsonSchemasReady, uiSchemasReady, mergedDefaultUiSchemaReady} = this.state
     return (
       <div>
