@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { Step, Icon, Button, Divider, Grid } from 'semantic-ui-react'
 import { UnControlled as CodeMirror } from 'react-codemirror2'
-import { mergeDefaultUiSchema, mergeUiSchemas } from "../utilities/merge";
+import { mergeDefaultUiSchema, mergeUiSchemas } from "./merge";
 import 'codemirror/lib/codemirror.css';
-import ui  from '../utilities/DefaultUISchema'
+import ui from '../utilities/DefaultUISchema'
 import '../index.css'
 
 
