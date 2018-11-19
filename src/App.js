@@ -86,6 +86,8 @@ class App extends Component {
             <Button onClick={this.handleOnClickFetch}>Fetch</Button>
             <Divider />
             <Button onClick={this.handleOnClickSave}>Save</Button>
+            <Divider />
+            <Button onClick={this.handleOnClickDelete}>Delete</Button>
           </Segment>
           <Segment basic textAlign='center'>
             <Button basic onClick={this.activateSchemasHandling}>Handle Schemas</Button>
@@ -93,15 +95,6 @@ class App extends Component {
             <Segment textAlign='left' name="jsonHandler" hidden={this.state.hideSchemaHandler}>
               <JsonSchemaHandler />
             </Segment>
-            <Header as='h1' dividing>
-              Test av dc-react-component-library
-            </Header>
-            <Divider/>
-            <Button onClick={this.handleOnClickFetch}>Fetch</Button>
-            <Divider/>
-            <Button onClick={this.handleOnClickSave}>Save</Button>
-            <Divider/>
-            <Button onClick={this.handleOnClickDelete}>Delete</Button>
           </Segment>
         </Form>
       </div>
