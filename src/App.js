@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { dataFetcher } from './DataFetcher'
 import { dataSaver } from './DataSaver'
+import { dataDeleter } from './DataDeleter'
 import { Form, Segment, Header, Divider, Button } from 'semantic-ui-react'
 
 class App extends Component {
@@ -17,11 +18,15 @@ class App extends Component {
     const data = {
       "id": "b02e7d00-e740-11e8-9e27-758293bd596e",
       "name":
-        [{"languageCode": "nb",
-          "languageText": "c"}],
+        [{
+          "languageCode": "nb",
+          "languageText": "c"
+        }],
       "description":
-        [{"languageCode": "nb",
-          "languageText": "c"}],
+        [{
+          "languageCode": "nb",
+          "languageText": "c"
+        }],
       "createdDate": "2018-11-13T12:36:53.092Z",
       "createdBy": "Test",
       "version": "1.0.0",
@@ -37,18 +42,28 @@ class App extends Component {
     dataSaver(ldsSaveUrl, data).then((result) => console.log('Result from url ' + ldsSaveUrl + ': ', result)).catch((reason) => console.log('Error: ', reason))
   }
 
+  handleOnClickDelete () {
+    const startUrl = 'http://localhost:9090/data/Agent'
+    const id = 'b02e7d00-e740-11e8-9e27-758293bd596e'
+    const ldsDeleteUrl = startUrl + '/' + id
+
+    dataDeleter(ldsDeleteUrl).then((result) => console.log('Result from url ' + ldsDeleteUrl + ': ', result)).catch((reason) => console.log('Error: ', reason))
+  }
+
   render () {
     return (
       <div>
         <Form>
           <Segment basic textAlign='center'>
-          <Header as='h1' dividing>
-            Test av dc-react-component-library
-          </Header>
-          <Divider/>
-          <Button onClick={this.handleOnClickFetch}>Fetch</Button>
-          <Divider/>
-          <Button onClick={this.handleOnClickSave}>Save</Button>
+            <Header as='h1' dividing>
+              Test av dc-react-component-library
+            </Header>
+            <Divider/>
+            <Button onClick={this.handleOnClickFetch}>Fetch</Button>
+            <Divider/>
+            <Button onClick={this.handleOnClickSave}>Save</Button>
+            <Divider/>
+            <Button onClick={this.handleOnClickDelete}>Delete</Button>
           </Segment>
         </Form>
       </div>
