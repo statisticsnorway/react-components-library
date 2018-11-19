@@ -31,5 +31,20 @@ function dataSaver(url, data) {
   });
 }
 
+function dataDeleter(url) {
+  return new Promise(function (resolve, reject) {
+    axios.delete(url, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(function (response) {
+      resolve(response.statusText);
+    }).catch(function (error) {
+      reject(error);
+    });
+  });
+}
+
 exports.dataFetcher = dataFetcher;
 exports.dataSaver = dataSaver;
+exports.dataDeleter = dataDeleter;

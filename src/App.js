@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { dataFetcher } from './DataFetcher'
 import { dataSaver } from './DataSaver'
+import { dataDeleter } from './DataDeleter'
 import { Form, Segment, Header, Divider, Button } from 'semantic-ui-react'
 import JsonSchemaHandler from './schemaHandler/JsonSchemaHandler'
 
@@ -65,7 +66,15 @@ class App extends Component {
     dataSaver(ldsSaveUrl, data).then((result) => console.log('Result from url ' + ldsSaveUrl + ': ', result)).catch((reason) => console.log('Error: ', reason))
   }
 
-  render() {
+  handleOnClickDelete () {
+    const startUrl = 'http://localhost:9090/data/Agent'
+    const id = 'b02e7d00-e740-11e8-9e27-758293bd596e'
+    const ldsDeleteUrl = startUrl + '/' + id
+
+    dataDeleter(ldsDeleteUrl).then((result) => console.log('Result from url ' + ldsDeleteUrl + ': ', result)).catch((reason) => console.log('Error: ', reason))
+  }
+
+  render () {
     return (
       <div>
         <Form>
@@ -84,6 +93,15 @@ class App extends Component {
             <Segment textAlign='left' name="jsonHandler" hidden={this.state.hideSchemaHandler}>
               <JsonSchemaHandler />
             </Segment>
+            <Header as='h1' dividing>
+              Test av dc-react-component-library
+            </Header>
+            <Divider/>
+            <Button onClick={this.handleOnClickFetch}>Fetch</Button>
+            <Divider/>
+            <Button onClick={this.handleOnClickSave}>Save</Button>
+            <Divider/>
+            <Button onClick={this.handleOnClickDelete}>Delete</Button>
           </Segment>
         </Form>
       </div>
