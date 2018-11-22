@@ -5,6 +5,7 @@ import { DCFormField } from 'dc-react-form-fields-library'
 import { generateDataState } from '../schema-handling/DataState'
 import { splitOnUppercase } from '../Common'
 import { checkRequiredIsNotEmpty, validate } from '../data-handling/Validator'
+import { saveData } from '../data-handling/Saver'
 
 class FormBuilder extends Component {
   constructor (props) {
@@ -68,6 +69,11 @@ class FormBuilder extends Component {
     })
   }
 
+  save = () => {
+    // TODO: Validate first!
+    saveData(this.props.producer, this.state.schema, this.state.data, this.props.endpoint)
+  }
+
   // TODO: Remove
   checkState = () => {
     console.log(this.state)
@@ -125,6 +131,7 @@ class FormBuilder extends Component {
                 })}
                 <Button color='pink' content='Inner State' onClick={this.checkState} /> {/* TODO: Remove */}
                 <Button color='yellow' content='validate' onClick={this.validate} />
+                <Button color='green' content='Save' onClick={this.save} />
               </Grid.Column>
             </Grid>
           </Dimmer.Dimmable>

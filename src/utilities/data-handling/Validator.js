@@ -23,28 +23,28 @@ function checkRequiredIsNotEmpty (schema, data, name) {
 
 export function validate (schema, data) {
   return new Promise(resolve => {
+    const returnSchema = {...schema}
     const name = schema.$ref.replace('#/definitions/', '')
     const errors = checkRequiredIsNotEmpty(schema, data, name)
 
-    if (Object.keys(errors).length !== 0) {
-      const data = {...schema}
-      const schema = {...data}
+    Object.keys(schema.definitions[name].properties).forEach(key => {
+      if (schema.definitions[name].properties[key].hasOwnProperty('autofilled')) {
+        returnSchema.definitions[name].properties[key].value = [data[key]]
+      } else {
+        returnSchema.definitions[name].properties[key].value = data[key]
+      }
 
-      Object.keys(schema.definitions[name].properties).forEach(key => {
-        if (schema.definitions[name].properties[key].hasOwnProperty('autofilled')) {
-          schema.definitions[name].properties[key].value = [data[key]]
-        } else {
-          schema.definitions[name].properties[key].value = data[key]
-        }
-
+      if (Object.keys(errors).length !== 0) {
         if (errors.hasOwnProperty(key)) {
-          schema.definitions[name].properties[key].error = errors[key]
+          returnSchema.definitions[name].properties[key].error = errors[key]
         } else {
-          delete schema.definitions[name].properties[key].error
+          delete returnSchema.definitions[name].properties[key].error
         }
-      })
+      } else {
+        delete returnSchema.definitions[name].properties[key].error
+      }
+    })
 
-      resolve(schema)
-    }
+    resolve(returnSchema)
   })
 }
