@@ -4,6 +4,7 @@ import { Button, Dimmer, Form, Grid, Header } from 'semantic-ui-react'
 import { DCFormField } from 'dc-react-form-fields-library'
 import { generateDataState } from '../schema-handling/DataState'
 import { splitOnUppercase } from '../Common'
+import { checkRequiredIsNotEmpty, validate } from '../data-handling/Validator'
 
 class FormBuilder extends Component {
   constructor (props) {
@@ -24,7 +25,7 @@ class FormBuilder extends Component {
     generateDataState('GSIM', schema, 'Test').then(result => {
       Object.keys(schema.definitions[this.state.name].properties).forEach(key => {
         if (schema.definitions[this.state.name].properties[key].hasOwnProperty('autofilled')) {
-          schema.definitions[this.state.name].properties[key].value = [result[key + 'Field']]
+          schema.definitions[this.state.name].properties[key].value = [result[key]]
         }
       })
 
@@ -53,6 +54,17 @@ class FormBuilder extends Component {
         ...this.state.data,
         [name]: value
       }
+    })
+  }
+
+  validate = () => {
+    this.setState({ready: false}, () => {
+      validate(this.state.schema, this.state.data).then(result => {
+        this.setState({
+          ready: true,
+          schema: result
+        })
+      })
     })
   }
 
@@ -112,6 +124,7 @@ class FormBuilder extends Component {
                   return null
                 })}
                 <Button color='pink' content='Inner State' onClick={this.checkState} /> {/* TODO: Remove */}
+                <Button color='yellow' content='validate' onClick={this.validate} />
               </Grid.Column>
             </Grid>
           </Dimmer.Dimmable>
