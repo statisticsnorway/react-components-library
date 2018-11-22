@@ -24,5 +24,15 @@
   "autofilled": ["createdBy", "createdDate", "id", "lastUpdatedBy", "lastUpdatedDate", "version", "versionValidFrom", "validFrom"],
   "groups": {
     "common": ["administrativeDetails", "administrativeStatus", "agentInRoles", "validUntil", "versionRationale"]
+  },
+  "transformer": {
+    "AdministrativeDetails": {
+      "text": "values",
+      "option": "administrativeDetailType"
+    },
+    "AgentDetails": {
+      "text": "values",
+      "option": "agentDetailType"
+    }
   }
 }
