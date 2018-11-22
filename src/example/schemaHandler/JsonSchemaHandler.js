@@ -3,7 +3,7 @@ import { Step, Icon, Button, Divider, Grid } from 'semantic-ui-react'
 import { UnControlled as CodeMirror } from 'react-codemirror2'
 import { mergeDefaultUiSchema, mergeUiSchema } from "./merge";
 import 'codemirror/lib/codemirror.css';
-import ui from '../utilities/DefaultUISchema'
+import ui from './DefaultUISchema'
 import '../index.css'
 
 

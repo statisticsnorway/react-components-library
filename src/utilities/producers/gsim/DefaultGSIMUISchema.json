@@ -1,0 +1,28 @@
+{
+  "type": {
+    "string": {
+      "component": "DCText"
+    },
+    "array": {
+      "component": "DCDropdown"
+    },
+    "number": {
+      "component": "DCNumber"
+    },
+    "boolean": {
+      "component": "DCBoolean"
+    },
+    "object": {
+      "component": "DCMultiInput"
+    }
+  },
+  "format": {
+    "date-time": {
+      "component": "DCDate"
+    }
+  },
+  "autofilled": ["createdBy", "createdDate", "id", "lastUpdatedBy", "lastUpdatedDate", "version", "versionValidFrom", "validFrom"],
+  "groups": {
+    "common": ["administrativeDetails", "administrativeStatus", "agentInRoles", "validUntil", "versionRationale"]
+  }
+}

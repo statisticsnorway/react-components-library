@@ -33,7 +33,6 @@ export function mergeUiSchema (schema, uiSchemaFiles) {
         Object.keys(properties).forEach(key => {
           if (uiSchema[name].hasOwnProperty(key)) {
             Object.keys(uiSchema[name][key]).forEach(property => {
-              let temp = uiSchema[name][key][property]
               returnSchema.definitions[name].properties[key][property] = uiSchema[name][key][property]
             })
           }

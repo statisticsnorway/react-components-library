@@ -17,6 +17,12 @@ export default {
     'react',
     'react-dom',
     'react-scripts',
-    'axios'
+    'axios',
+    'moment',
+    'semantic-ui-css',
+    'semantic-ui-react',
+    'react-datepicker',
+    'react-router-dom',
+    'uuid'
   ]
 }
