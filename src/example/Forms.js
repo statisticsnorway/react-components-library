@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Link, Route } from 'react-router-dom'
-import { Button, Container, Dropdown, Icon, Label, Menu } from 'semantic-ui-react'
+import { Container, Dropdown, Icon, Label, Menu } from 'semantic-ui-react'
 
 import FormBuilder from '../utilities/form-handling/FormBuilder'
 import TableBuilder from '../utilities/table-handling/TableBuilder'
@@ -29,11 +29,6 @@ class Forms extends Component {
     }).catch(error => {
       console.log(error)
     })
-  }
-
-  // TODO: Remove
-  checkState = () => {
-    console.log(this.state)
   }
 
   render () {
@@ -86,7 +81,6 @@ class Forms extends Component {
                                                              schema={JSON.parse(JSON.stringify(schema))}
                                                              endpoint={this.props.endpoint} routing={path} />} />
           })}
-          <Button color='pink' content='Outer State' onClick={this.checkState} /> {/* TODO: Remove */}
         </Container>
       </div>
     )
