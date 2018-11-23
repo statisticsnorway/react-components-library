@@ -21,8 +21,8 @@ function checkRequiredIsNotEmpty (schema, data, name) {
   return errors
 }
 
-export function validate (schema, data) {
-  return new Promise(resolve => {
+export function validation (schema, data) {
+  return new Promise((resolve, reject) => {
     const returnSchema = {...schema}
     const name = schema.$ref.replace('#/definitions/', '')
     const errors = checkRequiredIsNotEmpty(schema, data, name)
@@ -45,6 +45,10 @@ export function validate (schema, data) {
       }
     })
 
-    resolve(returnSchema)
+    if (Object.keys(errors).length === 0) {
+      resolve(returnSchema)
+    } else {
+      reject(returnSchema)
+    }
   })
 }

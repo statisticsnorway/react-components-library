@@ -19,7 +19,7 @@ function producers (producer, element, user) {
 }
 
 export function generateDataState (producer, schema, user) {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const name = schema.$ref.replace('#/definitions/', '')
     const properties = schema.definitions[name].properties
     const dataObject = {}

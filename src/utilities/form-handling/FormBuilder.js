@@ -1,11 +1,25 @@
 import React, { Component } from 'react'
-import { Button, Dimmer, Form, Grid, Header } from 'semantic-ui-react'
+import { Button, Dimmer, Form, Grid, Header, Message } from 'semantic-ui-react'
 
 import { DCFormField } from 'dc-react-form-fields-library'
 import { generateDataState } from '../schema-handling/DataState'
 import { splitOnUppercase } from '../Common'
-import { checkRequiredIsNotEmpty, validate } from '../data-handling/Validator'
+import { validation } from '../data-handling/Validator'
 import { saveData } from '../data-handling/Saver'
+import { updateAutofill } from '../data-handling/Autofiller'
+
+const version = {
+  component: 'DCRadio',
+  name: 'versionIncrementation',
+  displayName: 'Versjonsinkrementering',
+  description: 'Hvordan skal versjonen inkrementeres?',
+  value: '2',
+  options: [
+    {text: 'Major', value: '0'},
+    {text: 'Minor', value: '1'},
+    {text: 'Patch', value: '2'}
+  ]
+}
 
 class FormBuilder extends Component {
   constructor (props) {
@@ -13,6 +27,9 @@ class FormBuilder extends Component {
     this.state = {
       ready: false,
       readOnly: false,
+      message: '',
+      saved: false,
+      versionIncrementation: '2',
       data: {},
       schema: {},
       name: this.props.schema.$ref.replace('#/definitions/', ''),
@@ -46,7 +63,11 @@ class FormBuilder extends Component {
   }
 
   handleLockClick = () => {
-    this.setState({readOnly: !this.state.readOnly})
+    this.setState({readOnly: !this.state.readOnly}, () => {
+      if (!this.state.readOnly) {
+        this.setState({message: ''})
+      }
+    })
   }
 
   handleValueChange = (name, value) => {
@@ -54,24 +75,72 @@ class FormBuilder extends Component {
       data: {
         ...this.state.data,
         [name]: value
-      }
+      },
+      saved: false
     })
   }
 
-  validate = () => {
+  handleVersionIncrementationChange = (name, value) => {
+    this.setState({
+      [name]: value,
+      saved: false
+    })
+  }
+
+  validateAndSave = (event) => {
+    event.preventDefault()
+
     this.setState({ready: false}, () => {
-      validate(this.state.schema, this.state.data).then(result => {
+      validation(this.state.schema, this.state.data).then(resultWithoutErrors => {
+        this.setState({
+          schema: resultWithoutErrors
+        }, () => {
+          updateAutofill(this.props.producer, this.state.schema, this.state.data, 'Test', this.state.versionIncrementation).then(result => {
+            this.setState({
+              data: result
+            }, () => {
+              const updatedSchema = {...this.state.schema}
+
+              Object.keys(updatedSchema.definitions[this.state.name].properties).forEach(key => {
+                if (result.hasOwnProperty(key)) {
+                  if (updatedSchema.definitions[this.state.name].properties[key].hasOwnProperty('autofilled')) {
+                    updatedSchema.definitions[this.state.name].properties[key].value = [result[key]]
+                  } else {
+                    updatedSchema.definitions[this.state.name].properties[key].value = result[key]
+                  }
+                }
+              })
+
+              this.setState({
+                schema: updatedSchema
+              }, () => {
+                saveData(this.props.producer, this.state.schema, this.state.data, this.props.endpoint).then(response => {
+                  this.setState({
+                    ready: true,
+                    saved: true,
+                    message: 'Objektet ble lagret (saga-execution-id: ' + response['saga-execution-id'] + ')',
+                    readOnly: true
+                  })
+                })
+              })
+            })
+          }).catch(error => {
+            this.setState({
+              ready: true,
+              saved: false,
+              message: error
+            })
+          })
+        })
+      }).catch(resultWithErrors => {
         this.setState({
           ready: true,
-          schema: result
+          schema: resultWithErrors,
+          saved: false,
+          message: 'Objektet ble ikke lagret, rett opp feil og lagre igjen'
         })
       })
     })
-  }
-
-  save = () => {
-    // TODO: Validate first!
-    saveData(this.props.producer, this.state.schema, this.state.data, this.props.endpoint)
   }
 
   // TODO: Remove
@@ -81,7 +150,7 @@ class FormBuilder extends Component {
   }
 
   render () {
-    const {ready, readOnly, schema, name, description} = this.state
+    const {ready, readOnly, message, saved, schema, name, description} = this.state
 
     if (ready) {
       const formIcon = readOnly ? 'lock' : 'unlock'
@@ -92,6 +161,7 @@ class FormBuilder extends Component {
         <Form>
           <Header as='h1' content={splitOnUppercase(name)} subheader={description}
                   icon={{name: formIcon, color: formIconColor, link: true, onClick: this.handleLockClick}} />
+          {message !== '' && <Message color={saved ? 'green' : 'red'} content={message.toString()} />}
           <Dimmer.Dimmable dimmed={readOnly}>
             <Dimmer active={readOnly} style={{
               backgroundColor: 'rgba(0,0,0,.01)',
@@ -129,9 +199,10 @@ class FormBuilder extends Component {
 
                   return null
                 })}
+
+                <DCFormField properties={version} valueChange={this.handleVersionIncrementationChange} />
                 <Button color='pink' content='Inner State' onClick={this.checkState} /> {/* TODO: Remove */}
-                <Button color='yellow' content='validate' onClick={this.validate} />
-                <Button color='green' content='Save' onClick={this.save} />
+                <Button color='green' content='Lagre' onClick={this.validateAndSave} />
               </Grid.Column>
             </Grid>
           </Dimmer.Dimmable>
