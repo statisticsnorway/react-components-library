@@ -23,7 +23,7 @@ function checkRequiredIsNotEmpty (schema, data, name) {
 
 export function validation (schema, data) {
   return new Promise((resolve, reject) => {
-    const returnSchema = {...schema}
+    const returnSchema = JSON.parse(JSON.stringify(schema))
     const name = schema.$ref.replace('#/definitions/', '')
     const errors = checkRequiredIsNotEmpty(schema, data, name)
 

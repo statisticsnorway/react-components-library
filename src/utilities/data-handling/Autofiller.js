@@ -14,7 +14,7 @@ export function updateAutofill (producer, schema, data, user, versionIncrementat
   return new Promise(resolve => {
     const name = schema.$ref.replace('#/definitions/', '')
     const properties = schema.definitions[name].properties
-    const dataObject = {...data}
+    const dataObject = JSON.parse(JSON.stringify(data))
 
     Object.keys(properties).forEach(key => {
       if (properties[key].hasOwnProperty('autofilled')) {

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Button, Dimmer, Form, Grid, Header, Message } from 'semantic-ui-react'
 
 import { DCFormField } from 'dc-react-form-fields-library'
-import { generateDataState } from '../schema-handling/DataState'
+import { fillDataState, generateDataState } from '../schema-handling/DataState'
 import { splitOnUppercase } from '../Common'
 import { validation } from '../data-handling/Validator'
 import { saveData } from '../data-handling/Saver'
@@ -38,24 +38,39 @@ class FormBuilder extends Component {
   }
 
   componentDidMount () {
-    const schema = {...this.props.schema}
+    const schema = JSON.parse(JSON.stringify(this.props.schema))
 
-    generateDataState('GSIM', schema, 'Test').then(result => {
-      Object.keys(schema.definitions[this.state.name].properties).forEach(key => {
-        if (schema.definitions[this.state.name].properties[key].hasOwnProperty('autofilled')) {
-          schema.definitions[this.state.name].properties[key].value = [result[key]]
-        }
-      })
+    if (this.props.params.id === 'new') {
+      generateDataState(this.props.producer, schema, 'Test').then(result => {
+        Object.keys(schema.definitions[this.state.name].properties).forEach(key => {
+          if (schema.definitions[this.state.name].properties[key].hasOwnProperty('autofilled')) {
+            schema.definitions[this.state.name].properties[key].value = [result[key]]
+          }
+        })
 
-      if (this.props.params.id === 'new') {
         this.setState({
           data: result,
           schema: schema
         }, () => this.setState({ready: true}))
-      } else {
-        // Logic to fetch data and populate values
-      }
-    })
+      })
+    } else {
+      fillDataState(this.props.producer, schema, this.props.params.id, this.props.endpoint).then((result) => {
+        Object.keys(result).forEach(key => {
+          if (schema.definitions[this.state.name].properties[key].hasOwnProperty('autofilled')) {
+            schema.definitions[this.state.name].properties[key].value = [result[key]]
+          } else {
+            schema.definitions[this.state.name].properties[key].value = result[key]
+          }
+        })
+
+        this.setState({
+          data: result,
+          schema: schema
+        }, () => this.setState({ready: true}))
+      }).catch(error => {
+        console.log(error)
+      })
+    }
   }
 
   shouldComponentUpdate = (nextProps, nextState) => {
@@ -90,16 +105,19 @@ class FormBuilder extends Component {
   validateAndSave = (event) => {
     event.preventDefault()
 
+    const schema = JSON.parse(JSON.stringify(this.state.schema))
+    const data = JSON.parse(JSON.stringify(this.state.data))
+
     this.setState({ready: false}, () => {
-      validation(this.state.schema, this.state.data).then(resultWithoutErrors => {
+      validation(schema, data).then(resultWithoutErrors => {
         this.setState({
           schema: resultWithoutErrors
         }, () => {
-          updateAutofill(this.props.producer, this.state.schema, this.state.data, 'Test', this.state.versionIncrementation).then(result => {
+          updateAutofill(this.props.producer, schema, data, 'Test', this.state.versionIncrementation).then(result => {
             this.setState({
               data: result
             }, () => {
-              const updatedSchema = {...this.state.schema}
+              const updatedSchema = JSON.parse(JSON.stringify(this.state.schema))
 
               Object.keys(updatedSchema.definitions[this.state.name].properties).forEach(key => {
                 if (result.hasOwnProperty(key)) {
@@ -114,7 +132,7 @@ class FormBuilder extends Component {
               this.setState({
                 schema: updatedSchema
               }, () => {
-                saveData(this.props.producer, this.state.schema, this.state.data, this.props.endpoint).then(response => {
+                saveData(this.props.producer, updatedSchema, result, this.props.endpoint).then(response => {
                   this.setState({
                     ready: true,
                     saved: true,

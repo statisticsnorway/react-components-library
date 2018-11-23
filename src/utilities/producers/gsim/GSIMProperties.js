@@ -1,8 +1,8 @@
 export function resolveGSIMProperties (schema, url) {
   return new Promise(resolve => {
-    const returnSchema = {...schema}
+    const returnSchema = JSON.parse(JSON.stringify(schema))
     const name = schema.$ref.replace('#/definitions/', '')
-    const properties = {...schema.definitions[name].properties}
+    const properties = JSON.parse(JSON.stringify(schema.definitions[name].properties))
 
     Object.keys(properties).forEach(key => {
       if (properties[key].hasOwnProperty('items')) {

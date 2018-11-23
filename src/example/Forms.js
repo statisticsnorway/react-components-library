@@ -62,8 +62,8 @@ class Forms extends Component {
             const path = this.props.route + domain + '/:id'
 
             return <Route key={index} path={path} exact
-                          render={({match}) => <FormBuilder params={match.params} schema={schema}
-                                                            producer={this.props.producer}
+                          render={({match}) => <FormBuilder params={match.params} producer={this.props.producer}
+                                                            schema={JSON.parse(JSON.stringify(schema))}
                                                             endpoint={this.props.endpoint} />} />
           })}
           <Button color='pink' content='Outer State' onClick={this.checkState} /> {/* TODO: Remove */}

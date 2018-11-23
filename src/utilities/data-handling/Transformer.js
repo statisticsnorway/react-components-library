@@ -11,7 +11,7 @@ function producers (producer) {
 }
 
 export function transformProperties (producer, schema, data, fromSource) {
-  const returnObject = {...data}
+  const returnObject = JSON.parse(JSON.stringify(data))
   const name = schema.$ref.replace('#/definitions/', '')
   const properties = schema.definitions[name].properties
   const transformer = producers(producer).transformer
@@ -47,9 +47,13 @@ export function transformProperties (producer, schema, data, fromSource) {
 
     // TODO: This is GSIM spesific, needs work
     if (properties[property].hasOwnProperty('customType') && properties[property].customType === 'MultilingualText' && returnObject.hasOwnProperty(property)) {
-      const value = returnObject[property]
+      if (fromSource) {
+        returnObject[property] = returnObject[property][0].languageText // TODO: This is slightly dangerous since because of [0]
+      } else {
+        const value = returnObject[property]
 
-      returnObject[property] = [{languageCode: 'nb', languageText: value}]
+        returnObject[property] = [{languageCode: 'nb', languageText: value}]
+      }
     }
   })
 

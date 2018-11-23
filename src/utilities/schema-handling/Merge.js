@@ -13,9 +13,9 @@ function producers (producer) {
 export function mergeDefaultUISchema (producer, schema) {
   return new Promise(resolve => {
     const defaultUISchema = producers(producer)
-    const returnSchema = {...schema}
+    const returnSchema = JSON.parse(JSON.stringify(schema))
     const name = schema.$ref.replace('#/definitions/', '')
-    const properties = {...schema.definitions[name].properties}
+    const properties = JSON.parse(JSON.stringify(schema.definitions[name].properties))
 
     Object.keys(schema.definitions).forEach(definition => {
       Object.keys(schema.definitions[definition].properties).forEach(property => {

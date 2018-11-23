@@ -1,4 +1,6 @@
 import { generateGSIMDataState } from '../producers/gsim'
+import { fetchData } from '../form-handling/fetch/Fetch'
+import { transformProperties } from '../data-handling/Transformer'
 
 const DEFAULT_VALUE_BY_TYPE = {
   array: [],
@@ -40,6 +42,16 @@ export function generateDataState (producer, schema, user) {
   })
 }
 
-export function fillDataState (producer, schema, user) {
-  // Logic to fill data state when fetching data
+export function fillDataState (producer, schema, id, endpoint) {
+  return new Promise((resolve, reject) => {
+    const name = schema.$ref.replace('#/definitions/', '')
+    const url = endpoint + 'data/' + name + '/' + id
+
+    fetchData(url).then(response => {
+      const transformedData = transformProperties(producer, schema, response, true)
+      resolve(transformedData)
+    }).catch(error => {
+      reject(error)
+    })
+  })
 }
