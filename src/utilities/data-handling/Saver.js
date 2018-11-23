@@ -1,5 +1,5 @@
 import { transformProperties } from './Transformer'
-import { putData } from '../form-handling/fetch/Fetch'
+import { putData } from '../http-clients/fetch/Fetch'
 
 export function saveData (producer, schema, data, endpoint) {
   return new Promise((resolve, reject) => {

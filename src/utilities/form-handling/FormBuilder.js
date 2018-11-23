@@ -73,7 +73,7 @@ class FormBuilder extends Component {
     }
   }
 
-  shouldComponentUpdate = (nextProps, nextState) => {
+  shouldComponentUpdate (nextProps, nextState) {
     return this.state.data === nextState.data
   }
 
@@ -161,12 +161,6 @@ class FormBuilder extends Component {
     })
   }
 
-  // TODO: Remove
-  checkState = () => {
-    console.log(this.state)
-    console.log(this.props)
-  }
-
   render () {
     const {ready, readOnly, message, saved, schema, name, description} = this.state
 
@@ -177,7 +171,7 @@ class FormBuilder extends Component {
 
       return (
         <Form>
-          <Header as='h1' content={splitOnUppercase(name)} subheader={description}
+          <Header as='h1' content={splitOnUppercase(name)} subheader={description} dividing
                   icon={{name: formIcon, color: formIconColor, link: true, onClick: this.handleLockClick}} />
           {message !== '' && <Message color={saved ? 'green' : 'red'} content={message.toString()} />}
           <Dimmer.Dimmable dimmed={readOnly}>
@@ -219,7 +213,6 @@ class FormBuilder extends Component {
                 })}
 
                 <DCFormField properties={version} valueChange={this.handleVersionIncrementationChange} />
-                <Button color='pink' content='Inner State' onClick={this.checkState} /> {/* TODO: Remove */}
                 <Button color='green' content='Lagre' onClick={this.validateAndSave} />
               </Grid.Column>
             </Grid>
@@ -229,9 +222,7 @@ class FormBuilder extends Component {
     }
 
     return (
-      <Header as='h1'
-              content={splitOnUppercase(name)}
-              subheader={description}
+      <Header as='h1' content={splitOnUppercase(name)} subheader={description} dividing
               icon={{name: 'spinner', color: 'teal', loading: true}} />
     )
   }

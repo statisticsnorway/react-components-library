@@ -1,6 +1,6 @@
-import { fetchData } from '../form-handling/fetch/Fetch'
 import { mergeDefaultUISchema } from './Merge'
 import { resolveProperties } from './Resolve'
+import { fetchData } from '../http-clients/fetch/Fetch'
 
 export function schemaHandling (url, producer, endpoint) {
   return new Promise((resolve, reject) => {

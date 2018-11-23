@@ -1,8 +1,9 @@
 import React, { Component } from 'react'
 import { Button, Divider } from 'semantic-ui-react'
-import { dataFetcher } from '../utilities/form-handling/axios/DataFetcher'
-import { dataSaver } from '../utilities/form-handling/axios/DataSaver'
-import { dataDeleter } from '../utilities/form-handling/axios/DataDeleter'
+
+import { dataFetcher } from '../utilities/http-clients/axios/DataFetcher'
+import { dataSaver } from '../utilities/http-clients/axios/DataSaver'
+import { dataDeleter } from '../utilities/http-clients/axios/DataDeleter'
 
 class Axios extends Component {
   handleOnClickFetch () {

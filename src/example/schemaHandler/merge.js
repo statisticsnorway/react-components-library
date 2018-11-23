@@ -26,7 +26,7 @@ export function mergeUiSchema (schema, uiSchemaFiles) {
     const fileName = uiSchemaFiles[key].name
     if (fileName === uiSchemaFileName) {
       let fileReader = new FileReader()
-      fileReader.readAsText(uiSchemaFiles[key]);
+      fileReader.readAsText(uiSchemaFiles[key])
       fileReader.onloadend = () => {
         let data = fileReader.result
         let uiSchema = JSON.parse(data.toString())

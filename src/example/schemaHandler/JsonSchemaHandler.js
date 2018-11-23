@@ -1,14 +1,14 @@
-import React, { Component } from 'react';
-import { Step, Icon, Button, Divider, Grid } from 'semantic-ui-react'
+import React, { Component } from 'react'
+import { Button, Divider, Grid, Icon, Step } from 'semantic-ui-react'
 import { UnControlled as CodeMirror } from 'react-codemirror2'
-import { mergeDefaultUiSchema, mergeUiSchema } from "./merge";
-import 'codemirror/lib/codemirror.css';
+import 'codemirror/lib/codemirror.css'
+
+import { mergeDefaultUiSchema, mergeUiSchema } from './merge'
 import ui from './DefaultUISchema'
 import '../index.css'
 
-
 class JsonSchemaHandler extends Component {
-  constructor(props) {
+  constructor (props) {
     super(props)
     this.state = {
       jsonSchema: '',
@@ -27,16 +27,16 @@ class JsonSchemaHandler extends Component {
     }
   }
 
-  componentDidMount() {
+  componentDidMount () {
 
   }
 
-  handleUploadInput(event, ref) {
+  handleUploadInput (event, ref) {
     const files = event.target.files
     const length = files.length
     const ready = ref + 'Ready'
 
-    for(let i = 0, l = length; i < l; i++) {
+    for (let i = 0, l = length; i < l; i++) {
       const file = files[i]
       let fileReader = new FileReader()
       fileReader.readAsText(file)
@@ -44,13 +44,13 @@ class JsonSchemaHandler extends Component {
         let data = fileReader.result
         let json = JSON.parse(data)
 
-        if(ref === 'jsonSchemas'){
+        if (ref === 'jsonSchemas') {
           this.setState({
             ...this.state,
             jsonSchema: JSON.stringify(json, null, 2),
             jsonSchemasReady: true
           })
-        } else if(ref === 'uiSchemas'){
+        } else if (ref === 'uiSchemas') {
           this.setState({
             uiSchemaFiles: files,
             uploadingDone: true
@@ -71,7 +71,7 @@ class JsonSchemaHandler extends Component {
   }
 
   handleMergeButtonClick = (event) => {
-    if(event.target.name === 'mergeDefaultUI'){
+    if (event.target.name === 'mergeDefaultUI') {
       let mergedJsonSchema = mergeDefaultUiSchema(this.state.jsonSchema, this.state.defaultUiSchema)
       this.setState({
         ...this.state,
@@ -80,20 +80,20 @@ class JsonSchemaHandler extends Component {
       })
     }
 
-    if(event.target.name === 'mergeUiSchema'){
+    if (event.target.name === 'mergeUiSchema') {
       let jsonSchemaMerged = mergeUiSchema(this.state.mergedDefaultUiJsonSchema, this.state.uiSchemaFiles)
       setTimeout(() => {
         this.setState({
           ...this.state,
           mergedUiJsonSchema: JSON.stringify(jsonSchemaMerged, null, 2),
           mergedUiJsonSchemaReady: true
-        }, function() {
-        });
+        }, function () {
+        })
       }, 10)
     }
   }
 
-  render() {
+  render () {
 
     const {jsonSchemasReady, uiSchemasReady, mergedDefaultUiSchemaReady} = this.state
     return (
@@ -150,7 +150,7 @@ class JsonSchemaHandler extends Component {
                     readOnly: false,
                     autoScroll: false
                   }}
-                  style={{"height": "800px"}}
+                  style={{'height': '800px'}}
                   onChange={(editor, data, value) => {
                   }}
                 />
@@ -164,7 +164,7 @@ class JsonSchemaHandler extends Component {
                     readOnly: false,
                     autoScroll: false
                   }}
-                  style={{"height": "800px"}}
+                  style={{'height': '800px'}}
                   onChange={(editor, data, value) => {
                   }}
                 />
@@ -178,7 +178,7 @@ class JsonSchemaHandler extends Component {
                     readOnly: false,
                     autoScroll: false
                   }}
-                  style={{"height": "800px"}}
+                  style={{'height': '800px'}}
                   onChange={(editor, data, value) => {
                   }}
                 />
@@ -231,7 +231,7 @@ class JsonSchemaHandler extends Component {
                     readOnly: false,
                     autoScroll: false
                   }}
-                  style={{"height": "800px"}}
+                  style={{'height': '800px'}}
                   onChange={(editor, data, value) => {
                   }}
                 />
@@ -246,7 +246,7 @@ class JsonSchemaHandler extends Component {
                     readOnly: false,
                     autoScroll: false
                   }}
-                  style={{"height": "800px"}}
+                  style={{'height': '800px'}}
                   onChange={(editor, data, value) => {
                   }}
                 />
@@ -256,8 +256,8 @@ class JsonSchemaHandler extends Component {
 
         </div>
       </div>
-    );
+    )
   }
 }
 
-export default JsonSchemaHandler;
+export default JsonSchemaHandler

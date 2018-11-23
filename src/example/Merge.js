@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { Button, Header, Segment } from 'semantic-ui-react'
+
 import JsonSchemaHandler from './schemaHandler/JsonSchemaHandler'
 
 class Merge extends Component {

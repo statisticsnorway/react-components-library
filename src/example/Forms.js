@@ -3,6 +3,7 @@ import { Link, Route } from 'react-router-dom'
 import { Button, Container, Dropdown, Icon, Label, Menu } from 'semantic-ui-react'
 
 import FormBuilder from '../utilities/form-handling/FormBuilder'
+import TableBuilder from '../utilities/table-handling/TableBuilder'
 import { schemaHandling } from '../utilities/schema-handling'
 import { splitOnUppercase } from '../utilities/Common'
 
@@ -45,6 +46,16 @@ class Forms extends Component {
             GSIM domener
             <Label color='teal' size='large'>{ready ? schemas.length : <Icon fitted loading name='spinner' />}</Label>
           </Menu.Item>
+          <Dropdown item text='Vis alle' scrolling disabled={!ready}>
+            <Dropdown.Menu>
+              {ready && schemas.map((schema, index) => {
+                const domain = schema.$ref.replace('#/definitions/', '')
+                const link = this.props.route + domain
+
+                return <Dropdown.Item key={index} as={Link} to={link} content={splitOnUppercase(domain)} />
+              })}
+            </Dropdown.Menu>
+          </Dropdown>
           <Dropdown item text='Opprett ny' scrolling disabled={!ready}>
             <Dropdown.Menu>
               {ready && schemas.map((schema, index) => {
@@ -65,6 +76,15 @@ class Forms extends Component {
                           render={({match}) => <FormBuilder params={match.params} producer={this.props.producer}
                                                             schema={JSON.parse(JSON.stringify(schema))}
                                                             endpoint={this.props.endpoint} />} />
+          })}
+          {ready && schemas.map((schema, index) => {
+            const domain = schema.$ref.replace('#/definitions/', '')
+            const path = this.props.route + domain
+
+            return <Route key={index} path={path} exact
+                          render={({match}) => <TableBuilder params={match.params} producer={this.props.producer}
+                                                             schema={JSON.parse(JSON.stringify(schema))}
+                                                             endpoint={this.props.endpoint} routing={path} />} />
           })}
           <Button color='pink' content='Outer State' onClick={this.checkState} /> {/* TODO: Remove */}
         </Container>

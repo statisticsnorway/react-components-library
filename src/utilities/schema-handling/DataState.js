@@ -1,6 +1,6 @@
 import { generateGSIMDataState } from '../producers/gsim'
-import { fetchData } from '../form-handling/fetch/Fetch'
 import { transformProperties } from '../data-handling/Transformer'
+import { fetchData } from '../http-clients/fetch/Fetch'
 
 const DEFAULT_VALUE_BY_TYPE = {
   array: [],

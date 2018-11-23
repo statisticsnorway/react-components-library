@@ -57,20 +57,3 @@ export function mergeDefaultUISchema (producer, schema) {
     resolve(returnSchema)
   })
 }
-
-///////////
-// Notes //
-///////////
-// Cutoff placeholders in DCText since it is TextArea
-//
-// Se på bruk av SSB ikoner
-//
-// Gjøre av displayName på domene-nivå et sted?
-//
-// Hente inn beskrivelser på linked properties?
-//
-// Autofiller, transformer, data state generator osv...
-//
-// Problems with pathing
-//
-//

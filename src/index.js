@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import moment from 'moment'
 import 'moment/locale/nb'
 import 'semantic-ui-css/semantic.min.css'
+import 'react-table/react-table.css'
 import 'react-datepicker/dist/react-datepicker.css'
 
 import App from './App'

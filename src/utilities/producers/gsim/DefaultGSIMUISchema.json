@@ -34,5 +34,6 @@
       "text": "values",
       "option": "agentDetailType"
     }
-  }
+  },
+  "defaultTableHeaders": ["id", "name", "description"]
 }

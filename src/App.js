@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import { Segment } from 'semantic-ui-react'
 import { Route, Switch } from 'react-router-dom'
+import { Segment } from 'semantic-ui-react'
 
 import Axios from './example/Axios'
 import Merge from './example/Merge'
