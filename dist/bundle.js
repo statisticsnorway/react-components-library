@@ -770,55 +770,6 @@ function (_Component) {
   return DCDate;
 }(React__default.Component);
 
-function fetchData(url) {
-  var timeout = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 3000;
-  return new Promise(function (resolve, reject) {
-    var controller = new AbortController();
-    var signal = controller.signal;
-    var timer = setTimeout(function () {
-      reject('Request timeout for url: ' + url);
-      controller.abort();
-    }, timeout);
-    fetch(url, {
-      signal: signal,
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json; charset=utf-8'
-      }
-    }).then(function (response) {
-      if (response.ok) {
-        response.json().then(function (json) {
-          var prefix = '/' + url.substring(url.lastIndexOf('/') + 1) + '/';
-          var options = [];
-          Object.keys(json).forEach(function (value) {
-            // TODO: Fix this when the ability to do it becomes available
-            var text = json[value].name[0].languageText;
-            json[value].name.forEach(function (name) {
-              if (name.languageCode === 'nb') {
-                text = name.languageText;
-              }
-            });
-            options.push({
-              key: json[value].id,
-              text: text,
-              value: prefix + json[value].id
-            });
-          });
-          resolve(options);
-        });
-      } else {
-        response.text().then(function (text) {
-          reject(text + ' (' + url + ')');
-        });
-      }
-    }).catch(function (error) {
-      reject(error.toString() + ' \'' + url + '\'');
-    }).finally(function () {
-      return clearTimeout(timer);
-    });
-  });
-}
-
 var DCDropdown =
 /*#__PURE__*/
 function (_Component) {
@@ -886,21 +837,9 @@ function (_Component) {
           });
         });
       } else {
-        Promise.all(Object.keys(this.props.endpoints).map(function (key) {
-          return fetchData(_this3.props.endpoints[key]);
-        })).then(function (allOptions) {
-          var options = [].concat.apply([], allOptions);
-
-          _this3.setOptionsAndValue(options).then(function () {
-            return _this3.setState({
-              ready: true
-            });
-          });
-        }).catch(function (error) {
-          _this3.setState({
-            ready: true,
-            problem: true,
-            errorMessage: error
+        this.setOptionsAndValue([]).then(function () {
+          return _this3.setState({
+            ready: true
           });
         });
       }
@@ -1039,17 +978,9 @@ function (_Component) {
           });
         });
       } else {
-        fetchData(this.props.endpoint).then(function (options) {
-          _this3.setOptionsAndValue(options).then(function () {
-            _this3.setState({
-              ready: true
-            });
-          });
-        }).catch(function (error) {
-          _this3.setState({
-            ready: true,
-            problem: true,
-            errorMessage: error
+        this.setOptionsAndValue([]).then(function () {
+          return _this3.setState({
+            ready: true
           });
         });
       }
@@ -1318,14 +1249,38 @@ function (_Component) {
   }
 
   _createClass(DCStatic, [{
-    key: "createComponent",
-    value: function createComponent() {
+    key: "checkIcon",
+    value: function checkIcon() {
       var _this2 = this;
 
       return new Promise(function (resolve) {
-        var _this2$props = _this2.props,
-            format = _this2$props.format,
-            value = _this2$props.value;
+        if (_this2.props.hasOwnProperty('icon')) {
+          _this2.setState({
+            icon: React__default$$1.createElement(semanticUiReact__default.Icon, {
+              name: _this2.props.icon,
+              color: "teal"
+            })
+          }, function () {
+            return resolve();
+          });
+        } else {
+          _this2.setState({
+            icon: ''
+          }, function () {
+            return resolve();
+          });
+        }
+      });
+    }
+  }, {
+    key: "createComponent",
+    value: function createComponent() {
+      var _this3 = this;
+
+      return new Promise(function (resolve) {
+        var _this3$props = _this3.props,
+            format = _this3$props.format,
+            value = _this3$props.value;
 
         if (!formats.includes(format)) {
           resolve(React__default$$1.createElement(semanticUiReact__default.List, {
@@ -1359,7 +1314,7 @@ function (_Component) {
           }
 
           if (format === 'date') {
-            _this2.setState({
+            _this3.setState({
               icon: React__default$$1.createElement(semanticUiReact__default.Icon, {
                 name: "calendar alternate outline",
                 color: "teal",
@@ -1386,14 +1341,16 @@ function (_Component) {
   }, {
     key: "componentDidMount",
     value: function componentDidMount() {
-      var _this3 = this;
+      var _this4 = this;
 
-      this.createComponent().then(function (result) {
-        _this3.setState({
-          component: result
-        }, function () {
-          return _this3.setState({
-            ready: true
+      this.checkIcon().then(function () {
+        _this4.createComponent().then(function (result) {
+          _this4.setState({
+            component: result
+          }, function () {
+            return _this4.setState({
+              ready: true
+            });
           });
         });
       });
@@ -1930,6 +1887,81 @@ function updateAutofill(producer, schema, data, user, versionIncrementation) {
   });
 }
 
+function fetchGSIMOptions(url) {
+  return new Promise(function (resolve) {
+    var options = [];
+    fetchData(url).then(function (response) {
+      var prefix = '/' + url.substring(url.lastIndexOf('/') + 1) + '/';
+
+      if (response.length !== 0) {
+        Object.keys(response).forEach(function (value) {
+          var text = response[value].name[0].languageText;
+          response[value].name.forEach(function (name) {
+            if (name.languageCode === 'nb') {
+              text = name.languageText;
+            }
+          });
+          options.push({
+            key: response[value].id,
+            text: text,
+            value: prefix + response[value].id
+          });
+        });
+        resolve(options);
+      } else {
+        resolve(options);
+      }
+    }).catch(function () {
+      // TODO: Tell user something went wrong
+      resolve(options);
+    });
+  });
+}
+
+function fetchOptions(producer, url) {
+  switch (producer) {
+    case 'GSIM':
+      return fetchGSIMOptions(url);
+
+    default:
+      return null;
+  }
+}
+
+function buildOptions(producer, endpoints) {
+  return new Promise(function (resolve) {
+    Promise.all(endpoints.map(function (url) {
+      return fetchOptions(producer, url);
+    })).then(function (allOptions) {
+      var options = [].concat.apply([], allOptions);
+      resolve(options);
+    });
+  });
+}
+
+function populateOptions(producer, schema) {
+  return new Promise(function (resolve) {
+    var returnSchema = JSON.parse(JSON.stringify(schema));
+    var name = schema.$ref.replace('#/definitions/', '');
+    var properties = JSON.parse(JSON.stringify(schema.definitions[name].properties));
+    Promise.all(Object.keys(properties).map(function (value) {
+      if (properties[value].hasOwnProperty('endpoints')) {
+        return buildOptions(producer, properties[value].endpoints);
+      }
+
+      return null;
+    })).then(function (options) {
+      Object.keys(returnSchema.definitions[name].properties).forEach(function (key, index) {
+        if (options[index] !== null) {
+          returnSchema.definitions[name].properties[key].options = options[index];
+          delete returnSchema.definitions[name].properties[key].endpoints;
+        }
+      });
+      resolve(returnSchema);
+    });
+  });
+}
+
 var version = {
   component: 'DCRadio',
   name: 'versionIncrementation',
@@ -2016,6 +2048,8 @@ function (_Component) {
                   schema: updatedSchema
                 }, function () {
                   saveData(_this.props.producer, updatedSchema, result, _this.props.endpoint).then(function (response) {
+                    _this.props.params.id = _objectSpread({}, _this.state.data.id);
+
                     _this.setState({
                       ready: true,
                       saved: true,
@@ -2068,32 +2102,34 @@ function (_Component) {
     value: function componentDidMount() {
       var _this2 = this;
 
-      var schema = JSON.parse(JSON.stringify(this.props.schema));
-
-      if (this.props.params.id === 'new') {
-        this.newComponent(schema);
-      } else {
-        fillDataState(this.props.producer, schema, this.props.params.id, this.props.endpoint).then(function (result) {
-          Object.keys(result).forEach(function (key) {
-            if (schema.definitions[_this2.state.name].properties[key].hasOwnProperty('autofilled')) {
-              schema.definitions[_this2.state.name].properties[key].value = [result[key]];
-            } else {
-              schema.definitions[_this2.state.name].properties[key].value = result[key];
-            }
-          });
-
-          _this2.setState({
-            data: result,
-            schema: schema
-          }, function () {
-            return _this2.setState({
-              ready: true
+      populateOptions(this.props.producer, this.props.schema).then(function (schema) {
+        if (_this2.props.params.id === 'new') {
+          _this2.newComponent(_this2.props.producer, schema, 'Test');
+        } else {
+          fillDataState(_this2.props.producer, schema, _this2.props.params.id, _this2.props.endpoint).then(function (result) {
+            Object.keys(result).forEach(function (key) {
+              if (schema.definitions[_this2.state.name].properties[key].hasOwnProperty('autofilled')) {
+                schema.definitions[_this2.state.name].properties[key].value = [result[key]];
+              } else {
+                schema.definitions[_this2.state.name].properties[key].value = result[key];
+              }
             });
+
+            _this2.setState({
+              data: result,
+              schema: schema
+            }, function () {
+              return _this2.setState({
+                ready: true
+              });
+            });
+          }).catch(function (error) {
+            console.log(error);
           });
-        }).catch(function (error) {
-          console.log(error);
-        });
-      }
+        }
+      }).catch(function (error) {
+        console.log(error);
+      });
     }
   }, {
     key: "shouldComponentUpdate",
@@ -2104,9 +2140,9 @@ function (_Component) {
         this.setState({
           ready: false
         }, function () {
-          var schema = JSON.parse(JSON.stringify(_this3.props.schema));
-
-          _this3.newComponent(schema);
+          populateOptions(_this3.props.producer, _this3.props.schema).then(function (schema) {
+            _this3.newComponent(_this3.props.producer, schema, 'Test');
+          });
         });
       }
 
@@ -2114,10 +2150,10 @@ function (_Component) {
     }
   }, {
     key: "newComponent",
-    value: function newComponent(schema) {
+    value: function newComponent(producer, schema, user) {
       var _this4 = this;
 
-      generateDataState(this.props.producer, schema, 'Test').then(function (result) {
+      generateDataState(producer, schema, user).then(function (result) {
         Object.keys(schema.definitions[_this4.state.name].properties).forEach(function (key) {
           if (schema.definitions[_this4.state.name].properties[key].hasOwnProperty('autofilled')) {
             schema.definitions[_this4.state.name].properties[key].value = [result[key]];
@@ -2126,7 +2162,9 @@ function (_Component) {
 
         _this4.setState({
           data: result,
-          schema: schema
+          schema: schema,
+          message: '',
+          saved: false
         }, function () {
           return _this4.setState({
             ready: true
@@ -2253,8 +2291,96 @@ function producers$3(producer) {
   }
 }
 
+function mergeDefaultUISchema(producer, schema) {
+  return new Promise(function (resolve) {
+    var defaultUISchema = producers$3(producer);
+    var returnSchema = JSON.parse(JSON.stringify(schema));
+    var name = schema.$ref.replace('#/definitions/', '');
+    var properties = JSON.parse(JSON.stringify(schema.definitions[name].properties));
+    Object.keys(schema.definitions).forEach(function (definition) {
+      Object.keys(schema.definitions[definition].properties).forEach(function (property) {
+        if (schema.definitions[definition].required.includes(property)) {
+          returnSchema.definitions[definition].properties[property].required = true;
+        }
+      });
+      delete returnSchema.definitions[definition].required;
+    });
+    Object.keys(properties).forEach(function (key) {
+      returnSchema.definitions[name].properties[key].name = key;
+
+      if (defaultUISchema.type.hasOwnProperty(properties[key].type)) {
+        returnSchema.definitions[name].properties[key].component = defaultUISchema.type[properties[key].type].component;
+      }
+
+      if (defaultUISchema.format.hasOwnProperty(properties[key].format)) {
+        returnSchema.definitions[name].properties[key].component = defaultUISchema.format[properties[key].format].component;
+      }
+
+      if (defaultUISchema.autofilled.includes(key)) {
+        returnSchema.definitions[name].properties[key].autofilled = true;
+        returnSchema.definitions[name].properties[key].component = 'DCStatic';
+
+        if (properties[key].hasOwnProperty('format') && properties[key].format === 'date-time') {
+          returnSchema.definitions[name].properties[key].format = 'date';
+          returnSchema.definitions[name].properties[key].multiple = properties[key].type === 'array';
+        }
+      }
+
+      if (defaultUISchema.groups.common.includes(key)) {
+        returnSchema.definitions[name].properties[key].group = 'common';
+      }
+    });
+    resolve(returnSchema);
+  });
+}
+
+function resolveProperties(producer, schema, url) {
+  switch (producer) {
+    case 'GSIM':
+      return resolveGSIMProperties(schema, url);
+
+    default:
+      return null;
+  }
+}
+
+function SchemaHandler(url, producer, endpoint) {
+  return new Promise(function (resolve, reject) {
+    fetchData(url).then(function (result) {
+      Promise.all(result.map(function (schema) {
+        return mergeDefaultUISchema(producer, schema);
+      })).then(function (mergedSchemas) {
+        Promise.all(mergedSchemas.map(function (mergedSchema) {
+          return resolveProperties(producer, mergedSchema, endpoint);
+        })).then(function (resolvedSchemas) {
+          resolve(resolvedSchemas);
+        }).catch(function (error) {
+          console.log(error);
+          reject();
+        });
+      }).catch(function (error) {
+        console.log(error);
+        reject();
+      });
+    }).catch(function (error) {
+      console.log(error);
+      reject();
+    });
+  });
+}
+
+function producers$4(producer) {
+  switch (producer) {
+    case 'GSIM':
+      return DefaultGSIMUISchema;
+
+    default:
+      return null;
+  }
+}
+
 function resolveTableHeaders(producer) {
-  return producers$3(producer).defaultTableHeaders;
+  return producers$4(producer).defaultTableHeaders;
 }
 
 var TableBuilder =
@@ -2447,94 +2573,6 @@ function (_Component) {
   return TableBuilder;
 }(React.Component);
 
-function producers$4(producer) {
-  switch (producer) {
-    case 'GSIM':
-      return DefaultGSIMUISchema;
-
-    default:
-      return null;
-  }
-}
-
-function mergeDefaultUISchema(producer, schema) {
-  return new Promise(function (resolve) {
-    var defaultUISchema = producers$4(producer);
-    var returnSchema = JSON.parse(JSON.stringify(schema));
-    var name = schema.$ref.replace('#/definitions/', '');
-    var properties = JSON.parse(JSON.stringify(schema.definitions[name].properties));
-    Object.keys(schema.definitions).forEach(function (definition) {
-      Object.keys(schema.definitions[definition].properties).forEach(function (property) {
-        if (schema.definitions[definition].required.includes(property)) {
-          returnSchema.definitions[definition].properties[property].required = true;
-        }
-      });
-      delete returnSchema.definitions[definition].required;
-    });
-    Object.keys(properties).forEach(function (key) {
-      returnSchema.definitions[name].properties[key].name = key;
-
-      if (defaultUISchema.type.hasOwnProperty(properties[key].type)) {
-        returnSchema.definitions[name].properties[key].component = defaultUISchema.type[properties[key].type].component;
-      }
-
-      if (defaultUISchema.format.hasOwnProperty(properties[key].format)) {
-        returnSchema.definitions[name].properties[key].component = defaultUISchema.format[properties[key].format].component;
-      }
-
-      if (defaultUISchema.autofilled.includes(key)) {
-        returnSchema.definitions[name].properties[key].autofilled = true;
-        returnSchema.definitions[name].properties[key].component = 'DCStatic';
-
-        if (properties[key].hasOwnProperty('format') && properties[key].format === 'date-time') {
-          returnSchema.definitions[name].properties[key].format = 'date';
-          returnSchema.definitions[name].properties[key].multiple = properties[key].type === 'array';
-        }
-      }
-
-      if (defaultUISchema.groups.common.includes(key)) {
-        returnSchema.definitions[name].properties[key].group = 'common';
-      }
-    });
-    resolve(returnSchema);
-  });
-}
-
-function resolveProperties(producer, schema, url) {
-  switch (producer) {
-    case 'GSIM':
-      return resolveGSIMProperties(schema, url);
-
-    default:
-      return null;
-  }
-}
-
-function schemaHandling(url, producer, endpoint) {
-  return new Promise(function (resolve, reject) {
-    fetchData(url).then(function (result) {
-      Promise.all(result.map(function (schema) {
-        return mergeDefaultUISchema(producer, schema);
-      })).then(function (mergedSchemas) {
-        Promise.all(mergedSchemas.map(function (mergedSchema) {
-          return resolveProperties(producer, mergedSchema, endpoint);
-        })).then(function (resolvedSchemas) {
-          resolve(resolvedSchemas);
-        }).catch(function (error) {
-          console.log(error);
-          reject();
-        });
-      }).catch(function (error) {
-        console.log(error);
-        reject();
-      });
-    }).catch(function (error) {
-      console.log(error);
-      reject();
-    });
-  });
-}
-
 exports.FormBuilder = FormBuilder;
+exports.SchemaHandler = SchemaHandler;
 exports.TableBuilder = TableBuilder;
-exports.schemaHandling = schemaHandling;

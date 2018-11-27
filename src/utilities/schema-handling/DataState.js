@@ -1,4 +1,4 @@
-import { generateGSIMDataState } from '../producers/gsim'
+import { generateGSIMDataState } from '../../producers/gsim'
 import { transformProperties } from '../data-handling/Transformer'
 import { fetchData } from '../http-clients/fetch/Fetch'
 

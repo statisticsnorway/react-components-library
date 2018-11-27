@@ -2,12 +2,12 @@ import React, { Component } from 'react'
 import { Button, Dimmer, Form, Grid, Header, Message } from 'semantic-ui-react'
 
 import { DCFormField } from 'dc-react-form-fields-library'
-import { fillDataState, generateDataState } from '../schema-handling/DataState'
-import { splitOnUppercase } from '../Common'
-import { validation } from '../data-handling/Validator'
-import { saveData } from '../data-handling/Saver'
-import { updateAutofill } from '../data-handling/Autofiller'
-import { populateOptions } from '../schema-handling/Options'
+import { fillDataState, generateDataState } from '../utilities/schema-handling/DataState'
+import { splitOnUppercase } from '../utilities/Common'
+import { validation } from '../utilities/data-handling/Validator'
+import { saveData } from '../utilities/data-handling/Saver'
+import { updateAutofill } from '../utilities/data-handling/Autofiller'
+import { populateOptions } from '../utilities/schema-handling/Options'
 
 const version = {
   component: 'DCRadio',

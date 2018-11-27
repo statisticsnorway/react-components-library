@@ -1,4 +1,4 @@
-import { updateGSIMDataState } from '../producers/gsim'
+import { updateGSIMDataState } from '../../producers/gsim'
 
 function producers (producer, element, user, version, versionIncrementation) {
   switch (producer) {

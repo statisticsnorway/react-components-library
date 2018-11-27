@@ -1,4 +1,4 @@
-import { fetchGSIMOptions } from '../producers/gsim/GSIMOptions'
+import { fetchGSIMOptions } from '../../producers/gsim/GSIMOptions'
 
 export function fetchOptions (producer, url) {
   switch (producer) {

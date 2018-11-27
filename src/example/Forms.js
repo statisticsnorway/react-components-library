@@ -2,10 +2,8 @@ import React, { Component } from 'react'
 import { Link, Route } from 'react-router-dom'
 import { Button, Container, Dropdown, Icon, Label, Menu } from 'semantic-ui-react'
 
-import FormBuilder from '../utilities/form-handling/FormBuilder'
-import TableBuilder from '../utilities/table-handling/TableBuilder'
-import { schemaHandling } from '../utilities/schema-handling'
 import { splitOnUppercase } from '../utilities/Common'
+import { SchemaHandler, FormBuilder, TableBuilder } from '../components'
 
 class Forms extends Component {
   constructor (props) {
@@ -21,7 +19,7 @@ class Forms extends Component {
     const producer = this.props.producer
     const endpoint = this.props.endpoint
 
-    schemaHandling(url, producer, endpoint).then(result => {
+    SchemaHandler(url, producer, endpoint).then(result => {
       this.setState({
         schemas: result,
         ready: true

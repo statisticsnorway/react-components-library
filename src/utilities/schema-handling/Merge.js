@@ -1,4 +1,4 @@
-import DefaultGSIMUISchema from '../producers/gsim/DefaultGSIMUISchema'
+import DefaultGSIMUISchema from '../../producers/gsim/DefaultGSIMUISchema'
 
 function producers (producer) {
   switch (producer) {

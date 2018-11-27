@@ -1,8 +1,8 @@
-import { mergeDefaultUISchema } from './Merge'
-import { resolveProperties } from './Resolve'
-import { fetchData } from '../http-clients/fetch/Fetch'
+import { mergeDefaultUISchema } from '../utilities/schema-handling/Merge'
+import { resolveProperties } from '../utilities/schema-handling/Resolve'
+import { fetchData } from '../utilities/http-clients/fetch/Fetch'
 
-export function schemaHandling (url, producer, endpoint) {
+export function SchemaHandler (url, producer, endpoint) {
   return new Promise((resolve, reject) => {
     fetchData(url).then(result => {
       Promise.all(
