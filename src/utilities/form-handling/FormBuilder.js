@@ -7,6 +7,7 @@ import { splitOnUppercase } from '../Common'
 import { validation } from '../data-handling/Validator'
 import { saveData } from '../data-handling/Saver'
 import { updateAutofill } from '../data-handling/Autofiller'
+import { populateOptions } from '../schema-handling/Options'
 
 const version = {
   component: 'DCRadio',
@@ -38,39 +39,41 @@ class FormBuilder extends Component {
   }
 
   componentDidMount () {
-    const schema = JSON.parse(JSON.stringify(this.props.schema))
+    populateOptions(this.props.producer, this.props.schema).then(schema => {
+      if (this.props.params.id === 'new') {
+        generateDataState(this.props.producer, schema, 'Test').then(result => {
+          Object.keys(schema.definitions[this.state.name].properties).forEach(key => {
+            if (schema.definitions[this.state.name].properties[key].hasOwnProperty('autofilled')) {
+              schema.definitions[this.state.name].properties[key].value = [result[key]]
+            }
+          })
 
-    if (this.props.params.id === 'new') {
-      generateDataState(this.props.producer, schema, 'Test').then(result => {
-        Object.keys(schema.definitions[this.state.name].properties).forEach(key => {
-          if (schema.definitions[this.state.name].properties[key].hasOwnProperty('autofilled')) {
-            schema.definitions[this.state.name].properties[key].value = [result[key]]
-          }
+          this.setState({
+            data: result,
+            schema: schema
+          }, () => this.setState({ready: true}))
         })
+      } else {
+        fillDataState(this.props.producer, schema, this.props.params.id, this.props.endpoint).then(result => {
+          Object.keys(result).forEach(key => {
+            if (schema.definitions[this.state.name].properties[key].hasOwnProperty('autofilled')) {
+              schema.definitions[this.state.name].properties[key].value = [result[key]]
+            } else {
+              schema.definitions[this.state.name].properties[key].value = result[key]
+            }
+          })
 
-        this.setState({
-          data: result,
-          schema: schema
-        }, () => this.setState({ready: true}))
-      })
-    } else {
-      fillDataState(this.props.producer, schema, this.props.params.id, this.props.endpoint).then((result) => {
-        Object.keys(result).forEach(key => {
-          if (schema.definitions[this.state.name].properties[key].hasOwnProperty('autofilled')) {
-            schema.definitions[this.state.name].properties[key].value = [result[key]]
-          } else {
-            schema.definitions[this.state.name].properties[key].value = result[key]
-          }
+          this.setState({
+            data: result,
+            schema: schema
+          }, () => this.setState({ready: true}))
+        }).catch(error => {
+          console.log(error)
         })
-
-        this.setState({
-          data: result,
-          schema: schema
-        }, () => this.setState({ready: true}))
-      }).catch(error => {
-        console.log(error)
-      })
-    }
+      }
+    }).catch(error => {
+      console.log(error)
+    })
   }
 
   shouldComponentUpdate (nextProps, nextState) {
@@ -161,6 +164,12 @@ class FormBuilder extends Component {
     })
   }
 
+  // TODO: Remove
+  checkState = () => {
+    console.log(this.state)
+    console.log(this.props)
+  }
+
   render () {
     const {ready, readOnly, message, saved, schema, name, description} = this.state
 
@@ -217,6 +226,7 @@ class FormBuilder extends Component {
               </Grid.Column>
             </Grid>
           </Dimmer.Dimmable>
+          <Button color='pink' content='Inner State' onClick={this.checkState} />
         </Form>
       )
     }

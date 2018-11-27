@@ -1,3 +1,5 @@
+import DefaultGSIMUISchema from './DefaultGSIMUISchema'
+
 export function resolveGSIMProperties (schema, url) {
   return new Promise(resolve => {
     const returnSchema = JSON.parse(JSON.stringify(schema))
@@ -23,7 +25,7 @@ export function resolveGSIMProperties (schema, url) {
               const options = []
 
               schema.definitions[customType].properties[property].enum.forEach(value => {
-                options.push({id: value, text: value, value: value})
+                options.push({key: value, text: value, value: value})
               })
 
               returnSchema.definitions[name].properties[key].options = options
@@ -63,13 +65,17 @@ export function resolveGSIMProperties (schema, url) {
         const options = []
 
         properties[key].enum.forEach(value => {
-          options.push({id: value, text: value, value: value})
+          options.push({key: value, text: value, value: value})
         })
 
         returnSchema.definitions[name].properties[key].options = options
         returnSchema.definitions[name].properties[key].component = 'DCDropdown'
 
         delete schema.definitions[name].properties[key].enum
+      }
+
+      if (DefaultGSIMUISchema.icons.user.includes(key)) {
+        returnSchema.definitions[name].properties[key].icon = 'user'
       }
     })
 

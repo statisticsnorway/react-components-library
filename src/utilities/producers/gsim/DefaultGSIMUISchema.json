@@ -35,5 +35,8 @@
       "option": "agentDetailType"
     }
   },
-  "defaultTableHeaders": ["id", "name", "description"]
+  "defaultTableHeaders": ["id", "name", "description"],
+  "icons": {
+    "user": ["createdBy", "lastUpdatedBy"]
+  }
 }
