@@ -12,8 +12,7 @@ export default {
   plugins: [
     resolve(),
     babel({
-      exclude: 'node_modules/**',
-      include: 'node_modules/dc-react-form-fields-library/**'
+      exclude: 'node_modules/**'
     }),
     commonjs(),
     json({
