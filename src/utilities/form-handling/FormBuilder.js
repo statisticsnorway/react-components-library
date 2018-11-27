@@ -41,18 +41,7 @@ class FormBuilder extends Component {
   componentDidMount () {
     populateOptions(this.props.producer, this.props.schema).then(schema => {
       if (this.props.params.id === 'new') {
-        generateDataState(this.props.producer, schema, 'Test').then(result => {
-          Object.keys(schema.definitions[this.state.name].properties).forEach(key => {
-            if (schema.definitions[this.state.name].properties[key].hasOwnProperty('autofilled')) {
-              schema.definitions[this.state.name].properties[key].value = [result[key]]
-            }
-          })
-
-          this.setState({
-            data: result,
-            schema: schema
-          }, () => this.setState({ready: true}))
-        })
+        this.newComponent(this.props.producer, schema, 'Test')
       } else {
         fillDataState(this.props.producer, schema, this.props.params.id, this.props.endpoint).then(result => {
           Object.keys(result).forEach(key => {
@@ -77,7 +66,31 @@ class FormBuilder extends Component {
   }
 
   shouldComponentUpdate (nextProps, nextState) {
-    return this.state.data === nextState.data
+    if (this.props.params.id !== nextProps.params.id && nextProps.params.id === 'new') {
+      this.setState({ready: false}, () => {
+        populateOptions(this.props.producer, this.props.schema).then(schema => {
+          this.newComponent(this.props.producer, schema, 'Test')
+        })
+      })
+    }
+      return this.state.data === nextState.data
+  }
+
+  newComponent (producer, schema, user) {
+    generateDataState(producer, schema, user).then(result => {
+      Object.keys(schema.definitions[this.state.name].properties).forEach(key => {
+        if (schema.definitions[this.state.name].properties[key].hasOwnProperty('autofilled')) {
+          schema.definitions[this.state.name].properties[key].value = [result[key]]
+        }
+      })
+
+      this.setState({
+        data: result,
+        schema: schema,
+        message: '',
+        saved: false
+      }, () => this.setState({ready: true}))
+    })
   }
 
   handleLockClick = () => {
@@ -136,6 +149,7 @@ class FormBuilder extends Component {
                 schema: updatedSchema
               }, () => {
                 saveData(this.props.producer, updatedSchema, result, this.props.endpoint).then(response => {
+                  this.props.params.id = {...this.state.data.id}
                   this.setState({
                     ready: true,
                     saved: true,
@@ -181,21 +195,21 @@ class FormBuilder extends Component {
       return (
         <Form>
           <Header as='h1' content={splitOnUppercase(name)} subheader={description} dividing
-                  icon={{name: formIcon, color: formIconColor, link: true, onClick: this.handleLockClick}} />
-          {message !== '' && <Message color={saved ? 'green' : 'red'} content={message.toString()} />}
+                  icon={{name: formIcon, color: formIconColor, link: true, onClick: this.handleLockClick}}/>
+          {message !== '' && <Message color={saved ? 'green' : 'red'} content={message.toString()}/>}
           <Dimmer.Dimmable dimmed={readOnly}>
             <Dimmer active={readOnly} style={{
               backgroundColor: 'rgba(0,0,0,.01)',
               border: 'solid',
               borderWidth: '0.1rem',
               borderColor: 'rgba(219,40,40,.1'
-            }} />
+            }}/>
             <Grid columns='equal' style={{padding: '0.5rem'}} divided>
               <Grid.Column>
                 {Object.keys(properties).map((property, index) => {
                   if (!properties[property].hasOwnProperty('autofilled') && properties[property].group !== 'common') {
                     return <DCFormField key={index} properties={properties[property]}
-                                        valueChange={this.handleValueChange} />
+                                        valueChange={this.handleValueChange}/>
                   }
 
                   return null
@@ -205,7 +219,7 @@ class FormBuilder extends Component {
                 {Object.keys(properties).map((property, index) => {
                   if (!properties[property].hasOwnProperty('autofilled') && properties[property].group === 'common') {
                     return <DCFormField key={index} properties={properties[property]}
-                                        valueChange={this.handleValueChange} />
+                                        valueChange={this.handleValueChange}/>
                   }
 
                   return null
@@ -215,25 +229,25 @@ class FormBuilder extends Component {
                 {Object.keys(properties).map((property, index) => {
                   if (properties[property].hasOwnProperty('autofilled')) {
                     return <DCFormField key={index} properties={properties[property]}
-                                        valueChange={this.handleValueChange} />
+                                        valueChange={this.handleValueChange}/>
                   }
 
                   return null
                 })}
 
-                <DCFormField properties={version} valueChange={this.handleVersionIncrementationChange} />
-                <Button color='green' content='Lagre' onClick={this.validateAndSave} />
+                <DCFormField properties={version} valueChange={this.handleVersionIncrementationChange}/>
+                <Button color='green' content='Lagre' onClick={this.validateAndSave}/>
               </Grid.Column>
             </Grid>
           </Dimmer.Dimmable>
-          <Button color='pink' content='Inner State' onClick={this.checkState} />
+          <Button color='pink' content='Inner State' onClick={this.checkState}/>
         </Form>
       )
     }
 
     return (
       <Header as='h1' content={splitOnUppercase(name)} subheader={description} dividing
-              icon={{name: 'spinner', color: 'teal', loading: true}} />
+              icon={{name: 'spinner', color: 'teal', loading: true}}/>
     )
   }
 }

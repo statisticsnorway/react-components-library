@@ -770,6 +770,55 @@ function (_Component) {
   return DCDate;
 }(React__default.Component);
 
+function fetchData(url) {
+  var timeout = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 3000;
+  return new Promise(function (resolve, reject) {
+    var controller = new AbortController();
+    var signal = controller.signal;
+    var timer = setTimeout(function () {
+      reject('Request timeout for url: ' + url);
+      controller.abort();
+    }, timeout);
+    fetch(url, {
+      signal: signal,
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json; charset=utf-8'
+      }
+    }).then(function (response) {
+      if (response.ok) {
+        response.json().then(function (json) {
+          var prefix = '/' + url.substring(url.lastIndexOf('/') + 1) + '/';
+          var options = [];
+          Object.keys(json).forEach(function (value) {
+            // TODO: Fix this when the ability to do it becomes available
+            var text = json[value].name[0].languageText;
+            json[value].name.forEach(function (name) {
+              if (name.languageCode === 'nb') {
+                text = name.languageText;
+              }
+            });
+            options.push({
+              key: json[value].id,
+              text: text,
+              value: prefix + json[value].id
+            });
+          });
+          resolve(options);
+        });
+      } else {
+        response.text().then(function (text) {
+          reject(text + ' (' + url + ')');
+        });
+      }
+    }).catch(function (error) {
+      reject(error.toString() + ' \'' + url + '\'');
+    }).finally(function () {
+      return clearTimeout(timer);
+    });
+  });
+}
+
 var DCDropdown =
 /*#__PURE__*/
 function (_Component) {
@@ -837,9 +886,21 @@ function (_Component) {
           });
         });
       } else {
-        this.setOptionsAndValue([]).then(function () {
-          return _this3.setState({
-            ready: true
+        Promise.all(Object.keys(this.props.endpoints).map(function (key) {
+          return fetchData(_this3.props.endpoints[key]);
+        })).then(function (allOptions) {
+          var options = [].concat.apply([], allOptions);
+
+          _this3.setOptionsAndValue(options).then(function () {
+            return _this3.setState({
+              ready: true
+            });
+          });
+        }).catch(function (error) {
+          _this3.setState({
+            ready: true,
+            problem: true,
+            errorMessage: error
           });
         });
       }
@@ -978,9 +1039,17 @@ function (_Component) {
           });
         });
       } else {
-        this.setOptionsAndValue([]).then(function () {
-          return _this3.setState({
-            ready: true
+        fetchData(this.props.endpoint).then(function (options) {
+          _this3.setOptionsAndValue(options).then(function () {
+            _this3.setState({
+              ready: true
+            });
+          });
+        }).catch(function (error) {
+          _this3.setState({
+            ready: true,
+            problem: true,
+            errorMessage: error
           });
         });
       }
@@ -1249,38 +1318,14 @@ function (_Component) {
   }
 
   _createClass(DCStatic, [{
-    key: "checkIcon",
-    value: function checkIcon() {
+    key: "createComponent",
+    value: function createComponent() {
       var _this2 = this;
 
       return new Promise(function (resolve) {
-        if (_this2.props.hasOwnProperty('icon')) {
-          _this2.setState({
-            icon: React__default$$1.createElement(semanticUiReact__default.Icon, {
-              name: _this2.props.icon,
-              color: "teal"
-            })
-          }, function () {
-            return resolve();
-          });
-        } else {
-          _this2.setState({
-            icon: ''
-          }, function () {
-            return resolve();
-          });
-        }
-      });
-    }
-  }, {
-    key: "createComponent",
-    value: function createComponent() {
-      var _this3 = this;
-
-      return new Promise(function (resolve) {
-        var _this3$props = _this3.props,
-            format = _this3$props.format,
-            value = _this3$props.value;
+        var _this2$props = _this2.props,
+            format = _this2$props.format,
+            value = _this2$props.value;
 
         if (!formats.includes(format)) {
           resolve(React__default$$1.createElement(semanticUiReact__default.List, {
@@ -1314,7 +1359,7 @@ function (_Component) {
           }
 
           if (format === 'date') {
-            _this3.setState({
+            _this2.setState({
               icon: React__default$$1.createElement(semanticUiReact__default.Icon, {
                 name: "calendar alternate outline",
                 color: "teal",
@@ -1341,16 +1386,14 @@ function (_Component) {
   }, {
     key: "componentDidMount",
     value: function componentDidMount() {
-      var _this4 = this;
+      var _this3 = this;
 
-      this.checkIcon().then(function () {
-        _this4.createComponent().then(function (result) {
-          _this4.setState({
-            component: result
-          }, function () {
-            return _this4.setState({
-              ready: true
-            });
+      this.createComponent().then(function (result) {
+        _this3.setState({
+          component: result
+        }, function () {
+          return _this3.setState({
+            ready: true
           });
         });
       });
@@ -1887,81 +1930,6 @@ function updateAutofill(producer, schema, data, user, versionIncrementation) {
   });
 }
 
-function fetchGSIMOptions(url) {
-  return new Promise(function (resolve) {
-    var options = [];
-    fetchData(url).then(function (response) {
-      var prefix = '/' + url.substring(url.lastIndexOf('/') + 1) + '/';
-
-      if (response.length !== 0) {
-        Object.keys(response).forEach(function (value) {
-          var text = response[value].name[0].languageText;
-          response[value].name.forEach(function (name) {
-            if (name.languageCode === 'nb') {
-              text = name.languageText;
-            }
-          });
-          options.push({
-            key: response[value].id,
-            text: text,
-            value: prefix + response[value].id
-          });
-        });
-        resolve(options);
-      } else {
-        resolve(options);
-      }
-    }).catch(function () {
-      // TODO: Tell user something went wrong
-      resolve(options);
-    });
-  });
-}
-
-function fetchOptions(producer, url) {
-  switch (producer) {
-    case 'GSIM':
-      return fetchGSIMOptions(url);
-
-    default:
-      return null;
-  }
-}
-
-function buildOptions(producer, endpoints) {
-  return new Promise(function (resolve) {
-    Promise.all(endpoints.map(function (url) {
-      return fetchOptions(producer, url);
-    })).then(function (allOptions) {
-      var options = [].concat.apply([], allOptions);
-      resolve(options);
-    });
-  });
-}
-
-function populateOptions(producer, schema) {
-  return new Promise(function (resolve) {
-    var returnSchema = JSON.parse(JSON.stringify(schema));
-    var name = schema.$ref.replace('#/definitions/', '');
-    var properties = JSON.parse(JSON.stringify(schema.definitions[name].properties));
-    Promise.all(Object.keys(properties).map(function (value) {
-      if (properties[value].hasOwnProperty('endpoints')) {
-        return buildOptions(producer, properties[value].endpoints);
-      }
-
-      return null;
-    })).then(function (options) {
-      Object.keys(returnSchema.definitions[name].properties).forEach(function (key, index) {
-        if (options[index] !== null) {
-          returnSchema.definitions[name].properties[key].options = options[index];
-          delete returnSchema.definitions[name].properties[key].endpoints;
-        }
-      });
-      resolve(returnSchema);
-    });
-  });
-}
-
 var version = {
   component: 'DCRadio',
   name: 'versionIncrementation',
@@ -2100,59 +2068,76 @@ function (_Component) {
     value: function componentDidMount() {
       var _this2 = this;
 
-      populateOptions(this.props.producer, this.props.schema).then(function (schema) {
-        if (_this2.props.params.id === 'new') {
-          generateDataState(_this2.props.producer, schema, 'Test').then(function (result) {
-            Object.keys(schema.definitions[_this2.state.name].properties).forEach(function (key) {
-              if (schema.definitions[_this2.state.name].properties[key].hasOwnProperty('autofilled')) {
-                schema.definitions[_this2.state.name].properties[key].value = [result[key]];
-              }
-            });
+      var schema = JSON.parse(JSON.stringify(this.props.schema));
 
-            _this2.setState({
-              data: result,
-              schema: schema
-            }, function () {
-              return _this2.setState({
-                ready: true
-              });
+      if (this.props.params.id === 'new') {
+        this.newComponent(schema);
+      } else {
+        fillDataState(this.props.producer, schema, this.props.params.id, this.props.endpoint).then(function (result) {
+          Object.keys(result).forEach(function (key) {
+            if (schema.definitions[_this2.state.name].properties[key].hasOwnProperty('autofilled')) {
+              schema.definitions[_this2.state.name].properties[key].value = [result[key]];
+            } else {
+              schema.definitions[_this2.state.name].properties[key].value = result[key];
+            }
+          });
+
+          _this2.setState({
+            data: result,
+            schema: schema
+          }, function () {
+            return _this2.setState({
+              ready: true
             });
           });
-        } else {
-          fillDataState(_this2.props.producer, schema, _this2.props.params.id, _this2.props.endpoint).then(function (result) {
-            Object.keys(result).forEach(function (key) {
-              if (schema.definitions[_this2.state.name].properties[key].hasOwnProperty('autofilled')) {
-                schema.definitions[_this2.state.name].properties[key].value = [result[key]];
-              } else {
-                schema.definitions[_this2.state.name].properties[key].value = result[key];
-              }
-            });
-
-            _this2.setState({
-              data: result,
-              schema: schema
-            }, function () {
-              return _this2.setState({
-                ready: true
-              });
-            });
-          }).catch(function (error) {
-            console.log(error);
-          });
-        }
-      }).catch(function (error) {
-        console.log(error);
-      });
+        }).catch(function (error) {
+          console.log(error);
+        });
+      }
     }
   }, {
     key: "shouldComponentUpdate",
     value: function shouldComponentUpdate(nextProps, nextState) {
+      var _this3 = this;
+
+      if (this.props.params.id !== nextProps.params.id && nextProps.params.id === 'new') {
+        this.setState({
+          ready: false
+        }, function () {
+          var schema = JSON.parse(JSON.stringify(_this3.props.schema));
+
+          _this3.newComponent(schema);
+        });
+      }
+
       return this.state.data === nextState.data;
+    }
+  }, {
+    key: "newComponent",
+    value: function newComponent(schema) {
+      var _this4 = this;
+
+      generateDataState(this.props.producer, schema, 'Test').then(function (result) {
+        Object.keys(schema.definitions[_this4.state.name].properties).forEach(function (key) {
+          if (schema.definitions[_this4.state.name].properties[key].hasOwnProperty('autofilled')) {
+            schema.definitions[_this4.state.name].properties[key].value = [result[key]];
+          }
+        });
+
+        _this4.setState({
+          data: result,
+          schema: schema
+        }, function () {
+          return _this4.setState({
+            ready: true
+          });
+        });
+      });
     }
   }, {
     key: "render",
     value: function render() {
-      var _this3 = this;
+      var _this5 = this;
 
       var _this$state = this.state,
           ready = _this$state.ready,
@@ -2202,7 +2187,7 @@ function (_Component) {
             return React__default.createElement(bundle_1, {
               key: index,
               properties: properties[property],
-              valueChange: _this3.handleValueChange
+              valueChange: _this5.handleValueChange
             });
           }
 
@@ -2212,7 +2197,7 @@ function (_Component) {
             return React__default.createElement(bundle_1, {
               key: index,
               properties: properties[property],
-              valueChange: _this3.handleValueChange
+              valueChange: _this5.handleValueChange
             });
           }
 
@@ -2222,7 +2207,7 @@ function (_Component) {
             return React__default.createElement(bundle_1, {
               key: index,
               properties: properties[property],
-              valueChange: _this3.handleValueChange
+              valueChange: _this5.handleValueChange
             });
           }
 
