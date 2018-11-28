@@ -11,7 +11,7 @@ export function fetchOptions (producer, url) {
 }
 
 function buildOptions (producer, endpoints) {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     Promise.all(
       endpoints.map(url => {
         return fetchOptions(producer, url)
@@ -20,12 +20,14 @@ function buildOptions (producer, endpoints) {
       const options = [].concat.apply([], allOptions)
 
       resolve(options)
+    }).catch(error => {
+      reject(error)
     })
   })
 }
 
 export function populateOptions (producer, schema) {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     const returnSchema = JSON.parse(JSON.stringify(schema))
     const name = schema.$ref.replace('#/definitions/', '')
     const properties = JSON.parse(JSON.stringify(schema.definitions[name].properties))
@@ -48,6 +50,8 @@ export function populateOptions (producer, schema) {
       })
 
       resolve(returnSchema)
+    }).catch(error => {
+      reject(error)
     })
   })
 }

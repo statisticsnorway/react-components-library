@@ -1,7 +1,7 @@
 import { fetchData } from '../../utilities/http-clients/fetch'
 
 export function fetchGSIMOptions (url) {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     const options = []
 
     fetchData(url).then(response => {
@@ -28,9 +28,8 @@ export function fetchGSIMOptions (url) {
       } else {
         resolve(options)
       }
-    }).catch(() => {
-      // TODO: Tell user something went wrong
-      resolve(options)
+    }).catch(error => {
+      reject(error)
     })
   })
 }

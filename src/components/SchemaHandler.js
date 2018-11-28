@@ -24,15 +24,12 @@ export function SchemaHandler (url, producer, endpoint) {
             resolve(finishedSchemas)
           })
         }).catch(error => {
-          console.log(error)
           reject(error)
         })
       }).catch(error => {
-        console.log(error)
         reject(error)
       })
     }).catch(error => {
-      console.log(error)
       reject(error)
     })
   })

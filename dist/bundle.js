@@ -1702,51 +1702,20 @@ function updateAutofill(producer, schema, data, user, versionIncrementation, isN
   });
 }
 
-function producers$1(producer) {
-  switch (producer) {
-    case 'GSIM':
-      return DefaultGSIMUISchema;
-
-    default:
-      return null;
-  }
-}
-
-function transformProperties(producer, schema, data, fromSource) {
+function transformGSIMProperties(producer, schema, data, fromSource) {
   var returnObject = JSON.parse(JSON.stringify(data));
   var name = schema.$ref.replace('#/definitions/', '');
   var properties = schema.definitions[name].properties;
-  var transformer$$1 = producers$1(producer).transformer;
   Object.keys(properties).forEach(function (property) {
-    if (returnObject[property] === '') {
-      delete returnObject[property];
-    }
-
-    if (Array.isArray(returnObject[property]) && returnObject[property].length === 0) {
-      delete returnObject[property];
-    }
-
-    Object.keys(transformer$$1).forEach(function (transformable) {
-      if (properties[property].hasOwnProperty('customType') && properties[property].customType === transformable) {
-        if (Array.isArray(returnObject[property]) && returnObject[property].length !== 0) {
-          returnObject[property].forEach(function (value, index) {
-            Object.keys(transformer$$1[transformable]).forEach(function (transformKey) {
-              if (fromSource) {
-                returnObject[property][index][transformKey] = returnObject[property][index][transformer$$1[transformable][transformKey]];
-                delete returnObject[property][index][transformer$$1[transformable][transformKey]];
-              } else {
-                returnObject[property][index][transformer$$1[transformable][transformKey]] = returnObject[property][index][transformKey];
-                delete returnObject[property][index][transformKey];
-              }
-            });
-          });
-        }
-      }
-    }); // TODO: This is GSIM spesific, needs work
-
     if (properties[property].hasOwnProperty('customType') && properties[property].customType === 'MultilingualText' && returnObject.hasOwnProperty(property)) {
       if (fromSource) {
-        returnObject[property] = returnObject[property][0].languageText; // TODO: This is slightly dangerous since because of [0]
+        var text = data.name[0].languageText;
+        data[property].forEach(function (multilingual) {
+          if (multilingual.languageCode === 'nb') {
+            text = multilingual.languageText;
+          }
+        });
+        returnObject[property] = text;
       } else {
         var value = returnObject[property];
         returnObject[property] = [{
@@ -1757,6 +1726,71 @@ function transformProperties(producer, schema, data, fromSource) {
     }
   });
   return returnObject;
+}
+
+function producers$1(producer) {
+  switch (producer) {
+    case 'GSIM':
+      return DefaultGSIMUISchema;
+
+    default:
+      return null;
+  }
+}
+
+function producersSpecialProperties(producer, schema, data, fromSource) {
+  switch (producer) {
+    case 'GSIM':
+      return transformGSIMProperties(producer, schema, data, fromSource);
+
+    default:
+      return null;
+  }
+}
+
+function transformDefaultProperties(producer, schema, data, fromSource) {
+  return new Promise(function (resolve) {
+    var returnObject = JSON.parse(JSON.stringify(data));
+    var name = schema.$ref.replace('#/definitions/', '');
+    var properties = schema.definitions[name].properties;
+    var transformer$$1 = producers$1(producer).transformer;
+    Object.keys(properties).forEach(function (property) {
+      if (returnObject[property] === '') {
+        delete returnObject[property];
+      }
+
+      if (Array.isArray(returnObject[property]) && returnObject[property].length === 0) {
+        delete returnObject[property];
+      }
+
+      Object.keys(transformer$$1).forEach(function (transformable) {
+        if (properties[property].hasOwnProperty('customType') && properties[property].customType === transformable) {
+          if (Array.isArray(returnObject[property]) && returnObject[property].length !== 0) {
+            returnObject[property].forEach(function (value, index) {
+              Object.keys(transformer$$1[transformable]).forEach(function (transformKey) {
+                if (fromSource) {
+                  returnObject[property][index][transformKey] = returnObject[property][index][transformer$$1[transformable][transformKey]];
+                  delete returnObject[property][index][transformer$$1[transformable][transformKey]];
+                } else {
+                  returnObject[property][index][transformer$$1[transformable][transformKey]] = returnObject[property][index][transformKey];
+                  delete returnObject[property][index][transformKey];
+                }
+              });
+            });
+          }
+        }
+      });
+    });
+    resolve(returnObject);
+  });
+}
+
+function transformProperties(producer, schema, data, fromSource) {
+  return new Promise(function (resolve) {
+    transformDefaultProperties(producer, schema, data, fromSource).then(function (transformedProperties) {
+      resolve(producersSpecialProperties(producer, schema, transformedProperties, fromSource));
+    });
+  });
 }
 
 function fetchData(url) {
@@ -1828,12 +1862,13 @@ function putData(url, data) {
 
 function saveData(producer, schema, data, endpoint) {
   return new Promise(function (resolve, reject) {
-    var saveableData = transformProperties(producer, schema, data, false);
-    var url = endpoint + 'data/' + schema.$ref.replace('#/definitions/', '') + '/' + saveableData.id;
-    putData(url, saveableData).then(function (response) {
-      resolve(response);
-    }).catch(function (error) {
-      reject(error);
+    transformProperties(producer, schema, data, false).then(function (savableData) {
+      var url = endpoint + 'data/' + schema.$ref.replace('#/definitions/', '') + '/' + savableData.id;
+      putData(url, savableData).then(function (response) {
+        resolve(response);
+      }).catch(function (error) {
+        reject(error);
+      });
     });
   });
 }
@@ -1932,8 +1967,9 @@ function fillDataState(producer, schema, id, endpoint) {
     var name = schema.$ref.replace('#/definitions/', '');
     var url = endpoint + 'data/' + name + '/' + id;
     fetchData(url).then(function (response) {
-      var transformedData = transformProperties(producer, schema, response, true);
-      resolve(transformedData);
+      transformProperties(producer, schema, response, true).then(function (transformedData) {
+        resolve(transformedData);
+      });
     }).catch(function (error) {
       reject(error);
     });
@@ -1994,7 +2030,7 @@ function mergeDefaultUISchema(producer, schema) {
 }
 
 function fetchGSIMOptions(url) {
-  return new Promise(function (resolve) {
+  return new Promise(function (resolve, reject) {
     var options = [];
     fetchData(url).then(function (response) {
       var prefix = '/' + url.substring(url.lastIndexOf('/') + 1) + '/';
@@ -2017,9 +2053,8 @@ function fetchGSIMOptions(url) {
       } else {
         resolve(options);
       }
-    }).catch(function () {
-      // TODO: Tell user something went wrong
-      resolve(options);
+    }).catch(function (error) {
+      reject(error);
     });
   });
 }
@@ -2035,18 +2070,20 @@ function fetchOptions(producer, url) {
 }
 
 function buildOptions(producer, endpoints) {
-  return new Promise(function (resolve) {
+  return new Promise(function (resolve, reject) {
     Promise.all(endpoints.map(function (url) {
       return fetchOptions(producer, url);
     })).then(function (allOptions) {
       var options = [].concat.apply([], allOptions);
       resolve(options);
+    }).catch(function (error) {
+      reject(error);
     });
   });
 }
 
 function populateOptions(producer, schema) {
-  return new Promise(function (resolve) {
+  return new Promise(function (resolve, reject) {
     var returnSchema = JSON.parse(JSON.stringify(schema));
     var name = schema.$ref.replace('#/definitions/', '');
     var properties = JSON.parse(JSON.stringify(schema.definitions[name].properties));
@@ -2064,6 +2101,8 @@ function populateOptions(producer, schema) {
         }
       });
       resolve(returnSchema);
+    }).catch(function (error) {
+      reject(error);
     });
   });
 }
@@ -2275,7 +2314,8 @@ function (_Component) {
       schema: {},
       hiddenFields: [],
       name: _this.props.schema.$ref.replace('#/definitions/', ''),
-      description: _this.props.schema.definitions[_this.props.schema.$ref.replace('#/definitions/', '')].description
+      description: _this.props.schema.definitions[_this.props.schema.$ref.replace('#/definitions/', '')].description,
+      problem: false
     };
     return _this;
   }
@@ -2315,11 +2355,17 @@ function (_Component) {
               });
             });
           }).catch(function (error) {
-            console.log(error);
+            _this2.setState({
+              problem: true,
+              message: 'Could not fill data state: ' + error
+            });
           });
         }
       }).catch(function (error) {
-        console.log(error);
+        _this2.setState({
+          problem: true,
+          message: 'Could not populate dropdown: ' + error
+        });
       });
     }
   }, {
@@ -2384,7 +2430,24 @@ function (_Component) {
           schema = _this$state.schema,
           hiddenFields = _this$state.hiddenFields,
           name = _this$state.name,
-          description = _this$state.description;
+          description = _this$state.description,
+          problem = _this$state.problem;
+
+      if (problem) {
+        return React__default.createElement("div", null, React__default.createElement(semanticUiReact.Header, {
+          as: "h1",
+          content: splitOnUppercase(name),
+          subheader: description,
+          dividing: true,
+          icon: {
+            name: 'warning',
+            color: 'red'
+          }
+        }), message !== '' && React__default.createElement(semanticUiReact.Message, {
+          negative: true,
+          content: message.toString()
+        }));
+      }
 
       if (ready) {
         var formIcon = readOnly ? 'lock' : 'unlock';
@@ -2511,15 +2574,12 @@ function SchemaHandler(url, producer, endpoint) {
             resolve(finishedSchemas);
           });
         }).catch(function (error) {
-          console.log(error);
           reject(error);
         });
       }).catch(function (error) {
-        console.log(error);
         reject(error);
       });
     }).catch(function (error) {
-      console.log(error);
       reject(error);
     });
   });
@@ -2570,7 +2630,6 @@ function (_Component) {
 
       switch (header) {
         case 'id':
-          // TODO: This syntax does not work with commonjs and rollup
           tableColumn['Cell'] = function (props) {
             return React__default.createElement(reactRouterDom.Link, {
               to: _this.props.routing + '/' + props.original.id

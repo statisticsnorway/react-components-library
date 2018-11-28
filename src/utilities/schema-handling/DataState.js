@@ -1,5 +1,5 @@
 import { generateGSIMDataState } from '../../producers/gsim'
-import { transformProperties } from '../data-handling/Transformer'
+import { transformProperties } from '../data-handling'
 import { fetchData } from '../http-clients/fetch'
 
 const DEFAULT_VALUE_BY_TYPE = {
@@ -48,8 +48,9 @@ export function fillDataState (producer, schema, id, endpoint) {
     const url = endpoint + 'data/' + name + '/' + id
 
     fetchData(url).then(response => {
-      const transformedData = transformProperties(producer, schema, response, true)
-      resolve(transformedData)
+      transformProperties(producer, schema, response, true).then(transformedData => {
+        resolve(transformedData)
+      })
     }).catch(error => {
       reject(error)
     })

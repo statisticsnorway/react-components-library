@@ -20,7 +20,8 @@ class FormBuilder extends Component {
       schema: {},
       hiddenFields: [],
       name: this.props.schema.$ref.replace('#/definitions/', ''),
-      description: this.props.schema.definitions[this.props.schema.$ref.replace('#/definitions/', '')].description
+      description: this.props.schema.definitions[this.props.schema.$ref.replace('#/definitions/', '')].description,
+      problem: false
     }
   }
 
@@ -54,11 +55,17 @@ class FormBuilder extends Component {
             hiddenFields: hiddenFields
           }, () => this.setState({ready: true}))
         }).catch(error => {
-          console.log(error)
+          this.setState({
+            problem: true,
+            message: 'Could not fill data state: ' + error
+          })
         })
       }
     }).catch(error => {
-      console.log(error)
+      this.setState({
+        problem: true,
+        message: 'Could not populate dropdown: ' + error
+      })
     })
   }
 
@@ -204,7 +211,17 @@ class FormBuilder extends Component {
   }
 
   render () {
-    const {ready, readOnly, message, saved, schema, hiddenFields, name, description} = this.state
+    const {ready, readOnly, message, saved, schema, hiddenFields, name, description, problem} = this.state
+
+    if (problem) {
+      return (
+        <div>
+          <Header as='h1' content={splitOnUppercase(name)} subheader={description} dividing
+                  icon={{name: 'warning', color: 'red'}}/>
+          {message !== '' && <Message negative content={message.toString()}/>}
+        </div>
+      )
+    }
 
     if (ready) {
       const formIcon = readOnly ? 'lock' : 'unlock'
@@ -214,8 +231,8 @@ class FormBuilder extends Component {
       return (
         <Form>
           <Header as='h1' content={splitOnUppercase(name)} subheader={description} dividing
-                  icon={{name: formIcon, color: formIconColor, link: true, onClick: this.handleLockClick}} />
-          {message !== '' && <Message color={saved ? 'green' : 'red'} content={message.toString()} />}
+                  icon={{name: formIcon, color: formIconColor, link: true, onClick: this.handleLockClick}}/>
+          {message !== '' && <Message color={saved ? 'green' : 'red'} content={message.toString()}/>}
           <Dimmer.Dimmable dimmed={readOnly}>
             <Dimmer active={readOnly} style={{
               backgroundColor: 'rgba(0,0,0,.0010)',
@@ -224,20 +241,20 @@ class FormBuilder extends Component {
               borderColor: 'rgba(33, 186, 69,.25',
               borderRadius: '.3rem',
               zIndex: 1
-            }} />
+            }}/>
             <Grid columns='equal' style={{padding: '0.5rem', zIndex: 0}} divided>
               <Grid.Column>
                 {Object.keys(properties).map((property, index) => {
                   if (!properties[property].hasOwnProperty('autofilled') && properties[property].group !== 'common') {
                     if (properties[property].hasOwnProperty('hideOnChoice')) {
                       return <DCFormField key={index} properties={properties[property]}
-                                          valueChange={this.handleVisibilityChange} />
+                                          valueChange={this.handleVisibilityChange}/>
                     } else {
                       if (Array.isArray(hiddenFields) && hiddenFields.length !== 0 && hiddenFields.includes(property)) {
                         return null
                       } else {
                         return <DCFormField key={index} properties={properties[property]}
-                                            valueChange={this.handleValueChange} />
+                                            valueChange={this.handleValueChange}/>
                       }
                     }
                   }
@@ -249,7 +266,7 @@ class FormBuilder extends Component {
                 {Object.keys(properties).map((property, index) => {
                   if (!properties[property].hasOwnProperty('autofilled') && properties[property].group === 'common') {
                     return <DCFormField key={index} properties={properties[property]}
-                                        valueChange={this.handleValueChange} />
+                                        valueChange={this.handleValueChange}/>
                   }
 
                   return null
@@ -259,30 +276,30 @@ class FormBuilder extends Component {
                 {Object.keys(properties).map((property, index) => {
                   if (properties[property].hasOwnProperty('autofilled')) {
                     return <DCFormField key={index} properties={properties[property]}
-                                        valueChange={this.handleValueChange} />
+                                        valueChange={this.handleValueChange}/>
                   }
 
                   return null
                 })}
 
                 {this.props.params.id !== 'new' &&
-                <DCFormField properties={defaultVersioning} valueChange={this.handleVersionIncrementationChange} />
+                <DCFormField properties={defaultVersioning} valueChange={this.handleVersionIncrementationChange}/>
                 }
 
                 <Button color='green' content={this.props.params.id === 'new' ? 'Lagre' : 'Oppdater'}
-                        onClick={this.validateAndSave} />
+                        onClick={this.validateAndSave}/>
               </Grid.Column>
             </Grid>
           </Dimmer.Dimmable>
           {/*TODO: Remove*/}
-          <Button color='pink' content='Inner State' onClick={this.checkState} />
+          <Button color='pink' content='Inner State' onClick={this.checkState}/>
         </Form>
       )
     }
 
     return (
       <Header as='h1' content={splitOnUppercase(name)} subheader={description} dividing
-              icon={{name: 'spinner', color: 'teal', loading: true}} />
+              icon={{name: 'spinner', color: 'teal', loading: true}}/>
     )
   }
 }

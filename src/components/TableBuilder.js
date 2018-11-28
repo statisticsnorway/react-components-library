@@ -25,7 +25,6 @@ class TableBuilder extends Component {
 
       switch (header) {
         case 'id':
-          // TODO: This syntax does not work with commonjs and rollup
           tableColumn['Cell'] = props => (
             <Link to={this.props.routing + '/' + props.original.id}>
               {props.value}
@@ -105,29 +104,29 @@ class TableBuilder extends Component {
       return (
         <div>
           <Header as='h1' content={splitOnUppercase(name)} subheader={description} dividing
-                  icon={{name: 'list alternate outline', color: 'teal'}} />
-          <Divider hidden />
+                  icon={{name: 'list alternate outline', color: 'teal'}}/>
+          <Divider hidden/>
           <Popup flowing hideOnScroll position='top center'
-                 trigger={<Input icon='search' placeholder='Søk' value={search} onChange={this.searchInputOnChange} />}>
-            <Icon color='blue' name='info circle' />
+                 trigger={<Input icon='search' placeholder='Søk' value={search} onChange={this.searchInputOnChange}/>}>
+            <Icon color='blue' name='info circle'/>
             Filtrerer tabellen etter navn
           </Popup>
           <Label color='teal' size='large' circular>{Object.keys(filteredTableData).length}</Label>
           <Link to={this.props.routing + '/new'}>
-            <Button primary floated='right' content={'Opprett ny ' + splitOnUppercase(name)} />
+            <Button primary floated='right' content={'Opprett ny ' + splitOnUppercase(name)}/>
           </Link>
-          {message ? <Message negative content={message} /> : <Divider hidden />}
+          {message ? <Message negative content={message}/> : <Divider hidden/>}
 
           <ReactTable sortable data={filteredTableData} resizable={false} columns={tableColumns} defaultPageSize={10}
                       noDataText={noDataText} previousText='Forrige' nextText='Neste' loadingText='Laster'
-                      pageText='Side' ofText='av' rowsText='rader' className='-highlight' />
+                      pageText='Side' ofText='av' rowsText='rader' className='-highlight'/>
         </div>
       )
     }
 
     return (
       <Header as='h1' content={splitOnUppercase(name)} subheader={description} dividing
-              icon={{name: 'spinner', color: 'teal', loading: true}} />
+              icon={{name: 'spinner', color: 'teal', loading: true}}/>
     )
   }
 }

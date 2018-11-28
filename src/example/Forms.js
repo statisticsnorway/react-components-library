@@ -30,7 +30,6 @@ class Forms extends Component {
         ready: true,
         message: error
       })
-      console.log(error)
     })
   }
 
