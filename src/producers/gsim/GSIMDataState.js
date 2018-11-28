@@ -6,12 +6,9 @@ function setVersion (version, versionIncrementation) {
   const versionIncrement = parseInt(versionIncrementation)
   const versionArray = version.split('.')
 
-  let updatedVersion
-
   versionArray[versionIncrement] = parseInt(versionArray[versionIncrement]) + 1
-  updatedVersion = versionArray.join('.')
 
-  return updatedVersion
+  return versionArray.join('.')
 }
 
 export function generateGSIMDataState (element, user) {
@@ -28,8 +25,28 @@ export function generateGSIMDataState (element, user) {
     case 'version':
       return '1.0.0'
 
-    case 'lastUpdatedBy':
     case 'createdBy':
+    case 'lastUpdatedBy':
+      return user
+
+    default:
+      return null
+  }
+}
+
+export function updateNewGSIMDataState (element, user) {
+  switch (element) {
+    case 'createdDate':
+    case 'lastUpdatedDate':
+    case 'versionValidFrom':
+    case 'validFrom':
+      return moment()
+
+    case 'version':
+      return '1.0.0'
+
+    case 'createdBy':
+    case 'lastUpdatedBy':
       return user
 
     default:

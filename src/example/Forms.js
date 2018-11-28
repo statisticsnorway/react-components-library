@@ -91,6 +91,7 @@ class Forms extends Component {
                                                              schema={JSON.parse(JSON.stringify(schema))}
                                                              endpoint={this.props.endpoint} routing={path} />} />
           })}
+          {/*TODO: Remove*/}
           <Button color='pink' content='Outer State' onClick={this.checkState} />
         </Container>
       </div>

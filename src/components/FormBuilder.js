@@ -95,7 +95,8 @@ class FormBuilder extends Component {
         schema: schema,
         hiddenFields: [],
         message: '',
-        saved: false
+        saved: false,
+        readOnly: false
       }, () => this.setState({ready: true}))
     })
   }
@@ -144,14 +145,11 @@ class FormBuilder extends Component {
 
     this.setState({ready: false}, () => {
       validation(schema, data).then(resultWithoutErrors => {
-        this.setState({
-          schema: resultWithoutErrors
-        }, () => {
-          updateAutofill(this.props.producer, schema, data, 'Test', this.state.versionIncrementation).then(result => {
-            this.setState({
-              data: result
-            }, () => {
+        this.setState({schema: resultWithoutErrors}, () => {
+          updateAutofill(this.props.producer, schema, data, 'Test', this.state.versionIncrementation, (this.props.params.id === 'new')).then(result => {
+            this.setState({data: result}, () => {
               const updatedSchema = JSON.parse(JSON.stringify(this.state.schema))
+              const savedMessage = this.props.params.id === 'new' ? 'lagret' : 'oppdatert'
 
               Object.keys(updatedSchema.definitions[this.state.name].properties).forEach(key => {
                 if (result.hasOwnProperty(key)) {
@@ -163,15 +161,18 @@ class FormBuilder extends Component {
                 }
               })
 
-              this.setState({
-                schema: updatedSchema
-              }, () => {
+              if (this.props.params.id === 'new') {
+                const newUrl = window.location.pathname.replace('/new', '/' + this.state.data.id)
+                window.history.pushState({}, '', newUrl)
+              }
+
+              this.setState({schema: updatedSchema}, () => {
                 saveData(this.props.producer, updatedSchema, result, this.props.endpoint).then(response => {
-                  this.props.params.id = {...this.state.data.id}
+                  this.props.params.id = this.state.data.id.slice(0)
                   this.setState({
                     ready: true,
                     saved: true,
-                    message: 'Objektet ble lagret (saga-execution-id: ' + response['saga-execution-id'] + ')',
+                    message: 'Objektet ble ' + savedMessage + ' (saga-execution-id: ' + response['saga-execution-id'] + ')',
                     readOnly: true
                   })
                 })
@@ -217,12 +218,14 @@ class FormBuilder extends Component {
           {message !== '' && <Message color={saved ? 'green' : 'red'} content={message.toString()} />}
           <Dimmer.Dimmable dimmed={readOnly}>
             <Dimmer active={readOnly} style={{
-              backgroundColor: 'rgba(0,0,0,.01)',
+              backgroundColor: 'rgba(0,0,0,.0010)',
               border: 'solid',
               borderWidth: '0.1rem',
-              borderColor: 'rgba(219,40,40,.1'
+              borderColor: 'rgba(33, 186, 69,.25',
+              borderRadius: '.3rem',
+              zIndex: 1
             }} />
-            <Grid columns='equal' style={{padding: '0.5rem'}} divided>
+            <Grid columns='equal' style={{padding: '0.5rem', zIndex: 0}} divided>
               <Grid.Column>
                 {Object.keys(properties).map((property, index) => {
                   if (!properties[property].hasOwnProperty('autofilled') && properties[property].group !== 'common') {
@@ -262,11 +265,16 @@ class FormBuilder extends Component {
                   return null
                 })}
 
+                {this.props.params.id !== 'new' &&
                 <DCFormField properties={defaultVersioning} valueChange={this.handleVersionIncrementationChange} />
-                <Button color='green' content='Lagre' onClick={this.validateAndSave} />
+                }
+
+                <Button color='green' content={this.props.params.id === 'new' ? 'Lagre' : 'Oppdater'}
+                        onClick={this.validateAndSave} />
               </Grid.Column>
             </Grid>
           </Dimmer.Dimmable>
+          {/*TODO: Remove*/}
           <Button color='pink' content='Inner State' onClick={this.checkState} />
         </Form>
       )

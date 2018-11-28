@@ -1451,10 +1451,8 @@ var uuidv4 = require('uuid/v4');
 function setVersion(version, versionIncrementation) {
   var versionIncrement = parseInt(versionIncrementation);
   var versionArray = version.split('.');
-  var updatedVersion;
   versionArray[versionIncrement] = parseInt(versionArray[versionIncrement]) + 1;
-  updatedVersion = versionArray.join('.');
-  return updatedVersion;
+  return versionArray.join('.');
 }
 
 function generateGSIMDataState(element, user) {
@@ -1471,8 +1469,27 @@ function generateGSIMDataState(element, user) {
     case 'version':
       return '1.0.0';
 
-    case 'lastUpdatedBy':
     case 'createdBy':
+    case 'lastUpdatedBy':
+      return user;
+
+    default:
+      return null;
+  }
+}
+function updateNewGSIMDataState(element, user) {
+  switch (element) {
+    case 'createdDate':
+    case 'lastUpdatedDate':
+    case 'versionValidFrom':
+    case 'validFrom':
+      return moment();
+
+    case 'version':
+      return '1.0.0';
+
+    case 'createdBy':
+    case 'lastUpdatedBy':
       return user;
 
     default:
@@ -1653,20 +1670,31 @@ function producers(producer, element, user, version, versionIncrementation) {
     case 'GSIM':
       return updateGSIMDataState(element, user, version, versionIncrementation);
 
+    case 'GSIMNew':
+      return updateNewGSIMDataState(element, user);
+
     default:
       return null;
   }
 }
 
-function updateAutofill(producer, schema, data, user, versionIncrementation) {
+function updateAutofill(producer, schema, data, user, versionIncrementation, isNew) {
   return new Promise(function (resolve) {
     var name = schema.$ref.replace('#/definitions/', '');
     var properties = schema.definitions[name].properties;
     var dataObject = JSON.parse(JSON.stringify(data));
     Object.keys(properties).forEach(function (key) {
       if (properties[key].hasOwnProperty('autofilled')) {
-        if (producers(producer, key, user, data.version, versionIncrementation !== null)) {
-          dataObject[key] = producers(producer, key, user, data.version, versionIncrementation);
+        if (isNew) {
+          var updateNewProducer = producer + 'New';
+
+          if (producers(updateNewProducer, key, user) !== null) {
+            dataObject[key] = producers(updateNewProducer, key, user);
+          }
+        } else {
+          if (producers(producer, key, user, data.version, versionIncrementation) !== null) {
+            dataObject[key] = producers(producer, key, user, data.version, versionIncrementation);
+          }
         }
       }
     });
@@ -2177,11 +2205,12 @@ function (_Component) {
           _this.setState({
             schema: resultWithoutErrors
           }, function () {
-            updateAutofill(_this.props.producer, schema, data, 'Test', _this.state.versionIncrementation).then(function (result) {
+            updateAutofill(_this.props.producer, schema, data, 'Test', _this.state.versionIncrementation, _this.props.params.id === 'new').then(function (result) {
               _this.setState({
                 data: result
               }, function () {
                 var updatedSchema = JSON.parse(JSON.stringify(_this.state.schema));
+                var savedMessage = _this.props.params.id === 'new' ? 'lagret' : 'oppdatert';
                 Object.keys(updatedSchema.definitions[_this.state.name].properties).forEach(function (key) {
                   if (result.hasOwnProperty(key)) {
                     if (updatedSchema.definitions[_this.state.name].properties[key].hasOwnProperty('autofilled')) {
@@ -2192,16 +2221,21 @@ function (_Component) {
                   }
                 });
 
+                if (_this.props.params.id === 'new') {
+                  var newUrl = window.location.pathname.replace('/new', '/' + _this.state.data.id);
+                  window.history.pushState({}, '', newUrl);
+                }
+
                 _this.setState({
                   schema: updatedSchema
                 }, function () {
                   saveData(_this.props.producer, updatedSchema, result, _this.props.endpoint).then(function (response) {
-                    _this.props.params.id = _objectSpread({}, _this.state.data.id);
+                    _this.props.params.id = _this.state.data.id.slice(0);
 
                     _this.setState({
                       ready: true,
                       saved: true,
-                      message: 'Objektet ble lagret (saga-execution-id: ' + response['saga-execution-id'] + ')',
+                      message: 'Objektet ble ' + savedMessage + ' (saga-execution-id: ' + response['saga-execution-id'] + ')',
                       readOnly: true
                     });
                   });
@@ -2328,7 +2362,8 @@ function (_Component) {
           schema: schema,
           hiddenFields: [],
           message: '',
-          saved: false
+          saved: false,
+          readOnly: false
         }, function () {
           return _this4.setState({
             ready: true
@@ -2374,15 +2409,18 @@ function (_Component) {
         }, React__default.createElement(semanticUiReact.Dimmer, {
           active: readOnly,
           style: {
-            backgroundColor: 'rgba(0,0,0,.01)',
+            backgroundColor: 'rgba(0,0,0,.0010)',
             border: 'solid',
             borderWidth: '0.1rem',
-            borderColor: 'rgba(219,40,40,.1'
+            borderColor: 'rgba(33, 186, 69,.25',
+            borderRadius: '.3rem',
+            zIndex: 1
           }
         }), React__default.createElement(semanticUiReact.Grid, {
           columns: "equal",
           style: {
-            padding: '0.5rem'
+            padding: '0.5rem',
+            zIndex: 0
           },
           divided: true
         }, React__default.createElement(semanticUiReact.Grid.Column, null, Object.keys(properties).map(function (property, index) {
@@ -2427,12 +2465,12 @@ function (_Component) {
           }
 
           return null;
-        }), React__default.createElement(bundle_1, {
+        }), this.props.params.id !== 'new' && React__default.createElement(bundle_1, {
           properties: defaultVersioning,
           valueChange: this.handleVersionIncrementationChange
         }), React__default.createElement(semanticUiReact.Button, {
           color: "green",
-          content: "Lagre",
+          content: this.props.params.id === 'new' ? 'Lagre' : 'Oppdater',
           onClick: this.validateAndSave
         })))), React__default.createElement(semanticUiReact.Button, {
           color: "pink",
