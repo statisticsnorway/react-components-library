@@ -1,16 +1,16 @@
 import React, { Component } from 'react'
 import { Link, Route } from 'react-router-dom'
-import { Button, Container, Dropdown, Icon, Label, Menu } from 'semantic-ui-react'
-
+import { Button, Container, Dropdown, Icon, Label, Menu, Message } from 'semantic-ui-react'
 import { splitOnUppercase } from '../utilities/Common'
-import { SchemaHandler, FormBuilder, TableBuilder } from '../components'
+import { FormBuilder, SchemaHandler, TableBuilder } from '../components'
 
 class Forms extends Component {
   constructor (props) {
     super(props)
     this.state = {
       ready: false,
-      schemas: []
+      schemas: [],
+      message: ''
     }
   }
 
@@ -25,6 +25,11 @@ class Forms extends Component {
         ready: true
       })
     }).catch(error => {
+      this.setState({
+        schemas: [],
+        ready: true,
+        message: error
+      })
       console.log(error)
     })
   }
@@ -36,7 +41,7 @@ class Forms extends Component {
   }
 
   render () {
-    const {ready, schemas} = this.state
+    const {ready, schemas, message} = this.state
 
     return (
       <div>
@@ -67,6 +72,7 @@ class Forms extends Component {
           </Dropdown>
         </Menu>
         <Container fluid style={{marginTop: '5em'}}>
+          {ready && message !== '' && <Message error content={message} />}
           {ready && schemas.map((schema, index) => {
             const domain = schema.$ref.replace('#/definitions/', '')
             const path = this.props.route + domain + '/:id'

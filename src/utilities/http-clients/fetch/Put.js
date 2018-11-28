@@ -1,4 +1,4 @@
-export function fetchData (url, timeout = 3000) {
+export function putData (url, data, timeout = 3000) {
   return new Promise((resolve, reject) => {
     const controller = new AbortController()
     const signal = controller.signal
@@ -10,7 +10,8 @@ export function fetchData (url, timeout = 3000) {
 
     fetch(url, {
       signal: signal,
-      method: 'GET',
+      method: 'PUT',
+      body: JSON.stringify(data),
       headers: {
         'Content-Type': 'application/json; charset=utf-8'
       }

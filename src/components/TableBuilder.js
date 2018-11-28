@@ -3,9 +3,9 @@ import ReactTable from 'react-table'
 import { Link } from 'react-router-dom'
 import { Button, Divider, Header, Icon, Input, Label, Message, Popup } from 'semantic-ui-react'
 
-import { resolveTableHeaders } from '../utilities/table-handling/Resolve'
 import { splitOnUppercase } from '../utilities/Common'
-import { fetchData } from '../utilities/http-clients/fetch/Fetch'
+import { fetchData } from '../utilities/http-clients/fetch'
+import { resolveTableHeaders } from '../utilities/table-handling'
 
 class TableBuilder extends Component {
   constructor (props) {

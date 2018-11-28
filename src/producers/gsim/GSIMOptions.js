@@ -1,4 +1,4 @@
-import { fetchData } from '../../utilities/http-clients/fetch/Fetch'
+import { fetchData } from '../../utilities/http-clients/fetch'
 
 export function fetchGSIMOptions (url) {
   return new Promise(resolve => {

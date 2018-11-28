@@ -30,7 +30,7 @@ export function resolveGSIMProperties (schema, url) {
 
               returnSchema.definitions[name].properties[key].options = options
 
-              delete schema.definitions[customType].properties[property].enum
+              delete returnSchema.definitions[customType].properties[property].enum
             }
           })
         }
@@ -71,7 +71,7 @@ export function resolveGSIMProperties (schema, url) {
         returnSchema.definitions[name].properties[key].options = options
         returnSchema.definitions[name].properties[key].component = 'DCDropdown'
 
-        delete schema.definitions[name].properties[key].enum
+        delete returnSchema.definitions[name].properties[key].enum
       }
 
       if (DefaultGSIMUISchema.icons.user.includes(key)) {

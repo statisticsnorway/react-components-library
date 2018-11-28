@@ -1,0 +1,1 @@
+export { resolveTableHeaders } from './Resolve'

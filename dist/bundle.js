@@ -1414,6 +1414,38 @@ exports.DCFormField = DCFormField;
 unwrapExports(bundle);
 var bundle_1 = bundle.DCFormField;
 
+var GSIM = {
+  name: 'GSIM',
+  producer: 'GSIM',
+  endpoint: process.env.REACT_APP_LDS,
+  route: '/gsim/'
+};
+var defaultVersioning = {
+  component: 'DCRadio',
+  name: 'versionIncrementation',
+  displayName: 'Versjonsinkrementering',
+  description: 'Hvordan skal versjonen inkrementeres?',
+  value: '2',
+  options: [{
+    text: 'Major',
+    value: '0'
+  }, {
+    text: 'Minor',
+    value: '1'
+  }, {
+    text: 'Patch',
+    value: '2'
+  }]
+};
+
+function splitOnUppercase(string) {
+  if (typeof string === 'string') {
+    return string.match(/[A-Z][a-z]+|[0-9]+/g).join(' ');
+  } else {
+    return string;
+  }
+}
+
 var uuidv4 = require('uuid/v4');
 
 function setVersion(version, versionIncrementation) {
@@ -1565,7 +1597,7 @@ function resolveGSIMProperties(schema, url) {
                 });
               });
               returnSchema.definitions[name].properties[key].options = options;
-              delete schema.definitions[customType].properties[property].enum;
+              delete returnSchema.definitions[customType].properties[property].enum;
             }
           });
         }
@@ -1605,7 +1637,7 @@ function resolveGSIMProperties(schema, url) {
         });
         returnSchema.definitions[name].properties[key].options = options;
         returnSchema.definitions[name].properties[key].component = 'DCDropdown';
-        delete schema.definitions[name].properties[key].enum;
+        delete returnSchema.definitions[name].properties[key].enum;
       }
 
       if (DefaultGSIMUISchema.icons.user.includes(key)) {
@@ -1616,7 +1648,33 @@ function resolveGSIMProperties(schema, url) {
   });
 }
 
-function producers(producer) {
+function producers(producer, element, user, version, versionIncrementation) {
+  switch (producer) {
+    case 'GSIM':
+      return updateGSIMDataState(element, user, version, versionIncrementation);
+
+    default:
+      return null;
+  }
+}
+
+function updateAutofill(producer, schema, data, user, versionIncrementation) {
+  return new Promise(function (resolve) {
+    var name = schema.$ref.replace('#/definitions/', '');
+    var properties = schema.definitions[name].properties;
+    var dataObject = JSON.parse(JSON.stringify(data));
+    Object.keys(properties).forEach(function (key) {
+      if (properties[key].hasOwnProperty('autofilled')) {
+        if (producers(producer, key, user, data.version, versionIncrementation !== null)) {
+          dataObject[key] = producers(producer, key, user, data.version, versionIncrementation);
+        }
+      }
+    });
+    resolve(dataObject);
+  });
+}
+
+function producers$1(producer) {
   switch (producer) {
     case 'GSIM':
       return DefaultGSIMUISchema;
@@ -1630,7 +1688,7 @@ function transformProperties(producer, schema, data, fromSource) {
   var returnObject = JSON.parse(JSON.stringify(data));
   var name = schema.$ref.replace('#/definitions/', '');
   var properties = schema.definitions[name].properties;
-  var transformer$$1 = producers(producer).transformer;
+  var transformer$$1 = producers$1(producer).transformer;
   Object.keys(properties).forEach(function (property) {
     if (returnObject[property] === '') {
       delete returnObject[property];
@@ -1705,6 +1763,7 @@ function fetchData(url) {
     });
   });
 }
+
 function putData(url, data) {
   var timeout = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 3000;
   return new Promise(function (resolve, reject) {
@@ -1739,62 +1798,16 @@ function putData(url, data) {
   });
 }
 
-var DEFAULT_VALUE_BY_TYPE = {
-  array: [],
-  boolean: false,
-  number: '',
-  object: {},
-  string: ''
-};
-
-function producers$1(producer, element, user) {
-  switch (producer) {
-    case 'GSIM':
-      return generateGSIMDataState(element, user);
-
-    default:
-      return null;
-  }
-}
-
-function generateDataState(producer, schema, user) {
-  return new Promise(function (resolve) {
-    var name = schema.$ref.replace('#/definitions/', '');
-    var properties = schema.definitions[name].properties;
-    var dataObject = {};
-    Object.keys(properties).forEach(function (key) {
-      if (properties[key].hasOwnProperty('autofilled')) {
-        dataObject[key] = producers$1(producer, key, user);
-      } else {
-        if (DEFAULT_VALUE_BY_TYPE.hasOwnProperty(properties[key].type)) {
-          dataObject[key] = DEFAULT_VALUE_BY_TYPE[properties[key].type];
-        } else {
-          throw Error('Unknown type, cannot generate default value');
-        }
-      }
-    });
-    resolve(dataObject);
-  });
-}
-function fillDataState(producer, schema, id, endpoint) {
+function saveData(producer, schema, data, endpoint) {
   return new Promise(function (resolve, reject) {
-    var name = schema.$ref.replace('#/definitions/', '');
-    var url = endpoint + 'data/' + name + '/' + id;
-    fetchData(url).then(function (response) {
-      var transformedData = transformProperties(producer, schema, response, true);
-      resolve(transformedData);
+    var saveableData = transformProperties(producer, schema, data, false);
+    var url = endpoint + 'data/' + schema.$ref.replace('#/definitions/', '') + '/' + saveableData.id;
+    putData(url, saveableData).then(function (response) {
+      resolve(response);
     }).catch(function (error) {
       reject(error);
     });
   });
-}
-
-function splitOnUppercase(string) {
-  if (typeof string === 'string') {
-    return string.match(/[A-Z][a-z]+|[0-9]+/g).join(' ');
-  } else {
-    return string;
-  }
 }
 
 var types = ['string', 'number', 'object'];
@@ -1849,41 +1862,106 @@ function validation(schema, data) {
   });
 }
 
-function saveData(producer, schema, data, endpoint) {
-  return new Promise(function (resolve, reject) {
-    var saveableData = transformProperties(producer, schema, data, false);
-    var url = endpoint + 'data/' + schema.$ref.replace('#/definitions/', '') + '/' + saveableData.id;
-    putData(url, saveableData).then(function (response) {
-      resolve(response);
-    }).catch(function (error) {
-      reject(error);
-    });
-  });
-}
+var DEFAULT_VALUE_BY_TYPE = {
+  array: [],
+  boolean: false,
+  number: '',
+  object: {},
+  string: ''
+};
 
-function producers$2(producer, element, user, version, versionIncrementation) {
+function producers$2(producer, element, user) {
   switch (producer) {
     case 'GSIM':
-      return updateGSIMDataState(element, user, version, versionIncrementation);
+      return generateGSIMDataState(element, user);
 
     default:
       return null;
   }
 }
 
-function updateAutofill(producer, schema, data, user, versionIncrementation) {
+function generateDataState(producer, schema, user) {
   return new Promise(function (resolve) {
     var name = schema.$ref.replace('#/definitions/', '');
     var properties = schema.definitions[name].properties;
-    var dataObject = JSON.parse(JSON.stringify(data));
+    var dataObject = {};
     Object.keys(properties).forEach(function (key) {
       if (properties[key].hasOwnProperty('autofilled')) {
-        if (producers$2(producer, key, user, data.version, versionIncrementation !== null)) {
-          dataObject[key] = producers$2(producer, key, user, data.version, versionIncrementation);
+        dataObject[key] = producers$2(producer, key, user);
+      } else {
+        if (DEFAULT_VALUE_BY_TYPE.hasOwnProperty(properties[key].type)) {
+          dataObject[key] = DEFAULT_VALUE_BY_TYPE[properties[key].type];
+        } else {
+          throw Error('Unknown type, cannot generate default value');
         }
       }
     });
     resolve(dataObject);
+  });
+}
+function fillDataState(producer, schema, id, endpoint) {
+  return new Promise(function (resolve, reject) {
+    var name = schema.$ref.replace('#/definitions/', '');
+    var url = endpoint + 'data/' + name + '/' + id;
+    fetchData(url).then(function (response) {
+      var transformedData = transformProperties(producer, schema, response, true);
+      resolve(transformedData);
+    }).catch(function (error) {
+      reject(error);
+    });
+  });
+}
+
+function producers$3(producer) {
+  switch (producer) {
+    case 'GSIM':
+      return DefaultGSIMUISchema;
+
+    default:
+      return null;
+  }
+}
+
+function mergeDefaultUISchema(producer, schema) {
+  return new Promise(function (resolve) {
+    var defaultUISchema = producers$3(producer);
+    var returnSchema = JSON.parse(JSON.stringify(schema));
+    var name = schema.$ref.replace('#/definitions/', '');
+    var properties = JSON.parse(JSON.stringify(schema.definitions[name].properties));
+    Object.keys(schema.definitions).forEach(function (definition) {
+      Object.keys(schema.definitions[definition].properties).forEach(function (property) {
+        if (schema.definitions[definition].required.includes(property)) {
+          returnSchema.definitions[definition].properties[property].required = true;
+        }
+      });
+      delete returnSchema.definitions[definition].required;
+    });
+    Object.keys(properties).forEach(function (key) {
+      returnSchema.definitions[name].properties[key].name = key;
+
+      if (defaultUISchema.type.hasOwnProperty(properties[key].type)) {
+        returnSchema.definitions[name].properties[key].component = defaultUISchema.type[properties[key].type].component;
+      }
+
+      if (defaultUISchema.format.hasOwnProperty(properties[key].format)) {
+        returnSchema.definitions[name].properties[key].component = defaultUISchema.format[properties[key].format].component;
+      }
+
+      if (defaultUISchema.autofilled.includes(key)) {
+        returnSchema.definitions[name].properties[key].autofilled = true;
+        returnSchema.definitions[name].properties[key].component = 'DCStatic';
+
+        if (properties[key].hasOwnProperty('format') && properties[key].format === 'date-time') {
+          returnSchema.definitions[name].properties[key].format = 'date';
+          returnSchema.definitions[name].properties[key].multiple = properties[key].type === 'array';
+        }
+      }
+
+      if (defaultUISchema.groups.common.includes(key)) {
+        returnSchema.definitions[name].properties[key].group = 'common';
+      }
+    });
+    resolve(returnSchema);
   });
 }
 
@@ -1962,23 +2040,85 @@ function populateOptions(producer, schema) {
   });
 }
 
-var version = {
-  component: 'DCRadio',
-  name: 'versionIncrementation',
-  displayName: 'Versjonsinkrementering',
-  description: 'Hvordan skal versjonen inkrementeres?',
-  value: '2',
-  options: [{
-    text: 'Major',
-    value: '0'
-  }, {
-    text: 'Minor',
-    value: '1'
-  }, {
-    text: 'Patch',
-    value: '2'
-  }]
+function resolveProperties(producer, schema, url) {
+  switch (producer) {
+    case 'GSIM':
+      return resolveGSIMProperties(schema, url);
+
+    default:
+      return null;
+  }
+}
+
+var name = "DescribedValueDomain";
+var hideOnChoice = {
+	dataType: {
+		BOOLEAN: [
+			"minValue",
+			"maxValue",
+			"minLength",
+			"maxLength",
+			"minDecimals",
+			"maxDecimals"
+		],
+		DATETIME: [
+			"minValue",
+			"maxValue",
+			"minLength",
+			"maxLength",
+			"minDecimals",
+			"maxDecimals"
+		],
+		FLOAT: [
+			"minLength",
+			"maxLength"
+		],
+		INTEGER: [
+			"minLength",
+			"maxLength",
+			"minDecimals",
+			"maxDecimals"
+		],
+		STRING: [
+			"minValue",
+			"maxValue",
+			"minDecimals",
+			"maxDecimals"
+		]
+	}
 };
+var DescribedValueDomainUISchema = {
+	name: name,
+	hideOnChoice: hideOnChoice
+};
+
+function mergeGSIMUISchema(schema) {
+  return new Promise(function (resolve) {
+    var returnSchema = JSON.parse(JSON.stringify(schema));
+    var name$$1 = schema.$ref.replace('#/definitions/', '');
+    var properties = JSON.parse(JSON.stringify(schema.definitions[name$$1].properties));
+
+    if (DescribedValueDomainUISchema.name === name$$1) {
+      Object.keys(properties).forEach(function (key) {
+        if (DescribedValueDomainUISchema.hideOnChoice.hasOwnProperty(key)) {
+          returnSchema.definitions[name$$1].properties[key].hideOnChoice = DescribedValueDomainUISchema.hideOnChoice[key];
+        }
+      });
+    }
+
+    resolve(returnSchema);
+  });
+}
+
+function mergeUISchema(producer, schema) {
+  switch (producer) {
+    case 'GSIM':
+      return mergeGSIMUISchema(schema);
+
+    default:
+      return null;
+  }
+}
 
 var FormBuilder =
 /*#__PURE__*/
@@ -2015,6 +2155,14 @@ function (_Component) {
       var _this$setState;
 
       _this.setState((_this$setState = {}, _defineProperty(_this$setState, name, value), _defineProperty(_this$setState, "saved", false), _this$setState));
+    };
+
+    _this.handleVisibilityChange = function (name, value) {
+      _this.setState({
+        data: _objectSpread({}, _this.state.data, _defineProperty({}, name, value)),
+        hiddenFields: _this.state.schema.definitions[_this.state.name].properties[name].hideOnChoice[value],
+        saved: false
+      });
     };
 
     _this.validateAndSave = function (event) {
@@ -2091,6 +2239,7 @@ function (_Component) {
       versionIncrementation: '2',
       data: {},
       schema: {},
+      hiddenFields: [],
       name: _this.props.schema.$ref.replace('#/definitions/', ''),
       description: _this.props.schema.definitions[_this.props.schema.$ref.replace('#/definitions/', '')].description
     };
@@ -2107,17 +2256,25 @@ function (_Component) {
           _this2.newComponent(_this2.props.producer, schema, 'Test');
         } else {
           fillDataState(_this2.props.producer, schema, _this2.props.params.id, _this2.props.endpoint).then(function (result) {
+            var properties = schema.definitions[_this2.state.name].properties;
+            var hiddenFields = [];
             Object.keys(result).forEach(function (key) {
-              if (schema.definitions[_this2.state.name].properties[key].hasOwnProperty('autofilled')) {
-                schema.definitions[_this2.state.name].properties[key].value = [result[key]];
+              if (properties[key].hasOwnProperty('autofilled')) {
+                properties[key].value = [result[key]];
               } else {
-                schema.definitions[_this2.state.name].properties[key].value = result[key];
+                properties[key].value = result[key];
+              }
+            });
+            Object.keys(properties).forEach(function (property) {
+              if (properties[property].hasOwnProperty('hideOnChoice')) {
+                hiddenFields = hiddenFields.concat(properties[property].hideOnChoice[result[property]]);
               }
             });
 
             _this2.setState({
               data: result,
-              schema: schema
+              schema: schema,
+              hiddenFields: hiddenFields
             }, function () {
               return _this2.setState({
                 ready: true
@@ -2144,6 +2301,11 @@ function (_Component) {
             _this3.newComponent(_this3.props.producer, schema, 'Test');
           });
         });
+        return true;
+      }
+
+      if (this.state.hiddenFields !== nextState.hiddenFields) {
+        return true;
       }
 
       return this.state.data === nextState.data;
@@ -2153,16 +2315,18 @@ function (_Component) {
     value: function newComponent(producer, schema, user) {
       var _this4 = this;
 
+      var properties = schema.definitions[this.state.name].properties;
       generateDataState(producer, schema, user).then(function (result) {
-        Object.keys(schema.definitions[_this4.state.name].properties).forEach(function (key) {
-          if (schema.definitions[_this4.state.name].properties[key].hasOwnProperty('autofilled')) {
-            schema.definitions[_this4.state.name].properties[key].value = [result[key]];
+        Object.keys(properties).forEach(function (key) {
+          if (properties[key].hasOwnProperty('autofilled')) {
+            properties[key].value = [result[key]];
           }
         });
 
         _this4.setState({
           data: result,
           schema: schema,
+          hiddenFields: [],
           message: '',
           saved: false
         }, function () {
@@ -2183,6 +2347,7 @@ function (_Component) {
           message = _this$state.message,
           saved = _this$state.saved,
           schema = _this$state.schema,
+          hiddenFields = _this$state.hiddenFields,
           name = _this$state.name,
           description = _this$state.description;
 
@@ -2222,11 +2387,23 @@ function (_Component) {
           divided: true
         }, React__default.createElement(semanticUiReact.Grid.Column, null, Object.keys(properties).map(function (property, index) {
           if (!properties[property].hasOwnProperty('autofilled') && properties[property].group !== 'common') {
-            return React__default.createElement(bundle_1, {
-              key: index,
-              properties: properties[property],
-              valueChange: _this5.handleValueChange
-            });
+            if (properties[property].hasOwnProperty('hideOnChoice')) {
+              return React__default.createElement(bundle_1, {
+                key: index,
+                properties: properties[property],
+                valueChange: _this5.handleVisibilityChange
+              });
+            } else {
+              if (Array.isArray(hiddenFields) && hiddenFields.length !== 0 && hiddenFields.includes(property)) {
+                return null;
+              } else {
+                return React__default.createElement(bundle_1, {
+                  key: index,
+                  properties: properties[property],
+                  valueChange: _this5.handleValueChange
+                });
+              }
+            }
           }
 
           return null;
@@ -2251,7 +2428,7 @@ function (_Component) {
 
           return null;
         }), React__default.createElement(bundle_1, {
-          properties: version,
+          properties: defaultVersioning,
           valueChange: this.handleVersionIncrementationChange
         }), React__default.createElement(semanticUiReact.Button, {
           color: "green",
@@ -2281,69 +2458,6 @@ function (_Component) {
   return FormBuilder;
 }(React.Component);
 
-function producers$3(producer) {
-  switch (producer) {
-    case 'GSIM':
-      return DefaultGSIMUISchema;
-
-    default:
-      return null;
-  }
-}
-
-function mergeDefaultUISchema(producer, schema) {
-  return new Promise(function (resolve) {
-    var defaultUISchema = producers$3(producer);
-    var returnSchema = JSON.parse(JSON.stringify(schema));
-    var name = schema.$ref.replace('#/definitions/', '');
-    var properties = JSON.parse(JSON.stringify(schema.definitions[name].properties));
-    Object.keys(schema.definitions).forEach(function (definition) {
-      Object.keys(schema.definitions[definition].properties).forEach(function (property) {
-        if (schema.definitions[definition].required.includes(property)) {
-          returnSchema.definitions[definition].properties[property].required = true;
-        }
-      });
-      delete returnSchema.definitions[definition].required;
-    });
-    Object.keys(properties).forEach(function (key) {
-      returnSchema.definitions[name].properties[key].name = key;
-
-      if (defaultUISchema.type.hasOwnProperty(properties[key].type)) {
-        returnSchema.definitions[name].properties[key].component = defaultUISchema.type[properties[key].type].component;
-      }
-
-      if (defaultUISchema.format.hasOwnProperty(properties[key].format)) {
-        returnSchema.definitions[name].properties[key].component = defaultUISchema.format[properties[key].format].component;
-      }
-
-      if (defaultUISchema.autofilled.includes(key)) {
-        returnSchema.definitions[name].properties[key].autofilled = true;
-        returnSchema.definitions[name].properties[key].component = 'DCStatic';
-
-        if (properties[key].hasOwnProperty('format') && properties[key].format === 'date-time') {
-          returnSchema.definitions[name].properties[key].format = 'date';
-          returnSchema.definitions[name].properties[key].multiple = properties[key].type === 'array';
-        }
-      }
-
-      if (defaultUISchema.groups.common.includes(key)) {
-        returnSchema.definitions[name].properties[key].group = 'common';
-      }
-    });
-    resolve(returnSchema);
-  });
-}
-
-function resolveProperties(producer, schema, url) {
-  switch (producer) {
-    case 'GSIM':
-      return resolveGSIMProperties(schema, url);
-
-    default:
-      return null;
-  }
-}
-
 function SchemaHandler(url, producer, endpoint) {
   return new Promise(function (resolve, reject) {
     fetchData(url).then(function (result) {
@@ -2353,18 +2467,22 @@ function SchemaHandler(url, producer, endpoint) {
         Promise.all(mergedSchemas.map(function (mergedSchema) {
           return resolveProperties(producer, mergedSchema, endpoint);
         })).then(function (resolvedSchemas) {
-          resolve(resolvedSchemas);
+          Promise.all(resolvedSchemas.map(function (resolvedSchema) {
+            return mergeUISchema(producer, resolvedSchema);
+          })).then(function (finishedSchemas) {
+            resolve(finishedSchemas);
+          });
         }).catch(function (error) {
           console.log(error);
-          reject();
+          reject(error);
         });
       }).catch(function (error) {
         console.log(error);
-        reject();
+        reject(error);
       });
     }).catch(function (error) {
       console.log(error);
-      reject();
+      reject(error);
     });
   });
 }

@@ -1,0 +1,39 @@
+{
+  "name": "DescribedValueDomain",
+  "hideOnChoice": {
+    "dataType": {
+      "BOOLEAN": [
+        "minValue",
+        "maxValue",
+        "minLength",
+        "maxLength",
+        "minDecimals",
+        "maxDecimals"
+      ],
+      "DATETIME": [
+        "minValue",
+        "maxValue",
+        "minLength",
+        "maxLength",
+        "minDecimals",
+        "maxDecimals"
+      ],
+      "FLOAT": [
+        "minLength",
+        "maxLength"
+      ],
+      "INTEGER": [
+        "minLength",
+        "maxLength",
+        "minDecimals",
+        "maxDecimals"
+      ],
+      "STRING": [
+        "minValue",
+        "maxValue",
+        "minDecimals",
+        "maxDecimals"
+      ]
+    }
+  }
+}

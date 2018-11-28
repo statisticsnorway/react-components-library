@@ -2,25 +2,10 @@ import React, { Component } from 'react'
 import { Button, Dimmer, Form, Grid, Header, Message } from 'semantic-ui-react'
 
 import { DCFormField } from 'dc-react-form-fields-library'
-import { fillDataState, generateDataState } from '../utilities/schema-handling/DataState'
+import { defaultVersioning } from '../producers'
 import { splitOnUppercase } from '../utilities/Common'
-import { validation } from '../utilities/data-handling/Validator'
-import { saveData } from '../utilities/data-handling/Saver'
-import { updateAutofill } from '../utilities/data-handling/Autofiller'
-import { populateOptions } from '../utilities/schema-handling/Options'
-
-const version = {
-  component: 'DCRadio',
-  name: 'versionIncrementation',
-  displayName: 'Versjonsinkrementering',
-  description: 'Hvordan skal versjonen inkrementeres?',
-  value: '2',
-  options: [
-    {text: 'Major', value: '0'},
-    {text: 'Minor', value: '1'},
-    {text: 'Patch', value: '2'}
-  ]
-}
+import { saveData, updateAutofill, validation } from '../utilities/data-handling'
+import { fillDataState, generateDataState, populateOptions } from '../utilities/schema-handling'
 
 class FormBuilder extends Component {
   constructor (props) {
@@ -33,6 +18,7 @@ class FormBuilder extends Component {
       versionIncrementation: '2',
       data: {},
       schema: {},
+      hiddenFields: [],
       name: this.props.schema.$ref.replace('#/definitions/', ''),
       description: this.props.schema.definitions[this.props.schema.$ref.replace('#/definitions/', '')].description
     }
@@ -44,17 +30,28 @@ class FormBuilder extends Component {
         this.newComponent(this.props.producer, schema, 'Test')
       } else {
         fillDataState(this.props.producer, schema, this.props.params.id, this.props.endpoint).then(result => {
+          const properties = schema.definitions[this.state.name].properties
+
+          let hiddenFields = []
+
           Object.keys(result).forEach(key => {
-            if (schema.definitions[this.state.name].properties[key].hasOwnProperty('autofilled')) {
-              schema.definitions[this.state.name].properties[key].value = [result[key]]
+            if (properties[key].hasOwnProperty('autofilled')) {
+              properties[key].value = [result[key]]
             } else {
-              schema.definitions[this.state.name].properties[key].value = result[key]
+              properties[key].value = result[key]
+            }
+          })
+
+          Object.keys(properties).forEach(property => {
+            if (properties[property].hasOwnProperty('hideOnChoice')) {
+              hiddenFields = hiddenFields.concat(properties[property].hideOnChoice[result[property]])
             }
           })
 
           this.setState({
             data: result,
-            schema: schema
+            schema: schema,
+            hiddenFields: hiddenFields
           }, () => this.setState({ready: true}))
         }).catch(error => {
           console.log(error)
@@ -72,21 +69,31 @@ class FormBuilder extends Component {
           this.newComponent(this.props.producer, schema, 'Test')
         })
       })
+
+      return true
     }
-      return this.state.data === nextState.data
+
+    if (this.state.hiddenFields !== nextState.hiddenFields) {
+      return true
+    }
+
+    return this.state.data === nextState.data
   }
 
   newComponent (producer, schema, user) {
+    const properties = schema.definitions[this.state.name].properties
+
     generateDataState(producer, schema, user).then(result => {
-      Object.keys(schema.definitions[this.state.name].properties).forEach(key => {
-        if (schema.definitions[this.state.name].properties[key].hasOwnProperty('autofilled')) {
-          schema.definitions[this.state.name].properties[key].value = [result[key]]
+      Object.keys(properties).forEach(key => {
+        if (properties[key].hasOwnProperty('autofilled')) {
+          properties[key].value = [result[key]]
         }
       })
 
       this.setState({
         data: result,
         schema: schema,
+        hiddenFields: [],
         message: '',
         saved: false
       }, () => this.setState({ready: true}))
@@ -114,6 +121,17 @@ class FormBuilder extends Component {
   handleVersionIncrementationChange = (name, value) => {
     this.setState({
       [name]: value,
+      saved: false
+    })
+  }
+
+  handleVisibilityChange = (name, value) => {
+    this.setState({
+      data: {
+        ...this.state.data,
+        [name]: value
+      },
+      hiddenFields: this.state.schema.definitions[this.state.name].properties[name].hideOnChoice[value],
       saved: false
     })
   }
@@ -185,7 +203,7 @@ class FormBuilder extends Component {
   }
 
   render () {
-    const {ready, readOnly, message, saved, schema, name, description} = this.state
+    const {ready, readOnly, message, saved, schema, hiddenFields, name, description} = this.state
 
     if (ready) {
       const formIcon = readOnly ? 'lock' : 'unlock'
@@ -195,21 +213,30 @@ class FormBuilder extends Component {
       return (
         <Form>
           <Header as='h1' content={splitOnUppercase(name)} subheader={description} dividing
-                  icon={{name: formIcon, color: formIconColor, link: true, onClick: this.handleLockClick}}/>
-          {message !== '' && <Message color={saved ? 'green' : 'red'} content={message.toString()}/>}
+                  icon={{name: formIcon, color: formIconColor, link: true, onClick: this.handleLockClick}} />
+          {message !== '' && <Message color={saved ? 'green' : 'red'} content={message.toString()} />}
           <Dimmer.Dimmable dimmed={readOnly}>
             <Dimmer active={readOnly} style={{
               backgroundColor: 'rgba(0,0,0,.01)',
               border: 'solid',
               borderWidth: '0.1rem',
               borderColor: 'rgba(219,40,40,.1'
-            }}/>
+            }} />
             <Grid columns='equal' style={{padding: '0.5rem'}} divided>
               <Grid.Column>
                 {Object.keys(properties).map((property, index) => {
                   if (!properties[property].hasOwnProperty('autofilled') && properties[property].group !== 'common') {
-                    return <DCFormField key={index} properties={properties[property]}
-                                        valueChange={this.handleValueChange}/>
+                    if (properties[property].hasOwnProperty('hideOnChoice')) {
+                      return <DCFormField key={index} properties={properties[property]}
+                                          valueChange={this.handleVisibilityChange} />
+                    } else {
+                      if (Array.isArray(hiddenFields) && hiddenFields.length !== 0 && hiddenFields.includes(property)) {
+                        return null
+                      } else {
+                        return <DCFormField key={index} properties={properties[property]}
+                                            valueChange={this.handleValueChange} />
+                      }
+                    }
                   }
 
                   return null
@@ -219,7 +246,7 @@ class FormBuilder extends Component {
                 {Object.keys(properties).map((property, index) => {
                   if (!properties[property].hasOwnProperty('autofilled') && properties[property].group === 'common') {
                     return <DCFormField key={index} properties={properties[property]}
-                                        valueChange={this.handleValueChange}/>
+                                        valueChange={this.handleValueChange} />
                   }
 
                   return null
@@ -229,25 +256,25 @@ class FormBuilder extends Component {
                 {Object.keys(properties).map((property, index) => {
                   if (properties[property].hasOwnProperty('autofilled')) {
                     return <DCFormField key={index} properties={properties[property]}
-                                        valueChange={this.handleValueChange}/>
+                                        valueChange={this.handleValueChange} />
                   }
 
                   return null
                 })}
 
-                <DCFormField properties={version} valueChange={this.handleVersionIncrementationChange}/>
-                <Button color='green' content='Lagre' onClick={this.validateAndSave}/>
+                <DCFormField properties={defaultVersioning} valueChange={this.handleVersionIncrementationChange} />
+                <Button color='green' content='Lagre' onClick={this.validateAndSave} />
               </Grid.Column>
             </Grid>
           </Dimmer.Dimmable>
-          <Button color='pink' content='Inner State' onClick={this.checkState}/>
+          <Button color='pink' content='Inner State' onClick={this.checkState} />
         </Form>
       )
     }
 
     return (
       <Header as='h1' content={splitOnUppercase(name)} subheader={description} dividing
-              icon={{name: 'spinner', color: 'teal', loading: true}}/>
+              icon={{name: 'spinner', color: 'teal', loading: true}} />
     )
   }
 }

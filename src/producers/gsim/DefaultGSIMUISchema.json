@@ -21,9 +21,24 @@
       "component": "DCDate"
     }
   },
-  "autofilled": ["createdBy", "createdDate", "id", "lastUpdatedBy", "lastUpdatedDate", "version", "versionValidFrom", "validFrom"],
+  "autofilled": [
+    "createdBy",
+    "createdDate",
+    "id",
+    "lastUpdatedBy",
+    "lastUpdatedDate",
+    "version",
+    "versionValidFrom",
+    "validFrom"
+  ],
   "groups": {
-    "common": ["administrativeDetails", "administrativeStatus", "agentInRoles", "validUntil", "versionRationale"]
+    "common": [
+      "administrativeDetails",
+      "administrativeStatus",
+      "agentInRoles",
+      "validUntil",
+      "versionRationale"
+    ]
   },
   "transformer": {
     "AdministrativeDetails": {
@@ -35,8 +50,15 @@
       "option": "agentDetailType"
     }
   },
-  "defaultTableHeaders": ["id", "name", "description"],
+  "defaultTableHeaders": [
+    "id",
+    "name",
+    "description"
+  ],
   "icons": {
-    "user": ["createdBy", "lastUpdatedBy"]
+    "user": [
+      "createdBy",
+      "lastUpdatedBy"
+    ]
   }
 }

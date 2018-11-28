@@ -1,6 +1,7 @@
+import { fetchData } from '../utilities/http-clients/fetch'
 import { mergeDefaultUISchema } from '../utilities/schema-handling/Merge'
 import { resolveProperties } from '../utilities/schema-handling/Resolve'
-import { fetchData } from '../utilities/http-clients/fetch/Fetch'
+import { mergeUISchema } from '../utilities/schema-handling/UISchema'
 
 export function SchemaHandler (url, producer, endpoint) {
   return new Promise((resolve, reject) => {
@@ -15,18 +16,24 @@ export function SchemaHandler (url, producer, endpoint) {
             return resolveProperties(producer, mergedSchema, endpoint)
           })
         ).then(resolvedSchemas => {
-          resolve(resolvedSchemas)
+          Promise.all(
+            resolvedSchemas.map(resolvedSchema => {
+              return mergeUISchema(producer, resolvedSchema)
+            })
+          ).then(finishedSchemas => {
+            resolve(finishedSchemas)
+          })
         }).catch(error => {
           console.log(error)
-          reject()
+          reject(error)
         })
       }).catch(error => {
         console.log(error)
-        reject()
+        reject(error)
       })
     }).catch(error => {
       console.log(error)
-      reject()
+      reject(error)
     })
   })
 }
