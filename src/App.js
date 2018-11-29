@@ -6,6 +6,7 @@ import Axios from './example/Axios'
 import Merge from './example/Merge'
 import Home from './example/Home'
 import Forms from './example/Forms'
+import { GSIM } from './producers/index'
 
 class App extends Component {
   render () {
@@ -15,8 +16,8 @@ class App extends Component {
           <Route path='/' exact component={Home} />
           <Route path='/axios' exact component={Axios} />
           <Route path='/merge' exact component={Merge} />
-          <Route path='/form'
-                 render={() => <Forms producer='GSIM' endpoint='http://localhost:9090/' route='/form/' />} />
+          <Route path={GSIM.route}
+                 render={() => <Forms producer={GSIM.producer} endpoint={GSIM.endpoint} route={GSIM.route} />} />
         </Switch>
       </Segment>
     )

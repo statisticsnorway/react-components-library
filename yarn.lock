@@ -2859,7 +2859,7 @@ date-now@^0.1.4:
 
 "dc-react-form-fields-library@https://github.com/statisticsnorway/dc-react-form-fields-library.git":
   version "0.1.0"
-  resolved "https://github.com/statisticsnorway/dc-react-form-fields-library.git#835137385da914e39304fb1cf42c77fa2518bb6d"
+  resolved "https://github.com/statisticsnorway/dc-react-form-fields-library.git#feab4a0a53ee68a9b750d324c1e862c12816d827"
   dependencies:
     moment "^2.22.2"
     react "^16.6.0"

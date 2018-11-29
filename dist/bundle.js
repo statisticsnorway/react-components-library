@@ -338,6 +338,13 @@ function simpleStaticFormField(displayName, description, component) {
 function checkValueAndType(value, type) {
   return value !== undefined && value !== '' && value !== null && _typeof(value) === type;
 }
+function shorten(string) {
+  if (typeof string === 'string' && string.length > 32) {
+    return string.substring(0, 30) + '...';
+  } else {
+    return string;
+  }
+}
 
 var DCText =
 /*#__PURE__*/
@@ -352,10 +359,14 @@ function (_Component) {
     _this = _possibleConstructorReturn(this, _getPrototypeOf(DCText).call(this, props));
 
     _this.handleChange = function (event) {
+      var _this$props = _this.props,
+          valueChange = _this$props.valueChange,
+          name = _this$props.name;
+
       _this.setState({
         value: event.target.value
       }, function () {
-        return _this.props.valueChange(_this.props.name, _this.state.value);
+        return valueChange(name, _this.state.value);
       });
     };
 
@@ -368,26 +379,27 @@ function (_Component) {
   _createClass(DCText, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      if (checkValueAndType(this.props.value, 'string')) this.setState({
-        value: this.props.value
+      var value = this.props.value;
+      if (checkValueAndType(value, 'string')) this.setState({
+        value: value
       });
     }
   }, {
     key: "render",
     value: function render() {
       var value = this.state.value;
-      var _this$props = this.props,
-          name = _this$props.name,
-          displayName = _this$props.displayName,
-          description = _this$props.description,
-          error = _this$props.error,
-          warning = _this$props.warning,
-          required = _this$props.required;
+      var _this$props2 = this.props,
+          name = _this$props2.name,
+          displayName = _this$props2.displayName,
+          description = _this$props2.description,
+          error = _this$props2.error,
+          warning = _this$props2.warning,
+          required = _this$props2.required;
       var component = React__default$$1.createElement(semanticUiReact__default.TextArea, {
         autoHeight: true,
         rows: 1,
         name: name,
-        placeholder: displayName,
+        placeholder: shorten(displayName),
         value: value,
         onChange: this.handleChange
       });
@@ -411,10 +423,14 @@ function (_Component) {
     _this = _possibleConstructorReturn(this, _getPrototypeOf(DCBoolean).call(this, props));
 
     _this.handleChange = function () {
+      var _this$props = _this.props,
+          valueChange = _this$props.valueChange,
+          name = _this$props.name;
+
       _this.setState({
         value: !_this.state.value
       }, function () {
-        return _this.props.valueChange(_this.props.name, _this.state.value);
+        return valueChange(name, _this.state.value);
       });
     };
 
@@ -427,17 +443,18 @@ function (_Component) {
   _createClass(DCBoolean, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      if (checkValueAndType(this.props.value, 'boolean')) this.setState({
-        value: this.props.value
+      var value = this.props.value;
+      if (checkValueAndType(value, 'boolean')) this.setState({
+        value: value
       });
     }
   }, {
     key: "render",
     value: function render() {
       var value = this.state.value;
-      var _this$props = this.props,
-          displayName = _this$props.displayName,
-          description = _this$props.description;
+      var _this$props2 = this.props,
+          displayName = _this$props2.displayName,
+          description = _this$props2.description;
       var component = React__default$$1.createElement(semanticUiReact__default.Checkbox, {
         label: displayName,
         onChange: this.handleChange,
@@ -464,13 +481,16 @@ function (_Component) {
 
     _this.handleChange = function (event) {
       if (!isNaN(event.target.value)) {
+        var _this$props = _this.props,
+            valueChange = _this$props.valueChange,
+            name = _this$props.name;
         var value = '';
         if (event.target.value !== '') value = parseFloat(event.target.value);
 
         _this.setState({
           value: value
         }, function () {
-          return _this.props.valueChange(_this.props.name, _this.state.value);
+          return valueChange(name, _this.state.value);
         });
       }
     };
@@ -484,21 +504,22 @@ function (_Component) {
   _createClass(DCNumber, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      if (checkValueAndType(this.props.value, 'number')) this.setState({
-        value: this.props.value
+      var value = this.props.value;
+      if (checkValueAndType(value, 'number')) this.setState({
+        value: value
       });
     }
   }, {
     key: "render",
     value: function render() {
       var value = this.state.value;
-      var _this$props = this.props,
-          name = _this$props.name,
-          displayName = _this$props.displayName,
-          description = _this$props.description,
-          error = _this$props.error,
-          warning = _this$props.warning,
-          required = _this$props.required;
+      var _this$props2 = this.props,
+          name = _this$props2.name,
+          displayName = _this$props2.displayName,
+          description = _this$props2.description,
+          error = _this$props2.error,
+          warning = _this$props2.warning,
+          required = _this$props2.required;
       var component = React__default$$1.createElement(semanticUiReact__default.Input, {
         icon: {
           name: 'hashtag',
@@ -507,7 +528,7 @@ function (_Component) {
         iconPosition: "left",
         name: name,
         value: value,
-        placeholder: displayName,
+        placeholder: shorten(displayName),
         onChange: this.handleChange
       });
       return fullFormField(displayName, description, error, warning, required, component);
@@ -531,11 +552,14 @@ function (_Component) {
 
     _this.handleChange = function (event, _ref) {
       var value = _ref.value;
+      var _this$props = _this.props,
+          valueChange = _this$props.valueChange,
+          name = _this$props.name;
 
       _this.setState({
         value: value
       }, function () {
-        return _this.props.valueChange(_this.props.name, _this.state.value);
+        return valueChange(name, _this.state.value);
       });
     };
 
@@ -548,8 +572,9 @@ function (_Component) {
   _createClass(DCRadio, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      if (checkValueAndType(this.props.value, 'string')) this.setState({
-        value: this.props.value
+      var value = this.props.value;
+      if (checkValueAndType(value, 'string')) this.setState({
+        value: value
       });
     }
   }, {
@@ -558,13 +583,13 @@ function (_Component) {
       var _this2 = this;
 
       var value = this.state.value;
-      var _this$props = this.props,
-          displayName = _this$props.displayName,
-          description = _this$props.description,
-          error = _this$props.error,
-          warning = _this$props.warning,
-          required = _this$props.required,
-          options = _this$props.options;
+      var _this$props2 = this.props,
+          displayName = _this$props2.displayName,
+          description = _this$props2.description,
+          error = _this$props2.error,
+          warning = _this$props2.warning,
+          required = _this$props2.required,
+          options = _this$props2.options;
       var radios = Object.keys(options).map(function (key) {
         return React__default$$1.createElement(semanticUiReact__default.Form.Radio, {
           key: key,
@@ -588,6 +613,12 @@ function (_Component) {
   return DCRadio;
 }(React__default.Component);
 
+var UI = {
+  NO_OPTIONS: 'No options',
+  OPTIONS: 'Pick one',
+  TODAY: 'Today'
+};
+
 var DCDate =
 /*#__PURE__*/
 function (_Component) {
@@ -601,7 +632,12 @@ function (_Component) {
     _this = _possibleConstructorReturn(this, _getPrototypeOf(DCDate).call(this, props));
 
     _this.handleChange = function (index, date) {
-      if (_this.props.multiple) {
+      var _this$props = _this.props,
+          valueChange = _this$props.valueChange,
+          name = _this$props.name,
+          multiple = _this$props.multiple;
+
+      if (multiple) {
         var value = _toConsumableArray(_this.state.value);
 
         value[parseInt(index)] = date;
@@ -609,13 +645,13 @@ function (_Component) {
         _this.setState({
           value: value
         }, function () {
-          return _this.props.valueChange(_this.props.name, _this.state.value);
+          return valueChange(name, _this.state.value);
         });
       } else {
         _this.setState({
           value: date
         }, function () {
-          return _this.props.valueChange(_this.props.name, _this.state.value);
+          return valueChange(name, _this.state.value);
         });
       }
     };
@@ -637,8 +673,9 @@ function (_Component) {
   _createClass(DCDate, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      if (checkValueAndType(this.props.value, 'object')) this.setState({
-        value: this.props.value
+      var value = this.props.value;
+      if (checkValueAndType(value, 'object')) this.setState({
+        value: value
       });
     }
   }, {
@@ -646,13 +683,17 @@ function (_Component) {
     value: function handleRemoveEntry(index) {
       var _this2 = this;
 
+      var _this$props2 = this.props,
+          valueChange = _this$props2.valueChange,
+          name = _this$props2.name;
+
       var entries = _toConsumableArray(this.state.value);
 
       if (parseInt(index) !== -1) entries.splice(parseInt(index), 1);
       this.setState({
         value: entries
       }, function () {
-        return _this2.props.valueChange(_this2.props.name, _this2.state.value);
+        return valueChange(name, _this2.state.value);
       });
     }
   }, {
@@ -661,13 +702,13 @@ function (_Component) {
       var _this3 = this;
 
       var value = this.state.value;
-      var _this$props = this.props,
-          displayName = _this$props.displayName,
-          description = _this$props.description,
-          error = _this$props.error,
-          warning = _this$props.warning,
-          required = _this$props.required,
-          multiple = _this$props.multiple;
+      var _this$props3 = this.props,
+          displayName = _this$props3.displayName,
+          description = _this$props3.description,
+          error = _this$props3.error,
+          warning = _this$props3.warning,
+          required = _this$props3.required,
+          multiple = _this$props3.multiple;
       var icon = React__default$$1.createElement(semanticUiReact__default.Icon, {
         name: "calendar alternate outline",
         size: "big",
@@ -684,10 +725,10 @@ function (_Component) {
             selected: value[index],
             onChange: _this3.handleChange.bind(_this3, index),
             dateFormat: "DD/MM/YYYY",
-            placeholderText: displayName,
+            placeholderText: shorten(displayName),
             showWeekNumbers: true,
             dropdownMode: "select",
-            todayButton: "I dag"
+            todayButton: UI.TODAY
           });
           return React__default$$1.createElement(semanticUiReact__default.Grid.Row, {
             key: index
@@ -749,10 +790,10 @@ function (_Component) {
           onChange: this.handleChange.bind(this, null),
           isClearable: true,
           dateFormat: "DD/MM/YYYY",
-          placeholderText: displayName,
+          placeholderText: shorten(displayName),
           showWeekNumbers: true,
           dropdownMode: "select",
-          todayButton: "I dag"
+          todayButton: UI.TODAY
         });
         component = React__default$$1.createElement(semanticUiReact__default.Form.Group, {
           inline: true,
@@ -783,10 +824,14 @@ function (_Component) {
     _this = _possibleConstructorReturn(this, _getPrototypeOf(DCDropdown).call(this, props));
 
     _this.handleChange = function (event, data) {
+      var _this$props = _this.props,
+          valueChange = _this$props.valueChange,
+          name = _this$props.name;
+
       _this.setState({
         value: data.value
       }, function () {
-        return _this.props.valueChange(_this.props.name, _this.state.value);
+        return valueChange(name, _this.state.value);
       });
     };
 
@@ -806,18 +851,22 @@ function (_Component) {
       var _this2 = this;
 
       return new Promise(function (resolve) {
+        var _this2$props = _this2.props,
+            value = _this2$props.value,
+            multiSelect = _this2$props.multiSelect;
+
         _this2.setState({
           options: options
         }, function () {
-          if (checkValueAndType(_this2.props.value, 'string') || Array.isArray(_this2.props.value) && _this2.props.value.length !== 0) {
+          if (checkValueAndType(value, 'string') || Array.isArray(value) && value.length !== 0) {
             _this2.setState({
-              value: _this2.props.value
+              value: value
             }, function () {
               return resolve();
             });
           } else {
             _this2.setState({
-              value: _this2.props.multiSelect ? [] : ''
+              value: multiSelect ? [] : ''
             }, function () {
               return resolve();
             });
@@ -853,18 +902,18 @@ function (_Component) {
           value = _this$state.value,
           options = _this$state.options,
           errorMessage = _this$state.errorMessage;
-      var _this$props = this.props,
-          displayName = _this$props.displayName,
-          description = _this$props.description,
-          error = _this$props.error,
-          warning = _this$props.warning,
-          required = _this$props.required,
-          multiSelect = _this$props.multiSelect,
-          searchable = _this$props.searchable;
+      var _this$props2 = this.props,
+          displayName = _this$props2.displayName,
+          description = _this$props2.description,
+          error = _this$props2.error,
+          warning = _this$props2.warning,
+          required = _this$props2.required,
+          multiSelect = _this$props2.multiSelect,
+          searchable = _this$props2.searchable;
 
       if (!ready) {
         var component = React__default$$1.createElement(semanticUiReact__default.Dropdown, {
-          placeholder: displayName,
+          placeholder: shorten(displayName),
           selection: true,
           options: [],
           loading: true,
@@ -885,8 +934,7 @@ function (_Component) {
 
       if (ready && !problem) {
         var _component2 = React__default$$1.createElement(semanticUiReact__default.Dropdown, {
-          placeholder: options.length === 0 ? 'No options' : displayName,
-          search: searchable,
+          placeholder: options.length === 0 ? UI.NO_OPTIONS : shorten(displayName),
           value: value,
           options: options,
           clearable: true,
@@ -894,6 +942,7 @@ function (_Component) {
           multiple: multiSelect,
           disabled: options.length === 0,
           onChange: this.handleChange,
+          search: searchable,
           icon: {
             name: searchable ? 'search' : 'dropdown',
             disabled: !!searchable,
@@ -924,13 +973,18 @@ function (_Component) {
     _this = _possibleConstructorReturn(this, _getPrototypeOf(DCMultiInput).call(this, props));
 
     _this.handleAddEntry = function () {
+      var _this$props = _this.props,
+          valueChange = _this$props.valueChange,
+          name = _this$props.name,
+          multiValue = _this$props.multiValue;
+
       _this.setState({
         value: _toConsumableArray(_this.state.value).concat([{
-          text: _this.props.multiValue ? [''] : '',
+          text: multiValue ? [''] : '',
           option: ''
         }])
       }, function () {
-        return _this.props.valueChange(_this.props.name, _this.state.value);
+        return valueChange(name, _this.state.value);
       });
     };
 
@@ -953,12 +1007,14 @@ function (_Component) {
       var _this2 = this;
 
       return new Promise(function (resolve) {
+        var value = _this2.props.value;
+
         _this2.setState({
           options: options
         }, function () {
-          if (Array.isArray(_this2.props.value) && _this2.props.value.length !== 0) {
+          if (Array.isArray(value) && value.length !== 0) {
             _this2.setState({
-              value: _this2.props.value
+              value: value
             }, function () {
               return resolve();
             });
@@ -990,9 +1046,14 @@ function (_Component) {
     value: function handleInputChange(index, innerIndex, event) {
       var _this4 = this;
 
+      var _this$props2 = this.props,
+          valueChange = _this$props2.valueChange,
+          name = _this$props2.name,
+          multiValue = _this$props2.multiValue;
+
       var value = _toConsumableArray(this.state.value);
 
-      if (!this.props.multiValue) {
+      if (!multiValue) {
         value[parseInt(index)].text = event.target.value;
       } else {
         value[parseInt(index)].text[parseInt(innerIndex)] = event.target.value;
@@ -1001,7 +1062,7 @@ function (_Component) {
       this.setState({
         value: value
       }, function () {
-        return _this4.props.valueChange(_this4.props.name, _this4.state.value);
+        return valueChange(name, _this4.state.value);
       });
     }
   }, {
@@ -1009,13 +1070,17 @@ function (_Component) {
     value: function handleDropdownChange(index, event, data) {
       var _this5 = this;
 
+      var _this$props3 = this.props,
+          valueChange = _this$props3.valueChange,
+          name = _this$props3.name;
+
       var value = _toConsumableArray(this.state.value);
 
       value[parseInt(index)].option = data.value;
       this.setState({
         value: value
       }, function () {
-        return _this5.props.valueChange(_this5.props.name, _this5.state.value);
+        return valueChange(name, _this5.state.value);
       });
     }
   }, {
@@ -1023,13 +1088,17 @@ function (_Component) {
     value: function handleRemoveEntry(index) {
       var _this6 = this;
 
+      var _this$props4 = this.props,
+          valueChange = _this$props4.valueChange,
+          name = _this$props4.name;
+
       var entries = _toConsumableArray(this.state.value);
 
       if (parseInt(index) !== -1) entries.splice(parseInt(index), 1);
       this.setState({
         value: entries
       }, function () {
-        return _this6.props.valueChange(_this6.props.name, _this6.state.value);
+        return valueChange(name, _this6.state.value);
       });
     }
   }, {
@@ -1037,19 +1106,27 @@ function (_Component) {
     value: function handleAddValueToEntry(index) {
       var _this7 = this;
 
+      var _this$props5 = this.props,
+          valueChange = _this$props5.valueChange,
+          name = _this$props5.name;
+
       var entries = _toConsumableArray(this.state.value);
 
       entries[parseInt(index)].text = _toConsumableArray(this.state.value[parseInt(index)].text).concat(['']);
       this.setState({
         value: entries
       }, function () {
-        return _this7.props.valueChange(_this7.props.name, _this7.state.value);
+        return valueChange(name, _this7.state.value);
       });
     }
   }, {
     key: "handleRemoveValueFromEntry",
     value: function handleRemoveValueFromEntry(index, innerIndex) {
       var _this8 = this;
+
+      var _this$props6 = this.props,
+          valueChange = _this$props6.valueChange,
+          name = _this$props6.name;
 
       var entries = _toConsumableArray(this.state.value);
 
@@ -1060,7 +1137,7 @@ function (_Component) {
       this.setState({
         value: entries
       }, function () {
-        return _this8.props.valueChange(_this8.props.name, _this8.state.value);
+        return valueChange(name, _this8.state.value);
       });
     }
   }, {
@@ -1074,14 +1151,14 @@ function (_Component) {
           value = _this$state.value,
           options = _this$state.options,
           errorMessage = _this$state.errorMessage;
-      var _this$props = this.props,
-          name = _this$props.name,
-          displayName = _this$props.displayName,
-          description = _this$props.description,
-          error = _this$props.error,
-          warning = _this$props.warning,
-          required = _this$props.required,
-          multiValue = _this$props.multiValue;
+      var _this$props7 = this.props,
+          name = _this$props7.name,
+          displayName = _this$props7.displayName,
+          description = _this$props7.description,
+          error = _this$props7.error,
+          warning = _this$props7.warning,
+          required = _this$props7.required,
+          multiValue = _this$props7.multiValue;
 
       if (!ready) {
         var component = React__default$$1.createElement(semanticUiReact__default.Grid, {
@@ -1121,7 +1198,7 @@ function (_Component) {
             value: entry.option,
             selection: true,
             disabled: options.length === 0,
-            placeholder: options.length === 0 ? 'No options' : 'Pick one',
+            placeholder: options.length === 0 ? UI.NO_OPTIONS : UI.OPTIONS,
             clearable: true,
             fluid: !!multiValue,
             onChange: _this9.handleDropdownChange.bind(_this9, index)
@@ -1175,7 +1252,7 @@ function (_Component) {
               style: {
                 paddingTop: innerIndex === 0 ? 0 : '0.5rem'
               },
-              placeholder: displayName,
+              placeholder: shorten(displayName),
               value: innerValue,
               name: name + innerIndex,
               onChange: _this9.handleInputChange.bind(_this9, index, innerIndex)
@@ -1193,7 +1270,7 @@ function (_Component) {
             }
           }, React__default$$1.createElement(semanticUiReact__default.Input, {
             name: name,
-            placeholder: displayName,
+            placeholder: shorten(displayName),
             value: entry.text,
             actionPosition: "left",
             onChange: _this9.handleInputChange.bind(_this9, index, index),
@@ -1398,9 +1475,12 @@ function (_Component) {
   _createClass(DCFormField, [{
     key: "render",
     value: function render() {
-      var FormComponent = formComponents[this.props.properties.component];
-      return React__default$$1.createElement(FormComponent, _extends({}, this.props.properties, {
-        valueChange: this.props.valueChange
+      var _this$props = this.props,
+          properties = _this$props.properties,
+          valueChange = _this$props.valueChange;
+      var FormComponent = formComponents[properties.component];
+      return React__default$$1.createElement(FormComponent, _extends({}, properties, {
+        valueChange: valueChange
       }));
     }
   }]);
@@ -1414,12 +1494,6 @@ exports.DCFormField = DCFormField;
 unwrapExports(bundle);
 var bundle_1 = bundle.DCFormField;
 
-var GSIM = {
-  name: 'GSIM',
-  producer: 'GSIM',
-  endpoint: process.env.REACT_APP_LDS,
-  route: '/gsim/'
-};
 var defaultVersioning = {
   component: 'DCRadio',
   name: 'versionIncrementation',
@@ -1837,6 +1911,7 @@ var TABLE = {
 };
 var UI = {
   CREATE_NEW: 'Create new',
+  MENU_HEADER: 'GSIM domains',
   SAVE: 'Save',
   SEARCH: 'Search',
   SHOW_ALL: 'Show all',
@@ -2510,6 +2585,7 @@ function (_Component) {
           name = _this$state3.name,
           description = _this$state3.description,
           problem = _this$state3.problem;
+      var params = this.props.params;
 
       if (problem) {
         return React__default.createElement("div", null, React__default.createElement(semanticUiReact.Header, {
@@ -2606,12 +2682,12 @@ function (_Component) {
           }
 
           return null;
-        }), this.props.params.id !== 'new' && React__default.createElement(bundle_1, {
+        }), params.id !== 'new' && React__default.createElement(bundle_1, {
           properties: defaultVersioning,
           valueChange: this.handleVersionIncrementationChange
         }), React__default.createElement(semanticUiReact.Button, {
-          color: "green",
-          content: this.props.params.id === 'new' ? UI.SAVE : UI.UPDATE,
+          primary: true,
+          content: params.id === 'new' ? UI.SAVE : UI.UPDATE,
           onClick: this.validateAndSave
         })))), React__default.createElement(semanticUiReact.Button, {
           color: "pink",

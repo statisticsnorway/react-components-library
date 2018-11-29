@@ -1,8 +1,8 @@
 export const GSIM = {
   name: 'GSIM',
   producer: 'GSIM',
-  endpoint: process.env.REACT_APP_LDS,
-  route: '/gsim/'
+  endpoint: 'http://localhost:9090/',
+  route: '/form/'
 }
 
 export const defaultVersioning = {

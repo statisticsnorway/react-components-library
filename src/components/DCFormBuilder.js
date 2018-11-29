@@ -228,6 +228,7 @@ class DCFormBuilder extends Component {
 
   render () {
     const {ready, readOnly, message, saved, schema, hiddenFields, name, description, problem} = this.state
+    const {params} = this.props
 
     if (problem) {
       return (
@@ -298,11 +299,11 @@ class DCFormBuilder extends Component {
                   return null
                 })}
 
-                {this.props.params.id !== 'new' &&
+                {params.id !== 'new' &&
                 <DCFormField properties={defaultVersioning} valueChange={this.handleVersionIncrementationChange} />
                 }
 
-                <Button color='green' content={this.props.params.id === 'new' ? UI.SAVE : UI.UPDATE}
+                <Button primary content={params.id === 'new' ? UI.SAVE : UI.UPDATE}
                         onClick={this.validateAndSave} />
               </Grid.Column>
             </Grid>

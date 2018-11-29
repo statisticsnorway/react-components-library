@@ -48,7 +48,7 @@ class Forms extends Component {
       <div>
         <Menu fixed='top'>
           <Menu.Item header as={Link} to={route} disabled={!ready}>
-            GSIM domener
+            {UI.MENU_HEADER}
             <Label color='teal' size='large'>{ready ? schemas.length : <Icon fitted loading name='spinner' />}</Label>
           </Menu.Item>
           <Dropdown item text={UI.SHOW_ALL} scrolling disabled={!ready}>

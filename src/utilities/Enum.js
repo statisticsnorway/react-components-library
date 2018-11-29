@@ -34,6 +34,7 @@ export const TABLE = {
 
 export const UI = {
   CREATE_NEW: 'Create new',
+  MENU_HEADER: 'GSIM domains',
   SAVE: 'Save',
   SEARCH: 'Search',
   SHOW_ALL: 'Show all',
