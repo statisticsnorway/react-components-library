@@ -156,13 +156,13 @@ class DCFormBuilder extends Component {
   validateAndSave = (event) => {
     event.preventDefault()
 
-    const {schema, data, versionIncrementation, name} = this.state
+    const {schema, data, versionIncrementation, name, hiddenFields} = this.state
     const {producer, params, endpoint} = this.props
     const copiedSchema = JSON.parse(JSON.stringify(schema))
     const copiedData = JSON.parse(JSON.stringify(data))
 
     this.setState({ready: false}, () => {
-      validation(copiedSchema, copiedData).then(schemaWithoutErrors => {
+      validation(copiedSchema, copiedData, hiddenFields).then(schemaWithoutErrors => {
         updateAutofill(producer, schemaWithoutErrors, copiedData, TEMP.USER, versionIncrementation, (params.id === 'new')).then(autofilledData => {
           const updatedSchema = JSON.parse(JSON.stringify(schemaWithoutErrors))
           const savedMessage = params.id === 'new' ? MESSAGES.SAVED : MESSAGES.UPDATED
