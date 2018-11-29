@@ -2019,11 +2019,16 @@ function checkRequiredIsNotEmpty(schema, data, name) {
   return errors;
 }
 
-function validation(schema, data) {
+function validation(schema, data, hiddenFields) {
   return new Promise(function (resolve, reject) {
     var returnSchema = JSON.parse(JSON.stringify(schema));
     var name = extractName(schema.$ref);
     var errors = checkRequiredIsNotEmpty(schema, data, name);
+    Object.keys(data).forEach(function (datakey) {
+      hiddenFields.forEach(function (hiddenkey) {
+        if (datakey === hiddenkey) delete data[datakey];
+      });
+    });
     Object.keys(schema.definitions[name].properties).forEach(function (key) {
       if (schema.definitions[name].properties[key].hasOwnProperty('autofilled')) {
         returnSchema.definitions[name].properties[key].value = [data[key]];
@@ -2364,7 +2369,8 @@ function (_Component) {
           schema = _this$state.schema,
           data = _this$state.data,
           versionIncrementation = _this$state.versionIncrementation,
-          name = _this$state.name;
+          name = _this$state.name,
+          hiddenFields = _this$state.hiddenFields;
       var _this$props = _this.props,
           producer = _this$props.producer,
           params = _this$props.params,
@@ -2375,7 +2381,7 @@ function (_Component) {
       _this.setState({
         ready: false
       }, function () {
-        validation(copiedSchema, copiedData).then(function (schemaWithoutErrors) {
+        validation(copiedSchema, copiedData, hiddenFields).then(function (schemaWithoutErrors) {
           updateAutofill(producer, schemaWithoutErrors, copiedData, TEMP.USER, versionIncrementation, params.id === 'new').then(function (autofilledData) {
             var updatedSchema = JSON.parse(JSON.stringify(schemaWithoutErrors));
             var savedMessage = params.id === 'new' ? MESSAGES.SAVED : MESSAGES.UPDATED;
