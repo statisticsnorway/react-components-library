@@ -1,4 +1,5 @@
 import { fetchGSIMOptions } from '../../producers/gsim/GSIMOptions'
+import { extractName } from '../Common'
 
 export function fetchOptions (producer, url) {
   switch (producer) {
@@ -29,7 +30,7 @@ function buildOptions (producer, endpoints) {
 export function populateOptions (producer, schema) {
   return new Promise((resolve, reject) => {
     const returnSchema = JSON.parse(JSON.stringify(schema))
-    const name = schema.$ref.replace('#/definitions/', '')
+    const name = extractName(schema.$ref)
     const properties = JSON.parse(JSON.stringify(schema.definitions[name].properties))
 
     Promise.all(

@@ -1,15 +1,17 @@
 import DefaultGSIMUISchema from './DefaultGSIMUISchema'
+import { extractName } from '../../utilities/Common'
 
+// TODO: Split this function if possible
 export function resolveGSIMProperties (schema, url) {
   return new Promise(resolve => {
     const returnSchema = JSON.parse(JSON.stringify(schema))
-    const name = schema.$ref.replace('#/definitions/', '')
+    const name = extractName(schema.$ref)
     const properties = JSON.parse(JSON.stringify(schema.definitions[name].properties))
 
     Object.keys(properties).forEach(key => {
       if (properties[key].hasOwnProperty('items')) {
         if (properties[key].items.hasOwnProperty('$ref')) {
-          const customType = properties[key].items.$ref.replace('#/definitions/', '')
+          const customType = extractName(properties[key].items.$ref)
 
           returnSchema.definitions[name].properties[key].customType = customType
 

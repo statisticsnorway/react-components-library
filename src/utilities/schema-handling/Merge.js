@@ -1,4 +1,5 @@
 import DefaultGSIMUISchema from '../../producers/gsim/DefaultGSIMUISchema'
+import { extractName } from '../Common'
 
 function producers (producer) {
   switch (producer) {
@@ -10,11 +11,12 @@ function producers (producer) {
   }
 }
 
+// TODO: Split this function if possible
 export function mergeDefaultUISchema (producer, schema) {
   return new Promise(resolve => {
     const defaultUISchema = producers(producer)
     const returnSchema = JSON.parse(JSON.stringify(schema))
-    const name = schema.$ref.replace('#/definitions/', '')
+    const name = extractName(schema.$ref)
     const properties = JSON.parse(JSON.stringify(schema.definitions[name].properties))
 
     Object.keys(schema.definitions).forEach(definition => {

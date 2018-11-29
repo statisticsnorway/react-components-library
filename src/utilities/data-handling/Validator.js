@@ -1,3 +1,6 @@
+import { extractName } from '../Common'
+import { MESSAGES } from '../Enum'
+
 const types = ['string', 'number', 'object']
 
 function checkRequiredIsNotEmpty (schema, data, name) {
@@ -7,13 +10,13 @@ function checkRequiredIsNotEmpty (schema, data, name) {
   Object.keys(properties).forEach(key => {
     if (properties[key].required) {
       if (properties[key].type === 'array' && data[key].length === 0) {
-        errors[key] = 'Cannot be blank'
+        errors[key] = MESSAGES.NOT_EMPTY
       } else if (types.includes(typeof properties[key].type)) {
         if (data[key] === '' || data[key] === null || data[key] === undefined) {
-          errors[key] = 'Cannot be blank'
+          errors[key] = MESSAGES.NOT_EMPTY
         }
       } else {
-        errors[key] = 'Unknown type, cannot check if empty'
+        errors[key] = MESSAGES.UNKNOWN_CHECK
       }
     }
   })
@@ -24,7 +27,7 @@ function checkRequiredIsNotEmpty (schema, data, name) {
 export function validation (schema, data) {
   return new Promise((resolve, reject) => {
     const returnSchema = JSON.parse(JSON.stringify(schema))
-    const name = schema.$ref.replace('#/definitions/', '')
+    const name = extractName(schema.$ref)
     const errors = checkRequiredIsNotEmpty(schema, data, name)
 
     Object.keys(schema.definitions[name].properties).forEach(key => {

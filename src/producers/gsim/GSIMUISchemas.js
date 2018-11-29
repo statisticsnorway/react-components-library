@@ -1,9 +1,10 @@
 import DescribedValueDomainUISchema from './ui-schemas/DescribedValueDomainUISchema'
+import { extractName } from '../../utilities/Common'
 
 export function mergeGSIMUISchema (schema) {
   return new Promise(resolve => {
     const returnSchema = JSON.parse(JSON.stringify(schema))
-    const name = schema.$ref.replace('#/definitions/', '')
+    const name = extractName(schema.$ref)
     const properties = JSON.parse(JSON.stringify(schema.definitions[name].properties))
 
     if (DescribedValueDomainUISchema.name === name) {

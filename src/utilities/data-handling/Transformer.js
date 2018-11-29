@@ -1,5 +1,6 @@
 import DefaultGSIMUISchema from '../../producers/gsim/DefaultGSIMUISchema'
 import { transformGSIMProperties } from '../../producers/gsim/GSIMTransformer'
+import { extractName } from '../Common'
 
 function producers (producer) {
   switch (producer) {
@@ -21,19 +22,23 @@ function producersSpecialProperties (producer, schema, data, fromSource) {
   }
 }
 
+function checkEmpty (property) {
+  if (property === '') {
+    return true
+  } else if (Array.isArray(property) && property.length === 0) {
+    return true
+  } else return typeof property === 'object' && Object.keys(property).length === 0
+}
+
 function transformDefaultProperties (producer, schema, data, fromSource) {
   return new Promise(resolve => {
     const returnObject = JSON.parse(JSON.stringify(data))
-    const name = schema.$ref.replace('#/definitions/', '')
+    const name = extractName(schema.$ref)
     const properties = schema.definitions[name].properties
     const transformer = producers(producer).transformer
 
     Object.keys(properties).forEach(property => {
-      if (returnObject[property] === '') {
-        delete returnObject[property]
-      }
-
-      if (Array.isArray(returnObject[property]) && returnObject[property].length === 0) {
+      if (checkEmpty(returnObject[property])) {
         delete returnObject[property]
       }
 
@@ -57,6 +62,7 @@ function transformDefaultProperties (producer, schema, data, fromSource) {
         }
       })
     })
+
     resolve(returnObject)
   })
 }

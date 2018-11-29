@@ -1,6 +1,8 @@
 import { generateGSIMDataState } from '../../producers/gsim'
 import { transformProperties } from '../data-handling'
 import { fetchData } from '../http-clients/fetch'
+import { extractName } from '../Common'
+import { MESSAGES } from '../Enum'
 
 const DEFAULT_VALUE_BY_TYPE = {
   array: [],
@@ -22,7 +24,7 @@ function producers (producer, element, user) {
 
 export function generateDataState (producer, schema, user) {
   return new Promise(resolve => {
-    const name = schema.$ref.replace('#/definitions/', '')
+    const name = extractName(schema.$ref)
     const properties = schema.definitions[name].properties
     const dataObject = {}
 
@@ -33,7 +35,7 @@ export function generateDataState (producer, schema, user) {
         if (DEFAULT_VALUE_BY_TYPE.hasOwnProperty(properties[key].type)) {
           dataObject[key] = DEFAULT_VALUE_BY_TYPE[properties[key].type]
         } else {
-          throw Error('Unknown type, cannot generate default value')
+          throw Error(MESSAGES.UNKNOWN_GENERATE)
         }
       }
     })

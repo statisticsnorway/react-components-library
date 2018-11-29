@@ -3,13 +3,17 @@ import { Button, Dimmer, Form, Grid, Header, Message } from 'semantic-ui-react'
 
 import { DCFormField } from 'dc-react-form-fields-library'
 import { defaultVersioning } from '../producers'
-import { splitOnUppercase } from '../utilities/Common'
+import { extractName, splitOnUppercase } from '../utilities/Common'
 import { saveData, updateAutofill, validation } from '../utilities/data-handling'
 import { fillDataState, generateDataState, populateOptions } from '../utilities/schema-handling'
+import { DIV, MESSAGES, TEMP, UI } from '../utilities/Enum'
 
-class FormBuilder extends Component {
+class DCFormBuilder extends Component {
   constructor (props) {
     super(props)
+
+    const name = extractName(this.props.schema.$ref)
+
     this.state = {
       ready: false,
       readOnly: false,
@@ -19,19 +23,23 @@ class FormBuilder extends Component {
       data: {},
       schema: {},
       hiddenFields: [],
-      name: this.props.schema.$ref.replace('#/definitions/', ''),
-      description: this.props.schema.definitions[this.props.schema.$ref.replace('#/definitions/', '')].description,
+      name: name,
+      description: this.props.schema.definitions[name].description,
       problem: false
     }
   }
 
+  // TODO: Too large function
   componentDidMount () {
-    populateOptions(this.props.producer, this.props.schema).then(schema => {
-      if (this.props.params.id === 'new') {
-        this.newComponent(this.props.producer, schema, 'Test')
+    const {name} = this.state
+    const {producer, schema, params, endpoint} = this.props
+
+    populateOptions(producer, schema).then(populatedSchema => {
+      if (params.id === 'new') {
+        this.newComponent(producer, populatedSchema, TEMP.USER)
       } else {
-        fillDataState(this.props.producer, schema, this.props.params.id, this.props.endpoint).then(result => {
-          const properties = schema.definitions[this.state.name].properties
+        fillDataState(producer, populatedSchema, params.id, endpoint).then(result => {
+          const properties = populatedSchema.definitions[name].properties
 
           let hiddenFields = []
 
@@ -51,44 +59,46 @@ class FormBuilder extends Component {
 
           this.setState({
             data: result,
-            schema: schema,
+            schema: populatedSchema,
             hiddenFields: hiddenFields
           }, () => this.setState({ready: true}))
         }).catch(error => {
           this.setState({
             problem: true,
-            message: 'Could not fill data state: ' + error
+            message: MESSAGES.NOT_FILL + error
           })
         })
       }
     }).catch(error => {
       this.setState({
         problem: true,
-        message: 'Could not populate dropdown: ' + error
+        message: MESSAGES.NOT_POPULATE + error
       })
     })
   }
 
   shouldComponentUpdate (nextProps, nextState) {
-    if (this.props.params.id !== nextProps.params.id && nextProps.params.id === 'new') {
+    const {hiddenFields, data} = this.state
+    const {params, producer, schema} = this.props
+
+    if (hiddenFields !== nextState.hiddenFields) return true
+
+    if (params.id !== nextProps.params.id && nextProps.params.id === 'new') {
       this.setState({ready: false}, () => {
-        populateOptions(this.props.producer, this.props.schema).then(schema => {
-          this.newComponent(this.props.producer, schema, 'Test')
+        populateOptions(producer, schema).then(populatedSchema => {
+          this.newComponent(producer, populatedSchema, TEMP.USER)
         })
       })
 
       return true
     }
 
-    if (this.state.hiddenFields !== nextState.hiddenFields) {
-      return true
-    }
-
-    return this.state.data === nextState.data
+    return data === nextState.data
   }
 
   newComponent (producer, schema, user) {
-    const properties = schema.definitions[this.state.name].properties
+    const {name} = this.state
+    const properties = schema.definitions[name].properties
 
     generateDataState(producer, schema, user).then(result => {
       Object.keys(properties).forEach(key => {
@@ -110,9 +120,7 @@ class FormBuilder extends Component {
 
   handleLockClick = () => {
     this.setState({readOnly: !this.state.readOnly}, () => {
-      if (!this.state.readOnly) {
-        this.setState({message: ''})
-      }
+      if (!this.state.readOnly) this.setState({message: ''})
     })
   }
 
@@ -144,53 +152,61 @@ class FormBuilder extends Component {
     })
   }
 
+  // TODO: Too large function
   validateAndSave = (event) => {
     event.preventDefault()
 
-    const schema = JSON.parse(JSON.stringify(this.state.schema))
-    const data = JSON.parse(JSON.stringify(this.state.data))
+    const {schema, data, versionIncrementation, name} = this.state
+    const {producer, params, endpoint} = this.props
+    const copiedSchema = JSON.parse(JSON.stringify(schema))
+    const copiedData = JSON.parse(JSON.stringify(data))
 
     this.setState({ready: false}, () => {
-      validation(schema, data).then(resultWithoutErrors => {
-        this.setState({schema: resultWithoutErrors}, () => {
-          updateAutofill(this.props.producer, schema, data, 'Test', this.state.versionIncrementation, (this.props.params.id === 'new')).then(result => {
-            this.setState({data: result}, () => {
-              const updatedSchema = JSON.parse(JSON.stringify(this.state.schema))
-              const savedMessage = this.props.params.id === 'new' ? 'lagret' : 'oppdatert'
+      validation(copiedSchema, copiedData).then(schemaWithoutErrors => {
+        updateAutofill(producer, schemaWithoutErrors, copiedData, TEMP.USER, versionIncrementation, (params.id === 'new')).then(autofilledData => {
+          const updatedSchema = JSON.parse(JSON.stringify(schemaWithoutErrors))
+          const savedMessage = params.id === 'new' ? MESSAGES.SAVED : MESSAGES.UPDATED
 
-              Object.keys(updatedSchema.definitions[this.state.name].properties).forEach(key => {
-                if (result.hasOwnProperty(key)) {
-                  if (updatedSchema.definitions[this.state.name].properties[key].hasOwnProperty('autofilled')) {
-                    updatedSchema.definitions[this.state.name].properties[key].value = [result[key]]
-                  } else {
-                    updatedSchema.definitions[this.state.name].properties[key].value = result[key]
-                  }
-                }
-              })
-
-              if (this.props.params.id === 'new') {
-                const newUrl = window.location.pathname.replace('/new', '/' + this.state.data.id)
-                window.history.pushState({}, '', newUrl)
+          Object.keys(updatedSchema.definitions[name].properties).forEach(key => {
+            if (autofilledData.hasOwnProperty(key)) {
+              if (updatedSchema.definitions[name].properties[key].hasOwnProperty('autofilled')) {
+                updatedSchema.definitions[name].properties[key].value = [autofilledData[key]]
+              } else {
+                updatedSchema.definitions[name].properties[key].value = autofilledData[key]
               }
+            }
+          })
 
-              this.setState({schema: updatedSchema}, () => {
-                saveData(this.props.producer, updatedSchema, result, this.props.endpoint).then(response => {
-                  this.props.params.id = this.state.data.id.slice(0)
-                  this.setState({
-                    ready: true,
-                    saved: true,
-                    message: 'Objektet ble ' + savedMessage + ' (saga-execution-id: ' + response['saga-execution-id'] + ')',
-                    readOnly: true
-                  })
-                })
-              })
-            })
-          }).catch(error => {
+          saveData(producer, updatedSchema, autofilledData, endpoint).then(response => {
+            if (params.id === 'new') {
+              const newUrl = window.location.pathname.replace('/new', '/' + autofilledData.id)
+
+              window.history.pushState({}, '', newUrl)
+
+              this.props.params.id = autofilledData.id.slice(0)
+            }
+
             this.setState({
-              ready: true,
+              schema: updatedSchema,
+              data: autofilledData,
+              saved: true,
+              message: MESSAGES.WAS_SAVED + savedMessage + ' (' + DIV.SAGA + ': ' + response[DIV.SAGA] + ')',
+              readOnly: true
+            }, () => this.setState({ready: true}))
+          }).catch(saveError => {
+            // TODO: This error message is unclear
+            this.setState({
+              data: autofilledData,
+              schema: updatedSchema,
               saved: false,
-              message: error
-            })
+              message: saveError
+            }, () => this.setState({ready: true}))
+          })
+        }).catch(autofillError => {
+          this.setState({
+            ready: true,
+            saved: false,
+            message: autofillError
           })
         })
       }).catch(resultWithErrors => {
@@ -198,7 +214,7 @@ class FormBuilder extends Component {
           ready: true,
           schema: resultWithErrors,
           saved: false,
-          message: 'Objektet ble ikke lagret, rett opp feil og lagre igjen'
+          message: MESSAGES.WAS_NOT_SAVED
         })
       })
     })
@@ -217,8 +233,8 @@ class FormBuilder extends Component {
       return (
         <div>
           <Header as='h1' content={splitOnUppercase(name)} subheader={description} dividing
-                  icon={{name: 'warning', color: 'red'}}/>
-          {message !== '' && <Message negative content={message.toString()}/>}
+                  icon={{name: 'warning', color: 'red'}} />
+          {message !== '' && <Message negative content={message} />}
         </div>
       )
     }
@@ -231,8 +247,8 @@ class FormBuilder extends Component {
       return (
         <Form>
           <Header as='h1' content={splitOnUppercase(name)} subheader={description} dividing
-                  icon={{name: formIcon, color: formIconColor, link: true, onClick: this.handleLockClick}}/>
-          {message !== '' && <Message color={saved ? 'green' : 'red'} content={message.toString()}/>}
+                  icon={{name: formIcon, color: formIconColor, link: true, onClick: this.handleLockClick}} />
+          {message !== '' && <Message color={saved ? 'green' : 'red'} content={message} />}
           <Dimmer.Dimmable dimmed={readOnly}>
             <Dimmer active={readOnly} style={{
               backgroundColor: 'rgba(0,0,0,.0010)',
@@ -241,20 +257,20 @@ class FormBuilder extends Component {
               borderColor: 'rgba(33, 186, 69,.25',
               borderRadius: '.3rem',
               zIndex: 1
-            }}/>
+            }} />
             <Grid columns='equal' style={{padding: '0.5rem', zIndex: 0}} divided>
               <Grid.Column>
                 {Object.keys(properties).map((property, index) => {
                   if (!properties[property].hasOwnProperty('autofilled') && properties[property].group !== 'common') {
                     if (properties[property].hasOwnProperty('hideOnChoice')) {
                       return <DCFormField key={index} properties={properties[property]}
-                                          valueChange={this.handleVisibilityChange}/>
+                                          valueChange={this.handleVisibilityChange} />
                     } else {
                       if (Array.isArray(hiddenFields) && hiddenFields.length !== 0 && hiddenFields.includes(property)) {
                         return null
                       } else {
                         return <DCFormField key={index} properties={properties[property]}
-                                            valueChange={this.handleValueChange}/>
+                                            valueChange={this.handleValueChange} />
                       }
                     }
                   }
@@ -266,7 +282,7 @@ class FormBuilder extends Component {
                 {Object.keys(properties).map((property, index) => {
                   if (!properties[property].hasOwnProperty('autofilled') && properties[property].group === 'common') {
                     return <DCFormField key={index} properties={properties[property]}
-                                        valueChange={this.handleValueChange}/>
+                                        valueChange={this.handleValueChange} />
                   }
 
                   return null
@@ -276,32 +292,32 @@ class FormBuilder extends Component {
                 {Object.keys(properties).map((property, index) => {
                   if (properties[property].hasOwnProperty('autofilled')) {
                     return <DCFormField key={index} properties={properties[property]}
-                                        valueChange={this.handleValueChange}/>
+                                        valueChange={this.handleValueChange} />
                   }
 
                   return null
                 })}
 
                 {this.props.params.id !== 'new' &&
-                <DCFormField properties={defaultVersioning} valueChange={this.handleVersionIncrementationChange}/>
+                <DCFormField properties={defaultVersioning} valueChange={this.handleVersionIncrementationChange} />
                 }
 
-                <Button color='green' content={this.props.params.id === 'new' ? 'Lagre' : 'Oppdater'}
-                        onClick={this.validateAndSave}/>
+                <Button color='green' content={this.props.params.id === 'new' ? UI.SAVE : UI.UPDATE}
+                        onClick={this.validateAndSave} />
               </Grid.Column>
             </Grid>
           </Dimmer.Dimmable>
           {/*TODO: Remove*/}
-          <Button color='pink' content='Inner State' onClick={this.checkState}/>
+          <Button color='pink' content='Inner State' onClick={this.checkState} />
         </Form>
       )
     }
 
     return (
       <Header as='h1' content={splitOnUppercase(name)} subheader={description} dividing
-              icon={{name: 'spinner', color: 'teal', loading: true}}/>
+              icon={{name: 'spinner', color: 'teal', loading: true}} />
     )
   }
 }
 
-export default FormBuilder
+export default DCFormBuilder

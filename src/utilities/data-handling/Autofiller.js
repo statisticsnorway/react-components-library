@@ -1,5 +1,6 @@
 import { updateGSIMDataState } from '../../producers/gsim'
 import { updateNewGSIMDataState } from '../../producers/gsim/GSIMDataState'
+import { extractName } from '../Common'
 
 function producers (producer, element, user, version, versionIncrementation) {
   switch (producer) {
@@ -16,7 +17,7 @@ function producers (producer, element, user, version, versionIncrementation) {
 
 export function updateAutofill (producer, schema, data, user, versionIncrementation, isNew) {
   return new Promise(resolve => {
-    const name = schema.$ref.replace('#/definitions/', '')
+    const name = extractName(schema.$ref)
     const properties = schema.definitions[name].properties
     const dataObject = JSON.parse(JSON.stringify(data))
 

@@ -1423,8 +1423,8 @@ var GSIM = {
 var defaultVersioning = {
   component: 'DCRadio',
   name: 'versionIncrementation',
-  displayName: 'Versjonsinkrementering',
-  description: 'Hvordan skal versjonen inkrementeres?',
+  displayName: 'Version incrementation',
+  description: 'How should the versioning increment?',
   value: '2',
   options: [{
     text: 'Major',
@@ -1441,6 +1441,13 @@ var defaultVersioning = {
 function splitOnUppercase(string) {
   if (typeof string === 'string') {
     return string.match(/[A-Z][a-z]+|[0-9]+/g).join(' ');
+  } else {
+    return string;
+  }
+}
+function extractName(string) {
+  if (typeof string === 'string') {
+    return string.replace('#/definitions/', '');
   } else {
     return string;
   }
@@ -1588,12 +1595,12 @@ var DefaultGSIMUISchema = {
 function resolveGSIMProperties(schema, url) {
   return new Promise(function (resolve) {
     var returnSchema = JSON.parse(JSON.stringify(schema));
-    var name = schema.$ref.replace('#/definitions/', '');
+    var name = extractName(schema.$ref);
     var properties = JSON.parse(JSON.stringify(schema.definitions[name].properties));
     Object.keys(properties).forEach(function (key) {
       if (properties[key].hasOwnProperty('items')) {
         if (properties[key].items.hasOwnProperty('$ref')) {
-          var customType = properties[key].items.$ref.replace('#/definitions/', '');
+          var customType = extractName(properties[key].items.$ref);
           returnSchema.definitions[name].properties[key].customType = customType;
 
           if (customType === 'MultilingualText') {
@@ -1680,7 +1687,7 @@ function producers(producer, element, user, version, versionIncrementation) {
 
 function updateAutofill(producer, schema, data, user, versionIncrementation, isNew) {
   return new Promise(function (resolve) {
-    var name = schema.$ref.replace('#/definitions/', '');
+    var name = extractName(schema.$ref);
     var properties = schema.definitions[name].properties;
     var dataObject = JSON.parse(JSON.stringify(data));
     Object.keys(properties).forEach(function (key) {
@@ -1704,9 +1711,10 @@ function updateAutofill(producer, schema, data, user, versionIncrementation, isN
 
 function transformGSIMProperties(producer, schema, data, fromSource) {
   var returnObject = JSON.parse(JSON.stringify(data));
-  var name = schema.$ref.replace('#/definitions/', '');
+  var name = extractName(schema.$ref);
   var properties = schema.definitions[name].properties;
   Object.keys(properties).forEach(function (property) {
+    // TODO: Too long if
     if (properties[property].hasOwnProperty('customType') && properties[property].customType === 'MultilingualText' && returnObject.hasOwnProperty(property)) {
       if (fromSource) {
         var text = data.name[0].languageText;
@@ -1748,18 +1756,22 @@ function producersSpecialProperties(producer, schema, data, fromSource) {
   }
 }
 
+function checkEmpty(property) {
+  if (property === '') {
+    return true;
+  } else if (Array.isArray(property) && property.length === 0) {
+    return true;
+  } else return _typeof(property) === 'object' && Object.keys(property).length === 0;
+}
+
 function transformDefaultProperties(producer, schema, data, fromSource) {
   return new Promise(function (resolve) {
     var returnObject = JSON.parse(JSON.stringify(data));
-    var name = schema.$ref.replace('#/definitions/', '');
+    var name = extractName(schema.$ref);
     var properties = schema.definitions[name].properties;
     var transformer$$1 = producers$1(producer).transformer;
     Object.keys(properties).forEach(function (property) {
-      if (returnObject[property] === '') {
-        delete returnObject[property];
-      }
-
-      if (Array.isArray(returnObject[property]) && returnObject[property].length === 0) {
+      if (checkEmpty(returnObject[property])) {
         delete returnObject[property];
       }
 
@@ -1793,13 +1805,51 @@ function transformProperties(producer, schema, data, fromSource) {
   });
 }
 
+// TODO: This one is temporary
+var TEMP = {
+  USER: 'Test'
+};
+var DIV = {
+  SAGA: 'saga-execution-id'
+};
+var MESSAGES = {
+  FILTER_BY_NAME: 'Filter table by name',
+  NAME_NOT_FOUND: 'Found nothing matching',
+  NOT_EMPTY: 'Cannot be blank',
+  NOT_FILL: 'Could not fill data state: ',
+  NOT_POPULATE: 'Could not populate dropdown: ',
+  NOTHING_FOUND: 'Found nothing...',
+  SAVED: 'saved',
+  TIMEOUT: 'Request timeout for url: ',
+  UNKNOWN_CHECK: 'Unknown type, cannot check if empty',
+  UNKNOWN_GENERATE: 'Unknown type, cannot generate default value',
+  UPDATED: 'updated',
+  WAS_SAVED: 'Object was ',
+  WAS_NOT_SAVED: 'Object was not saved, correct any errors and try again'
+};
+var TABLE = {
+  LOADING: 'Loading',
+  NEXT: 'Next',
+  OF: 'of',
+  PAGE: 'Page',
+  PREVIOUS: 'Previous',
+  ROWS: 'rows'
+};
+var UI = {
+  CREATE_NEW: 'Create new',
+  SAVE: 'Save',
+  SEARCH: 'Search',
+  SHOW_ALL: 'Show all',
+  UPDATE: 'Update'
+};
+
 function fetchData(url) {
   var timeout = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 3000;
   return new Promise(function (resolve, reject) {
     var controller = new AbortController();
     var signal = controller.signal;
     var timer = setTimeout(function () {
-      reject('Request timeout for url: ' + url);
+      reject(MESSAGES.TIMEOUT + url);
       controller.abort();
     }, timeout);
     fetch(url, {
@@ -1832,7 +1882,7 @@ function putData(url, data) {
     var controller = new AbortController();
     var signal = controller.signal;
     var timer = setTimeout(function () {
-      reject('Request timeout for url: ' + url);
+      reject(MESSAGES.TIMEOUT + url);
       controller.abort();
     }, timeout);
     fetch(url, {
@@ -1863,7 +1913,7 @@ function putData(url, data) {
 function saveData(producer, schema, data, endpoint) {
   return new Promise(function (resolve, reject) {
     transformProperties(producer, schema, data, false).then(function (savableData) {
-      var url = endpoint + 'data/' + schema.$ref.replace('#/definitions/', '') + '/' + savableData.id;
+      var url = endpoint + 'data/' + extractName(schema.$ref) + '/' + savableData.id;
       putData(url, savableData).then(function (response) {
         resolve(response);
       }).catch(function (error) {
@@ -1881,13 +1931,13 @@ function checkRequiredIsNotEmpty(schema, data, name) {
   Object.keys(properties).forEach(function (key) {
     if (properties[key].required) {
       if (properties[key].type === 'array' && data[key].length === 0) {
-        errors[key] = 'Cannot be blank';
+        errors[key] = MESSAGES.NOT_EMPTY;
       } else if (types.includes(_typeof(properties[key].type))) {
         if (data[key] === '' || data[key] === null || data[key] === undefined) {
-          errors[key] = 'Cannot be blank';
+          errors[key] = MESSAGES.NOT_EMPTY;
         }
       } else {
-        errors[key] = 'Unknown type, cannot check if empty';
+        errors[key] = MESSAGES.UNKNOWN_CHECK;
       }
     }
   });
@@ -1897,7 +1947,7 @@ function checkRequiredIsNotEmpty(schema, data, name) {
 function validation(schema, data) {
   return new Promise(function (resolve, reject) {
     var returnSchema = JSON.parse(JSON.stringify(schema));
-    var name = schema.$ref.replace('#/definitions/', '');
+    var name = extractName(schema.$ref);
     var errors = checkRequiredIsNotEmpty(schema, data, name);
     Object.keys(schema.definitions[name].properties).forEach(function (key) {
       if (schema.definitions[name].properties[key].hasOwnProperty('autofilled')) {
@@ -1945,7 +1995,7 @@ function producers$2(producer, element, user) {
 
 function generateDataState(producer, schema, user) {
   return new Promise(function (resolve) {
-    var name = schema.$ref.replace('#/definitions/', '');
+    var name = extractName(schema.$ref);
     var properties = schema.definitions[name].properties;
     var dataObject = {};
     Object.keys(properties).forEach(function (key) {
@@ -1955,7 +2005,7 @@ function generateDataState(producer, schema, user) {
         if (DEFAULT_VALUE_BY_TYPE.hasOwnProperty(properties[key].type)) {
           dataObject[key] = DEFAULT_VALUE_BY_TYPE[properties[key].type];
         } else {
-          throw Error('Unknown type, cannot generate default value');
+          throw Error(MESSAGES.UNKNOWN_GENERATE);
         }
       }
     });
@@ -1984,13 +2034,14 @@ function producers$3(producer) {
     default:
       return null;
   }
-}
+} // TODO: Split this function if possible
+
 
 function mergeDefaultUISchema(producer, schema) {
   return new Promise(function (resolve) {
     var defaultUISchema = producers$3(producer);
     var returnSchema = JSON.parse(JSON.stringify(schema));
-    var name = schema.$ref.replace('#/definitions/', '');
+    var name = extractName(schema.$ref);
     var properties = JSON.parse(JSON.stringify(schema.definitions[name].properties));
     Object.keys(schema.definitions).forEach(function (definition) {
       Object.keys(schema.definitions[definition].properties).forEach(function (property) {
@@ -2029,29 +2080,31 @@ function mergeDefaultUISchema(producer, schema) {
   });
 }
 
+function createOptions(response, prefix) {
+  var options = [];
+  Object.keys(response).forEach(function (value) {
+    var text = response[value].name[0].languageText;
+    response[value].name.forEach(function (name) {
+      if (name.languageCode === 'nb') text = name.languageText;
+    });
+    options.push({
+      key: response[value].id,
+      text: text,
+      value: prefix + response[value].id
+    });
+  });
+  return options;
+}
+
 function fetchGSIMOptions(url) {
   return new Promise(function (resolve, reject) {
-    var options = [];
     fetchData(url).then(function (response) {
       var prefix = '/' + url.substring(url.lastIndexOf('/') + 1) + '/';
 
       if (response.length !== 0) {
-        Object.keys(response).forEach(function (value) {
-          var text = response[value].name[0].languageText;
-          response[value].name.forEach(function (name) {
-            if (name.languageCode === 'nb') {
-              text = name.languageText;
-            }
-          });
-          options.push({
-            key: response[value].id,
-            text: text,
-            value: prefix + response[value].id
-          });
-        });
-        resolve(options);
+        resolve(createOptions(response, prefix));
       } else {
-        resolve(options);
+        resolve([]);
       }
     }).catch(function (error) {
       reject(error);
@@ -2085,7 +2138,7 @@ function buildOptions(producer, endpoints) {
 function populateOptions(producer, schema) {
   return new Promise(function (resolve, reject) {
     var returnSchema = JSON.parse(JSON.stringify(schema));
-    var name = schema.$ref.replace('#/definitions/', '');
+    var name = extractName(schema.$ref);
     var properties = JSON.parse(JSON.stringify(schema.definitions[name].properties));
     Promise.all(Object.keys(properties).map(function (value) {
       if (properties[value].hasOwnProperty('endpoints')) {
@@ -2162,7 +2215,7 @@ var DescribedValueDomainUISchema = {
 function mergeGSIMUISchema(schema) {
   return new Promise(function (resolve) {
     var returnSchema = JSON.parse(JSON.stringify(schema));
-    var name$$1 = schema.$ref.replace('#/definitions/', '');
+    var name$$1 = extractName(schema.$ref);
     var properties = JSON.parse(JSON.stringify(schema.definitions[name$$1].properties));
 
     if (DescribedValueDomainUISchema.name === name$$1) {
@@ -2187,27 +2240,25 @@ function mergeUISchema(producer, schema) {
   }
 }
 
-var FormBuilder =
+var DCFormBuilder =
 /*#__PURE__*/
 function (_Component) {
-  _inherits(FormBuilder, _Component);
+  _inherits(DCFormBuilder, _Component);
 
-  function FormBuilder(props) {
+  function DCFormBuilder(props) {
     var _this;
 
-    _classCallCheck(this, FormBuilder);
+    _classCallCheck(this, DCFormBuilder);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(FormBuilder).call(this, props));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(DCFormBuilder).call(this, props));
 
     _this.handleLockClick = function () {
       _this.setState({
         readOnly: !_this.state.readOnly
       }, function () {
-        if (!_this.state.readOnly) {
-          _this.setState({
-            message: ''
-          });
-        }
+        if (!_this.state.readOnly) _this.setState({
+          message: ''
+        });
       });
     };
 
@@ -2234,58 +2285,70 @@ function (_Component) {
 
     _this.validateAndSave = function (event) {
       event.preventDefault();
-      var schema = JSON.parse(JSON.stringify(_this.state.schema));
-      var data = JSON.parse(JSON.stringify(_this.state.data));
+      var _this$state = _this.state,
+          schema = _this$state.schema,
+          data = _this$state.data,
+          versionIncrementation = _this$state.versionIncrementation,
+          name = _this$state.name;
+      var _this$props = _this.props,
+          producer = _this$props.producer,
+          params = _this$props.params,
+          endpoint = _this$props.endpoint;
+      var copiedSchema = JSON.parse(JSON.stringify(schema));
+      var copiedData = JSON.parse(JSON.stringify(data));
 
       _this.setState({
         ready: false
       }, function () {
-        validation(schema, data).then(function (resultWithoutErrors) {
-          _this.setState({
-            schema: resultWithoutErrors
-          }, function () {
-            updateAutofill(_this.props.producer, schema, data, 'Test', _this.state.versionIncrementation, _this.props.params.id === 'new').then(function (result) {
-              _this.setState({
-                data: result
-              }, function () {
-                var updatedSchema = JSON.parse(JSON.stringify(_this.state.schema));
-                var savedMessage = _this.props.params.id === 'new' ? 'lagret' : 'oppdatert';
-                Object.keys(updatedSchema.definitions[_this.state.name].properties).forEach(function (key) {
-                  if (result.hasOwnProperty(key)) {
-                    if (updatedSchema.definitions[_this.state.name].properties[key].hasOwnProperty('autofilled')) {
-                      updatedSchema.definitions[_this.state.name].properties[key].value = [result[key]];
-                    } else {
-                      updatedSchema.definitions[_this.state.name].properties[key].value = result[key];
-                    }
-                  }
-                });
-
-                if (_this.props.params.id === 'new') {
-                  var newUrl = window.location.pathname.replace('/new', '/' + _this.state.data.id);
-                  window.history.pushState({}, '', newUrl);
+        validation(copiedSchema, copiedData).then(function (schemaWithoutErrors) {
+          updateAutofill(producer, schemaWithoutErrors, copiedData, TEMP.USER, versionIncrementation, params.id === 'new').then(function (autofilledData) {
+            var updatedSchema = JSON.parse(JSON.stringify(schemaWithoutErrors));
+            var savedMessage = params.id === 'new' ? MESSAGES.SAVED : MESSAGES.UPDATED;
+            Object.keys(updatedSchema.definitions[name].properties).forEach(function (key) {
+              if (autofilledData.hasOwnProperty(key)) {
+                if (updatedSchema.definitions[name].properties[key].hasOwnProperty('autofilled')) {
+                  updatedSchema.definitions[name].properties[key].value = [autofilledData[key]];
+                } else {
+                  updatedSchema.definitions[name].properties[key].value = autofilledData[key];
                 }
+              }
+            });
+            saveData(producer, updatedSchema, autofilledData, endpoint).then(function (response) {
+              if (params.id === 'new') {
+                var newUrl = window.location.pathname.replace('/new', '/' + autofilledData.id);
+                window.history.pushState({}, '', newUrl);
+                _this.props.params.id = autofilledData.id.slice(0);
+              }
 
-                _this.setState({
-                  schema: updatedSchema
-                }, function () {
-                  saveData(_this.props.producer, updatedSchema, result, _this.props.endpoint).then(function (response) {
-                    _this.props.params.id = _this.state.data.id.slice(0);
-
-                    _this.setState({
-                      ready: true,
-                      saved: true,
-                      message: 'Objektet ble ' + savedMessage + ' (saga-execution-id: ' + response['saga-execution-id'] + ')',
-                      readOnly: true
-                    });
-                  });
+              _this.setState({
+                schema: updatedSchema,
+                data: autofilledData,
+                saved: true,
+                message: MESSAGES.WAS_SAVED + savedMessage + ' (' + DIV.SAGA + ': ' + response[DIV.SAGA] + ')',
+                readOnly: true
+              }, function () {
+                return _this.setState({
+                  ready: true
                 });
               });
-            }).catch(function (error) {
+            }).catch(function (saveError) {
+              // TODO: This error message is unclear
               _this.setState({
-                ready: true,
+                data: autofilledData,
+                schema: updatedSchema,
                 saved: false,
-                message: error
+                message: saveError
+              }, function () {
+                return _this.setState({
+                  ready: true
+                });
               });
+            });
+          }).catch(function (autofillError) {
+            _this.setState({
+              ready: true,
+              saved: false,
+              message: autofillError
             });
           });
         }).catch(function (resultWithErrors) {
@@ -2293,7 +2356,7 @@ function (_Component) {
             ready: true,
             schema: resultWithErrors,
             saved: false,
-            message: 'Objektet ble ikke lagret, rett opp feil og lagre igjen'
+            message: MESSAGES.WAS_NOT_SAVED
           });
         });
       });
@@ -2304,6 +2367,8 @@ function (_Component) {
       console.log(_this.props);
     };
 
+    var _name = extractName(_this.props.schema.$ref);
+
     _this.state = {
       ready: false,
       readOnly: false,
@@ -2313,24 +2378,31 @@ function (_Component) {
       data: {},
       schema: {},
       hiddenFields: [],
-      name: _this.props.schema.$ref.replace('#/definitions/', ''),
-      description: _this.props.schema.definitions[_this.props.schema.$ref.replace('#/definitions/', '')].description,
+      name: _name,
+      description: _this.props.schema.definitions[_name].description,
       problem: false
     };
     return _this;
-  }
+  } // TODO: Too large function
 
-  _createClass(FormBuilder, [{
+
+  _createClass(DCFormBuilder, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       var _this2 = this;
 
-      populateOptions(this.props.producer, this.props.schema).then(function (schema) {
-        if (_this2.props.params.id === 'new') {
-          _this2.newComponent(_this2.props.producer, schema, 'Test');
+      var name = this.state.name;
+      var _this$props2 = this.props,
+          producer = _this$props2.producer,
+          schema = _this$props2.schema,
+          params = _this$props2.params,
+          endpoint = _this$props2.endpoint;
+      populateOptions(producer, schema).then(function (populatedSchema) {
+        if (params.id === 'new') {
+          _this2.newComponent(producer, populatedSchema, TEMP.USER);
         } else {
-          fillDataState(_this2.props.producer, schema, _this2.props.params.id, _this2.props.endpoint).then(function (result) {
-            var properties = schema.definitions[_this2.state.name].properties;
+          fillDataState(producer, populatedSchema, params.id, endpoint).then(function (result) {
+            var properties = populatedSchema.definitions[name].properties;
             var hiddenFields = [];
             Object.keys(result).forEach(function (key) {
               if (properties[key].hasOwnProperty('autofilled')) {
@@ -2347,7 +2419,7 @@ function (_Component) {
 
             _this2.setState({
               data: result,
-              schema: schema,
+              schema: populatedSchema,
               hiddenFields: hiddenFields
             }, function () {
               return _this2.setState({
@@ -2357,14 +2429,14 @@ function (_Component) {
           }).catch(function (error) {
             _this2.setState({
               problem: true,
-              message: 'Could not fill data state: ' + error
+              message: MESSAGES.NOT_FILL + error
             });
           });
         }
       }).catch(function (error) {
         _this2.setState({
           problem: true,
-          message: 'Could not populate dropdown: ' + error
+          message: MESSAGES.NOT_POPULATE + error
         });
       });
     }
@@ -2373,29 +2445,35 @@ function (_Component) {
     value: function shouldComponentUpdate(nextProps, nextState) {
       var _this3 = this;
 
-      if (this.props.params.id !== nextProps.params.id && nextProps.params.id === 'new') {
+      var _this$state2 = this.state,
+          hiddenFields = _this$state2.hiddenFields,
+          data = _this$state2.data;
+      var _this$props3 = this.props,
+          params = _this$props3.params,
+          producer = _this$props3.producer,
+          schema = _this$props3.schema;
+      if (hiddenFields !== nextState.hiddenFields) return true;
+
+      if (params.id !== nextProps.params.id && nextProps.params.id === 'new') {
         this.setState({
           ready: false
         }, function () {
-          populateOptions(_this3.props.producer, _this3.props.schema).then(function (schema) {
-            _this3.newComponent(_this3.props.producer, schema, 'Test');
+          populateOptions(producer, schema).then(function (populatedSchema) {
+            _this3.newComponent(producer, populatedSchema, TEMP.USER);
           });
         });
         return true;
       }
 
-      if (this.state.hiddenFields !== nextState.hiddenFields) {
-        return true;
-      }
-
-      return this.state.data === nextState.data;
+      return data === nextState.data;
     }
   }, {
     key: "newComponent",
     value: function newComponent(producer, schema, user) {
       var _this4 = this;
 
-      var properties = schema.definitions[this.state.name].properties;
+      var name = this.state.name;
+      var properties = schema.definitions[name].properties;
       generateDataState(producer, schema, user).then(function (result) {
         Object.keys(properties).forEach(function (key) {
           if (properties[key].hasOwnProperty('autofilled')) {
@@ -2422,16 +2500,16 @@ function (_Component) {
     value: function render() {
       var _this5 = this;
 
-      var _this$state = this.state,
-          ready = _this$state.ready,
-          readOnly = _this$state.readOnly,
-          message = _this$state.message,
-          saved = _this$state.saved,
-          schema = _this$state.schema,
-          hiddenFields = _this$state.hiddenFields,
-          name = _this$state.name,
-          description = _this$state.description,
-          problem = _this$state.problem;
+      var _this$state3 = this.state,
+          ready = _this$state3.ready,
+          readOnly = _this$state3.readOnly,
+          message = _this$state3.message,
+          saved = _this$state3.saved,
+          schema = _this$state3.schema,
+          hiddenFields = _this$state3.hiddenFields,
+          name = _this$state3.name,
+          description = _this$state3.description,
+          problem = _this$state3.problem;
 
       if (problem) {
         return React__default.createElement("div", null, React__default.createElement(semanticUiReact.Header, {
@@ -2445,7 +2523,7 @@ function (_Component) {
           }
         }), message !== '' && React__default.createElement(semanticUiReact.Message, {
           negative: true,
-          content: message.toString()
+          content: message
         }));
       }
 
@@ -2466,7 +2544,7 @@ function (_Component) {
           }
         }), message !== '' && React__default.createElement(semanticUiReact.Message, {
           color: saved ? 'green' : 'red',
-          content: message.toString()
+          content: message
         }), React__default.createElement(semanticUiReact.Dimmer.Dimmable, {
           dimmed: readOnly
         }, React__default.createElement(semanticUiReact.Dimmer, {
@@ -2533,7 +2611,7 @@ function (_Component) {
           valueChange: this.handleVersionIncrementationChange
         }), React__default.createElement(semanticUiReact.Button, {
           color: "green",
-          content: this.props.params.id === 'new' ? 'Lagre' : 'Oppdater',
+          content: this.props.params.id === 'new' ? UI.SAVE : UI.UPDATE,
           onClick: this.validateAndSave
         })))), React__default.createElement(semanticUiReact.Button, {
           color: "pink",
@@ -2556,7 +2634,7 @@ function (_Component) {
     }
   }]);
 
-  return FormBuilder;
+  return DCFormBuilder;
 }(React.Component);
 
 function SchemaHandler(url, producer, endpoint) {
@@ -2599,17 +2677,17 @@ function resolveTableHeaders(producer) {
   return producers$4(producer).defaultTableHeaders;
 }
 
-var TableBuilder =
+var DCTableBuilder =
 /*#__PURE__*/
 function (_Component) {
-  _inherits(TableBuilder, _Component);
+  _inherits(DCTableBuilder, _Component);
 
-  function TableBuilder(props) {
+  function DCTableBuilder(props) {
     var _this;
 
-    _classCallCheck(this, TableBuilder);
+    _classCallCheck(this, DCTableBuilder);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(TableBuilder).call(this, props));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(DCTableBuilder).call(this, props));
 
     _this.searchInputOnChange = function (event) {
       _this.setState({
@@ -2617,13 +2695,16 @@ function (_Component) {
       });
     };
 
-    var name = _this.props.schema.$ref.replace('#/definitions/', '');
-
-    var description = _this.props.schema.definitions[name].description;
-    var tableHeaders = resolveTableHeaders(_this.props.producer);
+    var _this$props = _this.props,
+        producer = _this$props.producer,
+        schema = _this$props.schema,
+        routing = _this$props.routing;
+    var name = extractName(schema.$ref);
+    var description = schema.definitions[name].description;
+    var tableHeaders = resolveTableHeaders(producer);
     var tableColumns = [];
     tableHeaders.forEach(function (header) {
-      var displayName = _this.props.schema.definitions[name].properties[header].displayName;
+      var displayName = schema.definitions[name].properties[header].displayName;
       var tableColumn = {};
       tableColumn['Header'] = displayName;
       tableColumn['accessor'] = header;
@@ -2632,7 +2713,7 @@ function (_Component) {
         case 'id':
           tableColumn['Cell'] = function (props) {
             return React__default.createElement(reactRouterDom.Link, {
-              to: _this.props.routing + '/' + props.original.id
+              to: routing + '/' + props.original.id
             }, props.value);
           };
 
@@ -2661,7 +2742,7 @@ function (_Component) {
     return _this;
   }
 
-  _createClass(TableBuilder, [{
+  _createClass(DCTableBuilder, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       var _this2 = this;
@@ -2706,10 +2787,10 @@ function (_Component) {
       var noDataText = '';
 
       if (ready) {
-        noDataText = 'Fant ingen...';
+        noDataText = MESSAGES.NOTHING_FOUND;
 
         if (search) {
-          noDataText = 'Fant ingen med navnet \'' + search + '\'';
+          noDataText = MESSAGES.NAME_NOT_FOUND + ' \'' + search + '\'';
           filteredTableData = tableData.filter(function (row) {
             return row.name.toUpperCase().includes(search.toUpperCase());
           });
@@ -2732,14 +2813,14 @@ function (_Component) {
           position: "top center",
           trigger: React__default.createElement(semanticUiReact.Input, {
             icon: "search",
-            placeholder: "S\xF8k",
+            placeholder: UI.SEARCH,
             value: search,
             onChange: this.searchInputOnChange
           })
         }, React__default.createElement(semanticUiReact.Icon, {
           color: "blue",
           name: "info circle"
-        }), "Filtrerer tabellen etter navn"), React__default.createElement(semanticUiReact.Label, {
+        }), MESSAGES.FILTER_BY_NAME), React__default.createElement(semanticUiReact.Label, {
           color: "teal",
           size: "large",
           circular: true
@@ -2748,7 +2829,7 @@ function (_Component) {
         }, React__default.createElement(semanticUiReact.Button, {
           primary: true,
           floated: "right",
-          content: 'Opprett ny ' + splitOnUppercase(name)
+          content: UI.CREATE_NEW + ' ' + splitOnUppercase(name)
         })), message ? React__default.createElement(semanticUiReact.Message, {
           negative: true,
           content: message
@@ -2761,12 +2842,12 @@ function (_Component) {
           columns: tableColumns,
           defaultPageSize: 10,
           noDataText: noDataText,
-          previousText: "Forrige",
-          nextText: "Neste",
-          loadingText: "Laster",
-          pageText: "Side",
-          ofText: "av",
-          rowsText: "rader",
+          previousText: TABLE.PREVIOUS,
+          nextText: TABLE.NEXT,
+          ofText: TABLE.OF,
+          pageText: TABLE.PAGE,
+          loadingText: TABLE.LOADING,
+          rowsText: TABLE.ROWS,
           className: "-highlight"
         }));
       }
@@ -2785,9 +2866,9 @@ function (_Component) {
     }
   }]);
 
-  return TableBuilder;
+  return DCTableBuilder;
 }(React.Component);
 
-exports.FormBuilder = FormBuilder;
+exports.DCFormBuilder = DCFormBuilder;
 exports.SchemaHandler = SchemaHandler;
-exports.TableBuilder = TableBuilder;
+exports.DCTableBuilder = DCTableBuilder;

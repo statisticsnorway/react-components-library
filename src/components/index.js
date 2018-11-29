@@ -1,3 +1,3 @@
-export { default as FormBuilder } from './FormBuilder'
+export { default as DCFormBuilder } from './DCFormBuilder'
 export { SchemaHandler } from './SchemaHandler'
-export { default as TableBuilder } from './TableBuilder'
+export { default as DCTableBuilder } from './DCTableBuilder'

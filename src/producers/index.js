@@ -8,8 +8,8 @@ export const GSIM = {
 export const defaultVersioning = {
   component: 'DCRadio',
   name: 'versionIncrementation',
-  displayName: 'Versjonsinkrementering',
-  description: 'Hvordan skal versjonen inkrementeres?',
+  displayName: 'Version incrementation',
+  description: 'How should the versioning increment?',
   value: '2',
   options: [
     {text: 'Major', value: '0'},

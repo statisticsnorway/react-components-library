@@ -5,3 +5,11 @@ export function splitOnUppercase (string) {
     return string
   }
 }
+
+export function extractName (string) {
+  if (typeof string === 'string') {
+    return string.replace('#/definitions/', '')
+  } else {
+    return string
+  }
+}
