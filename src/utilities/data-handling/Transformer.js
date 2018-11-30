@@ -1,5 +1,5 @@
 import DefaultGSIMUISchema from '../../producers/gsim/DefaultGSIMUISchema'
-import { transformGSIMProperties } from '../../producers/gsim/GSIMTransformer'
+import { transformGSIMProperties } from '../../producers/gsim'
 import { extractName } from '../Common'
 
 function producers (producer) {
@@ -32,29 +32,29 @@ function checkEmpty (property) {
 
 function transformDefaultProperties (producer, schema, data, fromSource) {
   return new Promise(resolve => {
-    const returnObject = JSON.parse(JSON.stringify(data))
+    const returnData = JSON.parse(JSON.stringify(data))
     const name = extractName(schema.$ref)
     const properties = schema.definitions[name].properties
     const transformer = producers(producer).transformer
 
     Object.keys(properties).forEach(property => {
-      if (checkEmpty(returnObject[property])) {
-        delete returnObject[property]
+      if (checkEmpty(returnData[property])) {
+        delete returnData[property]
       }
 
       Object.keys(transformer).forEach(transformable => {
         if (properties[property].hasOwnProperty('customType') && properties[property].customType === transformable) {
-          if (Array.isArray(returnObject[property]) && returnObject[property].length !== 0) {
-            returnObject[property].forEach((value, index) => {
+          if (Array.isArray(returnData[property]) && returnData[property].length !== 0) {
+            returnData[property].forEach((value, index) => {
               Object.keys(transformer[transformable]).forEach(transformKey => {
                 if (fromSource) {
-                  returnObject[property][index][transformKey] = returnObject[property][index][transformer[transformable][transformKey]]
+                  returnData[property][index][transformKey] = returnData[property][index][transformer[transformable][transformKey]]
 
-                  delete returnObject[property][index][transformer[transformable][transformKey]]
+                  delete returnData[property][index][transformer[transformable][transformKey]]
                 } else {
-                  returnObject[property][index][transformer[transformable][transformKey]] = returnObject[property][index][transformKey]
+                  returnData[property][index][transformer[transformable][transformKey]] = returnData[property][index][transformKey]
 
-                  delete returnObject[property][index][transformKey]
+                  delete returnData[property][index][transformKey]
                 }
               })
             })
@@ -63,7 +63,7 @@ function transformDefaultProperties (producer, schema, data, fromSource) {
       })
     })
 
-    resolve(returnObject)
+    resolve(returnData)
   })
 }
 

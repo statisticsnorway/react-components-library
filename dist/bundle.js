@@ -1746,50 +1746,13 @@ function resolveGSIMProperties(schema, url) {
   });
 }
 
-function producers(producer, element, user, version, versionIncrementation) {
-  switch (producer) {
-    case 'GSIM':
-      return updateGSIMDataState(element, user, version, versionIncrementation);
-
-    case 'GSIMNew':
-      return updateNewGSIMDataState(element, user);
-
-    default:
-      return null;
-  }
-}
-
-function updateAutofill(producer, schema, data, user, versionIncrementation, isNew) {
-  return new Promise(function (resolve) {
-    var name = extractName(schema.$ref);
-    var properties = schema.definitions[name].properties;
-    var dataObject = JSON.parse(JSON.stringify(data));
-    Object.keys(properties).forEach(function (key) {
-      if (properties[key].hasOwnProperty('autofilled')) {
-        if (isNew) {
-          var updateNewProducer = producer + 'New';
-
-          if (producers(updateNewProducer, key, user) !== null) {
-            dataObject[key] = producers(updateNewProducer, key, user);
-          }
-        } else {
-          if (producers(producer, key, user, data.version, versionIncrementation) !== null) {
-            dataObject[key] = producers(producer, key, user, data.version, versionIncrementation);
-          }
-        }
-      }
-    });
-    resolve(dataObject);
-  });
-}
-
 function transformGSIMProperties(producer, schema, data, fromSource) {
-  var returnObject = JSON.parse(JSON.stringify(data));
+  var returnData = JSON.parse(JSON.stringify(data));
   var name = extractName(schema.$ref);
   var properties = schema.definitions[name].properties;
   Object.keys(properties).forEach(function (property) {
     // TODO: Too long if
-    if (properties[property].hasOwnProperty('customType') && properties[property].customType === 'MultilingualText' && returnObject.hasOwnProperty(property)) {
+    if (properties[property].hasOwnProperty('customType') && properties[property].customType === 'MultilingualText' && returnData.hasOwnProperty(property)) {
       if (fromSource) {
         var text = data.name[0].languageText;
         data[property].forEach(function (multilingual) {
@@ -1797,86 +1760,17 @@ function transformGSIMProperties(producer, schema, data, fromSource) {
             text = multilingual.languageText;
           }
         });
-        returnObject[property] = text;
+        returnData[property] = text;
       } else {
-        var value = returnObject[property];
-        returnObject[property] = [{
+        var value = returnData[property];
+        returnData[property] = [{
           languageCode: 'nb',
           languageText: value
         }];
       }
     }
   });
-  return returnObject;
-}
-
-function producers$1(producer) {
-  switch (producer) {
-    case 'GSIM':
-      return DefaultGSIMUISchema;
-
-    default:
-      return null;
-  }
-}
-
-function producersSpecialProperties(producer, schema, data, fromSource) {
-  switch (producer) {
-    case 'GSIM':
-      return transformGSIMProperties(producer, schema, data, fromSource);
-
-    default:
-      return null;
-  }
-}
-
-function checkEmpty(property) {
-  if (property === '') {
-    return true;
-  } else if (Array.isArray(property) && property.length === 0) {
-    return true;
-  } else return _typeof(property) === 'object' && Object.keys(property).length === 0;
-}
-
-function transformDefaultProperties(producer, schema, data, fromSource) {
-  return new Promise(function (resolve) {
-    var returnObject = JSON.parse(JSON.stringify(data));
-    var name = extractName(schema.$ref);
-    var properties = schema.definitions[name].properties;
-    var transformer$$1 = producers$1(producer).transformer;
-    Object.keys(properties).forEach(function (property) {
-      if (checkEmpty(returnObject[property])) {
-        delete returnObject[property];
-      }
-
-      Object.keys(transformer$$1).forEach(function (transformable) {
-        if (properties[property].hasOwnProperty('customType') && properties[property].customType === transformable) {
-          if (Array.isArray(returnObject[property]) && returnObject[property].length !== 0) {
-            returnObject[property].forEach(function (value, index) {
-              Object.keys(transformer$$1[transformable]).forEach(function (transformKey) {
-                if (fromSource) {
-                  returnObject[property][index][transformKey] = returnObject[property][index][transformer$$1[transformable][transformKey]];
-                  delete returnObject[property][index][transformer$$1[transformable][transformKey]];
-                } else {
-                  returnObject[property][index][transformer$$1[transformable][transformKey]] = returnObject[property][index][transformKey];
-                  delete returnObject[property][index][transformKey];
-                }
-              });
-            });
-          }
-        }
-      });
-    });
-    resolve(returnObject);
-  });
-}
-
-function transformProperties(producer, schema, data, fromSource) {
-  return new Promise(function (resolve) {
-    transformDefaultProperties(producer, schema, data, fromSource).then(function (transformedProperties) {
-      resolve(producersSpecialProperties(producer, schema, transformedProperties, fromSource));
-    });
-  });
+  return returnData;
 }
 
 // TODO: This one is temporary
@@ -1985,6 +1879,229 @@ function putData(url, data) {
   });
 }
 
+function createOptions(response, prefix) {
+  var options = [];
+  Object.keys(response).forEach(function (value) {
+    var text = response[value].name[0].languageText;
+    response[value].name.forEach(function (name) {
+      if (name.languageCode === 'nb') text = name.languageText;
+    });
+    options.push({
+      key: response[value].id,
+      text: text,
+      value: prefix + response[value].id
+    });
+  });
+  return options;
+}
+
+function fetchGSIMOptions(url) {
+  return new Promise(function (resolve, reject) {
+    fetchData(url).then(function (response) {
+      var prefix = '/' + url.substring(url.lastIndexOf('/') + 1) + '/';
+
+      if (response.length !== 0) {
+        resolve(createOptions(response, prefix));
+      } else {
+        resolve([]);
+      }
+    }).catch(function (error) {
+      reject(error);
+    });
+  });
+}
+
+var name = "DescribedValueDomain";
+var hideOnChoice = {
+	dataType: {
+		BOOLEAN: [
+			"minValue",
+			"maxValue",
+			"minLength",
+			"maxLength",
+			"minDecimals",
+			"maxDecimals"
+		],
+		DATETIME: [
+			"minValue",
+			"maxValue",
+			"minLength",
+			"maxLength",
+			"minDecimals",
+			"maxDecimals"
+		],
+		FLOAT: [
+			"minLength",
+			"maxLength"
+		],
+		INTEGER: [
+			"minLength",
+			"maxLength",
+			"minDecimals",
+			"maxDecimals"
+		],
+		STRING: [
+			"minValue",
+			"maxValue",
+			"minDecimals",
+			"maxDecimals"
+		]
+	}
+};
+var DescribedValueDomainUISchema = {
+	name: name,
+	hideOnChoice: hideOnChoice
+};
+
+function mergeGSIMUISchema(schema) {
+  return new Promise(function (resolve) {
+    var returnSchema = JSON.parse(JSON.stringify(schema));
+    var name$$1 = extractName(schema.$ref);
+    var properties = JSON.parse(JSON.stringify(schema.definitions[name$$1].properties));
+
+    if (DescribedValueDomainUISchema.name === name$$1) {
+      Object.keys(properties).forEach(function (key) {
+        if (DescribedValueDomainUISchema.hideOnChoice.hasOwnProperty(key)) {
+          returnSchema.definitions[name$$1].properties[key].hideOnChoice = DescribedValueDomainUISchema.hideOnChoice[key];
+        }
+      });
+    }
+
+    resolve(returnSchema);
+  });
+}
+
+function producers(producer, element, user, version, versionIncrementation) {
+  switch (producer) {
+    case 'GSIM':
+      return updateGSIMDataState(element, user, version, versionIncrementation);
+
+    case 'GSIMNew':
+      return updateNewGSIMDataState(element, user);
+
+    default:
+      return null;
+  }
+}
+
+function updateAutofill(producer, schema, data, user, versionIncrementation, isNew) {
+  return new Promise(function (resolve) {
+    var name = extractName(schema.$ref);
+    var properties = schema.definitions[name].properties;
+    var returnData = JSON.parse(JSON.stringify(data));
+    Object.keys(properties).forEach(function (key) {
+      if (properties[key].hasOwnProperty('autofilled')) {
+        if (isNew) {
+          var updateNewProducer = producer + 'New';
+
+          if (producers(updateNewProducer, key, user) !== null) {
+            returnData[key] = producers(updateNewProducer, key, user);
+          }
+        } else {
+          if (producers(producer, key, user, data.version, versionIncrementation) !== null) {
+            returnData[key] = producers(producer, key, user, data.version, versionIncrementation);
+          }
+        }
+      }
+    });
+    resolve(returnData);
+  });
+}
+function setAutofillAndClean(schema, data, hiddenFields) {
+  return new Promise(function (resolve) {
+    var name = extractName(schema.$ref);
+    var returnSchema = JSON.parse(JSON.stringify(schema));
+    var returnData = JSON.parse(JSON.stringify(data));
+    Object.keys(returnSchema.definitions[name].properties).forEach(function (key) {
+      if (data.hasOwnProperty(key)) {
+        if (returnSchema.definitions[name].properties[key].hasOwnProperty('autofilled')) {
+          returnSchema.definitions[name].properties[key].value = [data[key]];
+        } else {
+          returnSchema.definitions[name].properties[key].value = data[key];
+        }
+      }
+    });
+    Object.keys(data).forEach(function (key) {
+      if (hiddenFields.includes(key)) {
+        delete returnData[key];
+      }
+    });
+    resolve({
+      returnSchema: returnSchema,
+      returnData: returnData
+    });
+  });
+}
+
+function producers$1(producer) {
+  switch (producer) {
+    case 'GSIM':
+      return DefaultGSIMUISchema;
+
+    default:
+      return null;
+  }
+}
+
+function producersSpecialProperties(producer, schema, data, fromSource) {
+  switch (producer) {
+    case 'GSIM':
+      return transformGSIMProperties(producer, schema, data, fromSource);
+
+    default:
+      return null;
+  }
+}
+
+function checkEmpty(property) {
+  if (property === '') {
+    return true;
+  } else if (Array.isArray(property) && property.length === 0) {
+    return true;
+  } else return _typeof(property) === 'object' && Object.keys(property).length === 0;
+}
+
+function transformDefaultProperties(producer, schema, data, fromSource) {
+  return new Promise(function (resolve) {
+    var returnData = JSON.parse(JSON.stringify(data));
+    var name = extractName(schema.$ref);
+    var properties = schema.definitions[name].properties;
+    var transformer$$1 = producers$1(producer).transformer;
+    Object.keys(properties).forEach(function (property) {
+      if (checkEmpty(returnData[property])) {
+        delete returnData[property];
+      }
+
+      Object.keys(transformer$$1).forEach(function (transformable) {
+        if (properties[property].hasOwnProperty('customType') && properties[property].customType === transformable) {
+          if (Array.isArray(returnData[property]) && returnData[property].length !== 0) {
+            returnData[property].forEach(function (value, index) {
+              Object.keys(transformer$$1[transformable]).forEach(function (transformKey) {
+                if (fromSource) {
+                  returnData[property][index][transformKey] = returnData[property][index][transformer$$1[transformable][transformKey]];
+                  delete returnData[property][index][transformer$$1[transformable][transformKey]];
+                } else {
+                  returnData[property][index][transformer$$1[transformable][transformKey]] = returnData[property][index][transformKey];
+                  delete returnData[property][index][transformKey];
+                }
+              });
+            });
+          }
+        }
+      });
+    });
+    resolve(returnData);
+  });
+}
+
+function transformProperties(producer, schema, data, fromSource) {
+  return new Promise(function (resolve) {
+    transformDefaultProperties(producer, schema, data, fromSource).then(function (transformedProperties) {
+      resolve(producersSpecialProperties(producer, schema, transformedProperties, fromSource));
+    });
+  });
+}
+
 function saveData(producer, schema, data, endpoint) {
   return new Promise(function (resolve, reject) {
     transformProperties(producer, schema, data, false).then(function (savableData) {
@@ -2019,16 +2136,11 @@ function checkRequiredIsNotEmpty(schema, data, name) {
   return errors;
 }
 
-function validation(schema, data, hiddenFields) {
+function validation(schema, data) {
   return new Promise(function (resolve, reject) {
     var returnSchema = JSON.parse(JSON.stringify(schema));
     var name = extractName(schema.$ref);
     var errors = checkRequiredIsNotEmpty(schema, data, name);
-    Object.keys(data).forEach(function (datakey) {
-      hiddenFields.forEach(function (hiddenkey) {
-        if (datakey === hiddenkey) delete data[datakey];
-      });
-    });
     Object.keys(schema.definitions[name].properties).forEach(function (key) {
       if (schema.definitions[name].properties[key].hasOwnProperty('autofilled')) {
         returnSchema.definitions[name].properties[key].value = [data[key]];
@@ -2094,7 +2206,7 @@ function generateDataState(producer, schema, user) {
 }
 function fillDataState(producer, schema, id, endpoint) {
   return new Promise(function (resolve, reject) {
-    var name = schema.$ref.replace('#/definitions/', '');
+    var name = extractName(schema.$ref);
     var url = endpoint + 'data/' + name + '/' + id;
     fetchData(url).then(function (response) {
       transformProperties(producer, schema, response, true).then(function (transformedData) {
@@ -2102,6 +2214,30 @@ function fillDataState(producer, schema, id, endpoint) {
       });
     }).catch(function (error) {
       reject(error);
+    });
+  });
+}
+function setDataToSchema(schema, data) {
+  return new Promise(function (resolve) {
+    var name = extractName(schema.$ref);
+    var returnSchema = JSON.parse(JSON.stringify(schema));
+    var properties = returnSchema.definitions[name].properties;
+    var returnHiddenFields = [];
+    Object.keys(data).forEach(function (key) {
+      if (properties[key].hasOwnProperty('autofilled')) {
+        properties[key].value = [data[key]];
+      } else {
+        properties[key].value = data[key];
+      }
+    });
+    Object.keys(properties).forEach(function (property) {
+      if (properties[property].hasOwnProperty('hideOnChoice')) {
+        returnHiddenFields = returnHiddenFields.concat(properties[property].hideOnChoice[data[property]]);
+      }
+    });
+    resolve({
+      returnSchema: returnSchema,
+      returnHiddenFields: returnHiddenFields
     });
   });
 }
@@ -2157,38 +2293,6 @@ function mergeDefaultUISchema(producer, schema) {
       }
     });
     resolve(returnSchema);
-  });
-}
-
-function createOptions(response, prefix) {
-  var options = [];
-  Object.keys(response).forEach(function (value) {
-    var text = response[value].name[0].languageText;
-    response[value].name.forEach(function (name) {
-      if (name.languageCode === 'nb') text = name.languageText;
-    });
-    options.push({
-      key: response[value].id,
-      text: text,
-      value: prefix + response[value].id
-    });
-  });
-  return options;
-}
-
-function fetchGSIMOptions(url) {
-  return new Promise(function (resolve, reject) {
-    fetchData(url).then(function (response) {
-      var prefix = '/' + url.substring(url.lastIndexOf('/') + 1) + '/';
-
-      if (response.length !== 0) {
-        resolve(createOptions(response, prefix));
-      } else {
-        resolve([]);
-      }
-    }).catch(function (error) {
-      reject(error);
-    });
   });
 }
 
@@ -2250,66 +2354,6 @@ function resolveProperties(producer, schema, url) {
   }
 }
 
-var name = "DescribedValueDomain";
-var hideOnChoice = {
-	dataType: {
-		BOOLEAN: [
-			"minValue",
-			"maxValue",
-			"minLength",
-			"maxLength",
-			"minDecimals",
-			"maxDecimals"
-		],
-		DATETIME: [
-			"minValue",
-			"maxValue",
-			"minLength",
-			"maxLength",
-			"minDecimals",
-			"maxDecimals"
-		],
-		FLOAT: [
-			"minLength",
-			"maxLength"
-		],
-		INTEGER: [
-			"minLength",
-			"maxLength",
-			"minDecimals",
-			"maxDecimals"
-		],
-		STRING: [
-			"minValue",
-			"maxValue",
-			"minDecimals",
-			"maxDecimals"
-		]
-	}
-};
-var DescribedValueDomainUISchema = {
-	name: name,
-	hideOnChoice: hideOnChoice
-};
-
-function mergeGSIMUISchema(schema) {
-  return new Promise(function (resolve) {
-    var returnSchema = JSON.parse(JSON.stringify(schema));
-    var name$$1 = extractName(schema.$ref);
-    var properties = JSON.parse(JSON.stringify(schema.definitions[name$$1].properties));
-
-    if (DescribedValueDomainUISchema.name === name$$1) {
-      Object.keys(properties).forEach(function (key) {
-        if (DescribedValueDomainUISchema.hideOnChoice.hasOwnProperty(key)) {
-          returnSchema.definitions[name$$1].properties[key].hideOnChoice = DescribedValueDomainUISchema.hideOnChoice[key];
-        }
-      });
-    }
-
-    resolve(returnSchema);
-  });
-}
-
 function mergeUISchema(producer, schema) {
   switch (producer) {
     case 'GSIM':
@@ -2365,77 +2409,61 @@ function (_Component) {
 
     _this.validateAndSave = function (event) {
       event.preventDefault();
-      var _this$state = _this.state,
-          schema = _this$state.schema,
-          data = _this$state.data,
-          versionIncrementation = _this$state.versionIncrementation,
-          name = _this$state.name,
-          hiddenFields = _this$state.hiddenFields;
-      var _this$props = _this.props,
-          producer = _this$props.producer,
-          params = _this$props.params,
-          endpoint = _this$props.endpoint;
-      var copiedSchema = JSON.parse(JSON.stringify(schema));
-      var copiedData = JSON.parse(JSON.stringify(data));
 
       _this.setState({
         ready: false
       }, function () {
-        validation(copiedSchema, copiedData, hiddenFields).then(function (schemaWithoutErrors) {
-          updateAutofill(producer, schemaWithoutErrors, copiedData, TEMP.USER, versionIncrementation, params.id === 'new').then(function (autofilledData) {
-            var updatedSchema = JSON.parse(JSON.stringify(schemaWithoutErrors));
-            var savedMessage = params.id === 'new' ? MESSAGES.SAVED : MESSAGES.UPDATED;
-            Object.keys(updatedSchema.definitions[name].properties).forEach(function (key) {
-              if (autofilledData.hasOwnProperty(key)) {
-                if (updatedSchema.definitions[name].properties[key].hasOwnProperty('autofilled')) {
-                  updatedSchema.definitions[name].properties[key].value = [autofilledData[key]];
-                } else {
-                  updatedSchema.definitions[name].properties[key].value = autofilledData[key];
+        var _this$state = _this.state,
+            schema = _this$state.schema,
+            data = _this$state.data,
+            versionIncrementation = _this$state.versionIncrementation,
+            hiddenFields = _this$state.hiddenFields;
+        var _this$props = _this.props,
+            producer = _this$props.producer,
+            params = _this$props.params,
+            endpoint = _this$props.endpoint;
+        var copiedSchema = JSON.parse(JSON.stringify(schema));
+        validation(copiedSchema, data).then(function (schemaWithoutErrors) {
+          updateAutofill(producer, schemaWithoutErrors, data, TEMP.USER, versionIncrementation, params.id === 'new').then(function (autofilledData) {
+            setAutofillAndClean(schemaWithoutErrors, autofilledData, hiddenFields).then(function (finished) {
+              var savedMessage = params.id === 'new' ? MESSAGES.SAVED : MESSAGES.UPDATED;
+              saveData(producer, finished.returnSchema, finished.returnData, endpoint).then(function (response) {
+                if (params.id === 'new') {
+                  var newUrl = window.location.pathname.replace('/new', '/' + autofilledData.id);
+                  window.history.pushState({}, '', newUrl);
+                  _this.props.params.id = autofilledData.id.slice(0);
                 }
-              }
-            });
-            saveData(producer, updatedSchema, autofilledData, endpoint).then(function (response) {
-              if (params.id === 'new') {
-                var newUrl = window.location.pathname.replace('/new', '/' + autofilledData.id);
-                window.history.pushState({}, '', newUrl);
-                _this.props.params.id = autofilledData.id.slice(0);
-              }
 
-              _this.setState({
-                schema: updatedSchema,
-                data: autofilledData,
-                saved: true,
-                message: MESSAGES.WAS_SAVED + savedMessage + ' (' + DIV.SAGA + ': ' + response[DIV.SAGA] + ')',
-                readOnly: true
-              }, function () {
-                return _this.setState({
-                  ready: true
+                _this.setState({
+                  schema: finished.returnSchema,
+                  data: finished.returnData,
+                  saved: true,
+                  message: MESSAGES.WAS_SAVED + savedMessage + ' (' + DIV.SAGA + ': ' + response[DIV.SAGA] + ')',
+                  readOnly: true
+                }, function () {
+                  return _this.setState({
+                    ready: true
+                  });
+                });
+              }).catch(function (saveError) {
+                // TODO: This error message is unclear
+                _this.setState({
+                  data: finished.returnData,
+                  schema: finished.returnSchema,
+                  saved: false,
+                  message: saveError
+                }, function () {
+                  return _this.setState({
+                    ready: true
+                  });
                 });
               });
-            }).catch(function (saveError) {
-              // TODO: This error message is unclear
-              _this.setState({
-                data: autofilledData,
-                schema: updatedSchema,
-                saved: false,
-                message: saveError
-              }, function () {
-                return _this.setState({
-                  ready: true
-                });
-              });
-            });
-          }).catch(function (autofillError) {
-            _this.setState({
-              ready: true,
-              saved: false,
-              message: autofillError
             });
           });
-        }).catch(function (resultWithErrors) {
+        }).catch(function (schemaWithErrors) {
           _this.setState({
             ready: true,
-            schema: resultWithErrors,
+            schema: schemaWithErrors,
             saved: false,
             message: MESSAGES.WAS_NOT_SAVED
           });
@@ -2464,15 +2492,13 @@ function (_Component) {
       problem: false
     };
     return _this;
-  } // TODO: Too large function
-
+  }
 
   _createClass(DCFormBuilder, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       var _this2 = this;
 
-      var name = this.state.name;
       var _this$props2 = this.props,
           producer = _this$props2.producer,
           schema = _this$props2.schema,
@@ -2482,29 +2508,16 @@ function (_Component) {
         if (params.id === 'new') {
           _this2.newComponent(producer, populatedSchema, TEMP.USER);
         } else {
-          fillDataState(producer, populatedSchema, params.id, endpoint).then(function (result) {
-            var properties = populatedSchema.definitions[name].properties;
-            var hiddenFields = [];
-            Object.keys(result).forEach(function (key) {
-              if (properties[key].hasOwnProperty('autofilled')) {
-                properties[key].value = [result[key]];
-              } else {
-                properties[key].value = result[key];
-              }
-            });
-            Object.keys(properties).forEach(function (property) {
-              if (properties[property].hasOwnProperty('hideOnChoice')) {
-                hiddenFields = hiddenFields.concat(properties[property].hideOnChoice[result[property]]);
-              }
-            });
-
-            _this2.setState({
-              data: result,
-              schema: populatedSchema,
-              hiddenFields: hiddenFields
-            }, function () {
-              return _this2.setState({
-                ready: true
+          fillDataState(producer, populatedSchema, params.id, endpoint).then(function (filledData) {
+            setDataToSchema(populatedSchema, filledData).then(function (filled) {
+              _this2.setState({
+                data: filledData,
+                schema: filled.returnSchema,
+                hiddenFields: filled.returnHiddenFields
+              }, function () {
+                return _this2.setState({
+                  ready: true
+                });
               });
             });
           }).catch(function (error) {
@@ -2555,15 +2568,15 @@ function (_Component) {
 
       var name = this.state.name;
       var properties = schema.definitions[name].properties;
-      generateDataState(producer, schema, user).then(function (result) {
+      generateDataState(producer, schema, user).then(function (generatedDataState) {
         Object.keys(properties).forEach(function (key) {
           if (properties[key].hasOwnProperty('autofilled')) {
-            properties[key].value = [result[key]];
+            properties[key].value = [generatedDataState[key]];
           }
         });
 
         _this4.setState({
-          data: result,
+          data: generatedDataState,
           schema: schema,
           hiddenFields: [],
           message: '',

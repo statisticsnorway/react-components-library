@@ -2,8 +2,8 @@ import React, { Component } from 'react'
 import { Link, Route } from 'react-router-dom'
 import { Button, Container, Dropdown, Icon, Label, Menu, Message } from 'semantic-ui-react'
 
-import { extractName, splitOnUppercase } from '../utilities/Common'
 import { DCFormBuilder, DCTableBuilder, SchemaHandler } from '../components'
+import { extractName, splitOnUppercase } from '../utilities/Common'
 import { UI } from '../utilities/Enum'
 
 class Forms extends Component {

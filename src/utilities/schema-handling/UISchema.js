@@ -1,4 +1,4 @@
-import { mergeGSIMUISchema } from '../../producers/gsim/GSIMUISchemas'
+import { mergeGSIMUISchema } from '../../producers/gsim'
 
 export function mergeUISchema (producer, schema) {
   switch (producer) {

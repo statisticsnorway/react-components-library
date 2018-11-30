@@ -4,9 +4,10 @@ import { Button, Dimmer, Form, Grid, Header, Message } from 'semantic-ui-react'
 import { DCFormField } from 'dc-react-form-fields-library'
 import { defaultVersioning } from '../producers'
 import { extractName, splitOnUppercase } from '../utilities/Common'
-import { saveData, updateAutofill, validation } from '../utilities/data-handling'
+import { saveData, setAutofillAndClean, updateAutofill, validation } from '../utilities/data-handling'
 import { fillDataState, generateDataState, populateOptions } from '../utilities/schema-handling'
 import { DIV, MESSAGES, TEMP, UI } from '../utilities/Enum'
+import { setDataToSchema } from '../utilities/schema-handling/DataState'
 
 class DCFormBuilder extends Component {
   constructor (props) {
@@ -29,39 +30,21 @@ class DCFormBuilder extends Component {
     }
   }
 
-  // TODO: Too large function
   componentDidMount () {
-    const {name} = this.state
     const {producer, schema, params, endpoint} = this.props
 
     populateOptions(producer, schema).then(populatedSchema => {
       if (params.id === 'new') {
         this.newComponent(producer, populatedSchema, TEMP.USER)
       } else {
-        fillDataState(producer, populatedSchema, params.id, endpoint).then(result => {
-          const properties = populatedSchema.definitions[name].properties
-
-          let hiddenFields = []
-
-          Object.keys(result).forEach(key => {
-            if (properties[key].hasOwnProperty('autofilled')) {
-              properties[key].value = [result[key]]
-            } else {
-              properties[key].value = result[key]
-            }
+        fillDataState(producer, populatedSchema, params.id, endpoint).then(filledData => {
+          setDataToSchema(populatedSchema, filledData).then(filled => {
+            this.setState({
+              data: filledData,
+              schema: filled.returnSchema,
+              hiddenFields: filled.returnHiddenFields
+            }, () => this.setState({ready: true}))
           })
-
-          Object.keys(properties).forEach(property => {
-            if (properties[property].hasOwnProperty('hideOnChoice')) {
-              hiddenFields = hiddenFields.concat(properties[property].hideOnChoice[result[property]])
-            }
-          })
-
-          this.setState({
-            data: result,
-            schema: populatedSchema,
-            hiddenFields: hiddenFields
-          }, () => this.setState({ready: true}))
         }).catch(error => {
           this.setState({
             problem: true,
@@ -100,15 +83,15 @@ class DCFormBuilder extends Component {
     const {name} = this.state
     const properties = schema.definitions[name].properties
 
-    generateDataState(producer, schema, user).then(result => {
+    generateDataState(producer, schema, user).then(generatedDataState => {
       Object.keys(properties).forEach(key => {
         if (properties[key].hasOwnProperty('autofilled')) {
-          properties[key].value = [result[key]]
+          properties[key].value = [generatedDataState[key]]
         }
       })
 
       this.setState({
-        data: result,
+        data: generatedDataState,
         schema: schema,
         hiddenFields: [],
         message: '',
@@ -152,67 +135,50 @@ class DCFormBuilder extends Component {
     })
   }
 
-  // TODO: Too large function
   validateAndSave = (event) => {
     event.preventDefault()
 
-    const {schema, data, versionIncrementation, name, hiddenFields} = this.state
-    const {producer, params, endpoint} = this.props
-    const copiedSchema = JSON.parse(JSON.stringify(schema))
-    const copiedData = JSON.parse(JSON.stringify(data))
-
     this.setState({ready: false}, () => {
-      validation(copiedSchema, copiedData, hiddenFields).then(schemaWithoutErrors => {
-        updateAutofill(producer, schemaWithoutErrors, copiedData, TEMP.USER, versionIncrementation, (params.id === 'new')).then(autofilledData => {
-          const updatedSchema = JSON.parse(JSON.stringify(schemaWithoutErrors))
-          const savedMessage = params.id === 'new' ? MESSAGES.SAVED : MESSAGES.UPDATED
+      const {schema, data, versionIncrementation, hiddenFields} = this.state
+      const {producer, params, endpoint} = this.props
+      const copiedSchema = JSON.parse(JSON.stringify(schema))
 
-          Object.keys(updatedSchema.definitions[name].properties).forEach(key => {
-            if (autofilledData.hasOwnProperty(key)) {
-              if (updatedSchema.definitions[name].properties[key].hasOwnProperty('autofilled')) {
-                updatedSchema.definitions[name].properties[key].value = [autofilledData[key]]
-              } else {
-                updatedSchema.definitions[name].properties[key].value = autofilledData[key]
+      validation(copiedSchema, data).then(schemaWithoutErrors => {
+        updateAutofill(producer, schemaWithoutErrors, data, TEMP.USER, versionIncrementation, (params.id === 'new')).then(autofilledData => {
+          setAutofillAndClean(schemaWithoutErrors, autofilledData, hiddenFields).then(finished => {
+            const savedMessage = params.id === 'new' ? MESSAGES.SAVED : MESSAGES.UPDATED
+
+            saveData(producer, finished.returnSchema, finished.returnData, endpoint).then(response => {
+              if (params.id === 'new') {
+                const newUrl = window.location.pathname.replace('/new', '/' + autofilledData.id)
+
+                window.history.pushState({}, '', newUrl)
+
+                this.props.params.id = autofilledData.id.slice(0)
               }
-            }
-          })
 
-          saveData(producer, updatedSchema, autofilledData, endpoint).then(response => {
-            if (params.id === 'new') {
-              const newUrl = window.location.pathname.replace('/new', '/' + autofilledData.id)
-
-              window.history.pushState({}, '', newUrl)
-
-              this.props.params.id = autofilledData.id.slice(0)
-            }
-
-            this.setState({
-              schema: updatedSchema,
-              data: autofilledData,
-              saved: true,
-              message: MESSAGES.WAS_SAVED + savedMessage + ' (' + DIV.SAGA + ': ' + response[DIV.SAGA] + ')',
-              readOnly: true
-            }, () => this.setState({ready: true}))
-          }).catch(saveError => {
-            // TODO: This error message is unclear
-            this.setState({
-              data: autofilledData,
-              schema: updatedSchema,
-              saved: false,
-              message: saveError
-            }, () => this.setState({ready: true}))
-          })
-        }).catch(autofillError => {
-          this.setState({
-            ready: true,
-            saved: false,
-            message: autofillError
+              this.setState({
+                schema: finished.returnSchema,
+                data: finished.returnData,
+                saved: true,
+                message: MESSAGES.WAS_SAVED + savedMessage + ' (' + DIV.SAGA + ': ' + response[DIV.SAGA] + ')',
+                readOnly: true
+              }, () => this.setState({ready: true}))
+            }).catch(saveError => {
+              // TODO: This error message is unclear
+              this.setState({
+                data: finished.returnData,
+                schema: finished.returnSchema,
+                saved: false,
+                message: saveError
+              }, () => this.setState({ready: true}))
+            })
           })
         })
-      }).catch(resultWithErrors => {
+      }).catch(schemaWithErrors => {
         this.setState({
           ready: true,
-          schema: resultWithErrors,
+          schema: schemaWithErrors,
           saved: false,
           message: MESSAGES.WAS_NOT_SAVED
         })

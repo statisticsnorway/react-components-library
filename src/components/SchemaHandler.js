@@ -1,7 +1,5 @@
 import { fetchData } from '../utilities/http-clients/fetch'
-import { mergeDefaultUISchema } from '../utilities/schema-handling/Merge'
-import { resolveProperties } from '../utilities/schema-handling/Resolve'
-import { mergeUISchema } from '../utilities/schema-handling/UISchema'
+import { mergeDefaultUISchema, mergeUISchema, resolveProperties } from '../utilities/schema-handling'
 
 export function SchemaHandler (url, producer, endpoint) {
   return new Promise((resolve, reject) => {

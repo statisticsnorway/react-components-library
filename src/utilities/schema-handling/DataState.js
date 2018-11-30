@@ -46,7 +46,7 @@ export function generateDataState (producer, schema, user) {
 
 export function fillDataState (producer, schema, id, endpoint) {
   return new Promise((resolve, reject) => {
-    const name = schema.$ref.replace('#/definitions/', '')
+    const name = extractName(schema.$ref)
     const url = endpoint + 'data/' + name + '/' + id
 
     fetchData(url).then(response => {
@@ -56,5 +56,31 @@ export function fillDataState (producer, schema, id, endpoint) {
     }).catch(error => {
       reject(error)
     })
+  })
+}
+
+export function setDataToSchema (schema, data) {
+  return new Promise(resolve => {
+    const name = extractName(schema.$ref)
+    const returnSchema = JSON.parse(JSON.stringify(schema))
+    const properties = returnSchema.definitions[name].properties
+
+    let returnHiddenFields = []
+
+    Object.keys(data).forEach(key => {
+      if (properties[key].hasOwnProperty('autofilled')) {
+        properties[key].value = [data[key]]
+      } else {
+        properties[key].value = data[key]
+      }
+    })
+
+    Object.keys(properties).forEach(property => {
+      if (properties[property].hasOwnProperty('hideOnChoice')) {
+        returnHiddenFields = returnHiddenFields.concat(properties[property].hideOnChoice[data[property]])
+      }
+    })
+
+    resolve({returnSchema, returnHiddenFields})
   })
 }

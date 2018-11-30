@@ -1,3 +1,7 @@
 export { generateGSIMDataState } from './GSIMDataState'
 export { resolveGSIMProperties } from './GSIMProperties'
 export { updateGSIMDataState } from './GSIMDataState'
+export { updateNewGSIMDataState } from './GSIMDataState'
+export { transformGSIMProperties } from './GSIMTransformer'
+export { fetchGSIMOptions } from './GSIMOptions'
+export { mergeGSIMUISchema } from './GSIMUISchemas'

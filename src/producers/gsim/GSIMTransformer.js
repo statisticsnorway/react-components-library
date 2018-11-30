@@ -1,13 +1,13 @@
 import { extractName } from '../../utilities/Common'
 
 export function transformGSIMProperties (producer, schema, data, fromSource) {
-  const returnObject = JSON.parse(JSON.stringify(data))
+  const returnData = JSON.parse(JSON.stringify(data))
   const name = extractName(schema.$ref)
   const properties = schema.definitions[name].properties
 
   Object.keys(properties).forEach(property => {
     // TODO: Too long if
-    if (properties[property].hasOwnProperty('customType') && properties[property].customType === 'MultilingualText' && returnObject.hasOwnProperty(property)) {
+    if (properties[property].hasOwnProperty('customType') && properties[property].customType === 'MultilingualText' && returnData.hasOwnProperty(property)) {
       if (fromSource) {
         let text = data.name[0].languageText
         data[property].forEach(multilingual => {
@@ -15,13 +15,13 @@ export function transformGSIMProperties (producer, schema, data, fromSource) {
             text = multilingual.languageText
           }
         })
-        returnObject[property] = text
+        returnData[property] = text
       } else {
-        const value = returnObject[property]
+        const value = returnData[property]
 
-        returnObject[property] = [{languageCode: 'nb', languageText: value}]
+        returnData[property] = [{languageCode: 'nb', languageText: value}]
       }
     }
   })
-  return returnObject
+  return returnData
 }

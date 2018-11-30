@@ -24,18 +24,11 @@ function checkRequiredIsNotEmpty (schema, data, name) {
   return errors
 }
 
-export function validation (schema, data, hiddenFields) {
+export function validation (schema, data) {
   return new Promise((resolve, reject) => {
     const returnSchema = JSON.parse(JSON.stringify(schema))
     const name = extractName(schema.$ref)
     const errors = checkRequiredIsNotEmpty(schema, data, name)
-
-    Object.keys(data).forEach(datakey => {
-      hiddenFields.forEach(hiddenkey => {
-        if (datakey === hiddenkey)
-          delete data[datakey]
-      })
-    })
 
     Object.keys(schema.definitions[name].properties).forEach(key => {
       if (schema.definitions[name].properties[key].hasOwnProperty('autofilled')) {
