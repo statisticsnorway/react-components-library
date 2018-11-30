@@ -6,7 +6,7 @@ import { defaultVersioning } from '../producers'
 import { extractName, splitOnUppercase } from '../utilities/Common'
 import { saveData, setAutofillAndClean, updateAutofill, validation } from '../utilities/data-handling'
 import { fillDataState, generateDataState, populateOptions } from '../utilities/schema-handling'
-import { DIV, MESSAGES, TEMP, UI } from '../utilities/Enum'
+import { DIV, MESSAGES, UI } from '../utilities/Enum'
 import { setDataToSchema } from '../utilities/schema-handling/DataState'
 
 class DCFormBuilder extends Component {
@@ -31,11 +31,11 @@ class DCFormBuilder extends Component {
   }
 
   componentDidMount () {
-    const {producer, schema, params, endpoint} = this.props
+    const {producer, schema, params, endpoint, user} = this.props
 
     populateOptions(producer, schema).then(populatedSchema => {
       if (params.id === 'new') {
-        this.newComponent(producer, populatedSchema, TEMP.USER)
+        this.newComponent(producer, populatedSchema, user)
       } else {
         fillDataState(producer, populatedSchema, params.id, endpoint).then(filledData => {
           setDataToSchema(populatedSchema, filledData).then(filled => {
@@ -62,14 +62,14 @@ class DCFormBuilder extends Component {
 
   shouldComponentUpdate (nextProps, nextState) {
     const {hiddenFields, data} = this.state
-    const {params, producer, schema} = this.props
+    const {params, producer, schema, user} = this.props
 
     if (hiddenFields !== nextState.hiddenFields) return true
 
     if (params.id !== nextProps.params.id && nextProps.params.id === 'new') {
       this.setState({ready: false}, () => {
         populateOptions(producer, schema).then(populatedSchema => {
-          this.newComponent(producer, populatedSchema, TEMP.USER)
+          this.newComponent(producer, populatedSchema, user)
         })
       })
 
@@ -140,11 +140,11 @@ class DCFormBuilder extends Component {
 
     this.setState({ready: false}, () => {
       const {schema, data, versionIncrementation, hiddenFields} = this.state
-      const {producer, params, endpoint} = this.props
+      const {producer, params, endpoint, user} = this.props
       const copiedSchema = JSON.parse(JSON.stringify(schema))
 
       validation(copiedSchema, data).then(schemaWithoutErrors => {
-        updateAutofill(producer, schemaWithoutErrors, data, TEMP.USER, versionIncrementation, (params.id === 'new')).then(autofilledData => {
+        updateAutofill(producer, schemaWithoutErrors, data, user, versionIncrementation, (params.id === 'new')).then(autofilledData => {
           setAutofillAndClean(schemaWithoutErrors, autofilledData, hiddenFields).then(finished => {
             const savedMessage = params.id === 'new' ? MESSAGES.SAVED : MESSAGES.UPDATED
 

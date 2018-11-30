@@ -4,7 +4,6 @@ import { Button, Container, Dropdown, Icon, Label, Menu, Message } from 'semanti
 
 import { DCFormBuilder, DCTableBuilder, SchemaHandler } from '../components'
 import { extractName, splitOnUppercase } from '../utilities/Common'
-import { UI } from '../utilities/Enum'
 
 class Forms extends Component {
   constructor (props) {
@@ -48,10 +47,10 @@ class Forms extends Component {
       <div>
         <Menu fixed='top'>
           <Menu.Item header as={Link} to={route} disabled={!ready}>
-            {UI.MENU_HEADER}
+            GSIM domains
             <Label color='teal' size='large'>{ready ? schemas.length : <Icon fitted loading name='spinner' />}</Label>
           </Menu.Item>
-          <Dropdown item text={UI.SHOW_ALL} scrolling disabled={!ready}>
+          <Dropdown item text='Show all' scrolling disabled={!ready}>
             <Dropdown.Menu>
               {ready && schemas.map((schema, index) => {
                 const domain = extractName(schema.$ref)
@@ -61,7 +60,7 @@ class Forms extends Component {
               })}
             </Dropdown.Menu>
           </Dropdown>
-          <Dropdown item text={UI.CREATE_NEW} scrolling disabled={!ready}>
+          <Dropdown item text='Create new' scrolling disabled={!ready}>
             <Dropdown.Menu>
               {ready && schemas.map((schema, index) => {
                 const domain = extractName(schema.$ref)
@@ -81,7 +80,7 @@ class Forms extends Component {
             return <Route key={index} path={path} exact
                           render={({match}) => <DCFormBuilder params={match.params} producer={producer}
                                                               schema={JSON.parse(JSON.stringify(schema))}
-                                                              endpoint={endpoint} />} />
+                                                              endpoint={endpoint} user='Test user' />} />
           })}
           {ready && schemas.map((schema, index) => {
             const domain = extractName(schema.$ref)

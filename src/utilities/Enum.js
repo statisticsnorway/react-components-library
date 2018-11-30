@@ -1,8 +1,4 @@
-// TODO: This one is temporary
-export const TEMP = {
-  USER: 'Test'
-}
-
+// TODO: Rename ('DIV' is not a particularly good name)
 export const DIV = {
   SAGA: 'saga-execution-id'
 }
@@ -36,9 +32,7 @@ export const TABLE = {
 
 export const UI = {
   CREATE_NEW: 'Create new',
-  MENU_HEADER: 'GSIM domains',
   SAVE: 'Save',
   SEARCH: 'Search',
-  SHOW_ALL: 'Show all',
   UPDATE: 'Update'
 }

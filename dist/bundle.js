@@ -1781,7 +1781,8 @@ function transformGSIMProperties(producer, schema, data, fromSource) {
 
 // TODO: This one is temporary
 var TEMP = {
-  USER: 'Test'
+  USER: 'Test' // TODO: Rename ('DIV' is not a particularily good name)
+
 };
 var DIV = {
   SAGA: 'saga-execution-id'
