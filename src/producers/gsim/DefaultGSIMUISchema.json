@@ -50,11 +50,17 @@
       "option": "agentDetailType"
     }
   },
-  "defaultTableHeaders": [
-    "id",
-    "name",
-    "description"
-  ],
+  "table": {
+    "defaultTableHeaders": [
+      "name",
+      "description",
+      "id"
+    ],
+    "needsTransforming": {
+      "name": "MultilingualText",
+      "description": "MultilingualText"
+    }
+  },
   "icons": {
     "user": [
       "createdBy",

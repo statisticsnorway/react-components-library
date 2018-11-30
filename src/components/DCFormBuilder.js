@@ -165,12 +165,10 @@ class DCFormBuilder extends Component {
                 readOnly: true
               }, () => this.setState({ready: true}))
             }).catch(saveError => {
-              // TODO: This error message is unclear
               this.setState({
-                data: finished.returnData,
-                schema: finished.returnSchema,
+                schema: schemaWithoutErrors,
                 saved: false,
-                message: saveError
+                message: MESSAGES.WAS_NOT_SAVED + ' ' + saveError
               }, () => this.setState({ready: true}))
             })
           })
@@ -180,7 +178,7 @@ class DCFormBuilder extends Component {
           ready: true,
           schema: schemaWithErrors,
           saved: false,
-          message: MESSAGES.WAS_NOT_SAVED
+          message: MESSAGES.CORRECT_ERRORS
         })
       })
     })

@@ -1645,11 +1645,17 @@ var transformer = {
 		option: "agentDetailType"
 	}
 };
-var defaultTableHeaders = [
-	"id",
-	"name",
-	"description"
-];
+var table = {
+	defaultTableHeaders: [
+		"name",
+		"description",
+		"id"
+	],
+	needsTransforming: {
+		name: "MultilingualText",
+		description: "MultilingualText"
+	}
+};
 var icons = {
 	user: [
 		"createdBy",
@@ -1662,7 +1668,7 @@ var DefaultGSIMUISchema = {
 	autofilled: autofilled,
 	groups: groups,
 	transformer: transformer,
-	defaultTableHeaders: defaultTableHeaders,
+	table: table,
 	icons: icons
 };
 
@@ -1781,10 +1787,12 @@ var DIV = {
   SAGA: 'saga-execution-id'
 };
 var MESSAGES = {
+  CORRECT_ERRORS: 'Object was not saved, correct any errors and try again',
+  COULD_NOT_CONNECT: 'Could not connect to: ',
   FILTER_BY_NAME: 'Filter table by name',
   NAME_NOT_FOUND: 'Found nothing matching',
   NOT_EMPTY: 'Cannot be blank',
-  NOT_FILL: 'Could not fill data state: ',
+  NOT_FILL: 'Could not fill data state:',
   NOT_POPULATE: 'Could not populate dropdown: ',
   NOTHING_FOUND: 'Found nothing...',
   SAVED: 'saved',
@@ -1793,7 +1801,7 @@ var MESSAGES = {
   UNKNOWN_GENERATE: 'Unknown type, cannot generate default value',
   UPDATED: 'updated',
   WAS_SAVED: 'Object was ',
-  WAS_NOT_SAVED: 'Object was not saved, correct any errors and try again'
+  WAS_NOT_SAVED: 'Object was not saved!'
 };
 var TABLE = {
   LOADING: 'Loading',
@@ -1845,8 +1853,8 @@ function fetchData(url) {
   });
 }
 
-function putData(url, data) {
-  var timeout = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 3000;
+function putData(url, endpoint, data) {
+  var timeout = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 3000;
   return new Promise(function (resolve, reject) {
     var controller = new AbortController();
     var signal = controller.signal;
@@ -1872,7 +1880,7 @@ function putData(url, data) {
         });
       }
     }).catch(function (error) {
-      reject(error.toString() + ' \'' + url + '\'');
+      reject(MESSAGES.COULD_NOT_CONNECT + '\'' + endpoint + '\' (' + error.toString() + ')');
     }).finally(function () {
       return clearTimeout(timer);
     });
@@ -1969,6 +1977,32 @@ function mergeGSIMUISchema(schema) {
 
     resolve(returnSchema);
   });
+}
+
+function resolveGSIMTableObject(data) {
+  var tableSchema = DefaultGSIMUISchema.table;
+  var tableObject = {};
+  tableSchema.defaultTableHeaders.forEach(function (header) {
+    if (Object.keys(tableSchema.needsTransforming).includes(header)) {
+      switch (tableSchema.needsTransforming[header]) {
+        case 'MultilingualText':
+          var text = data[header][0].languageText;
+          data[header].forEach(function (multilingual) {
+            if (multilingual.languageCode === 'nb') {
+              text = multilingual.languageText;
+            }
+          });
+          tableObject[header] = text;
+          break;
+
+        default:
+          tableObject[header] = data[header];
+      }
+    } else {
+      tableObject[header] = data[header];
+    }
+  });
+  return tableObject;
 }
 
 function producers(producer, element, user, version, versionIncrementation) {
@@ -2106,7 +2140,7 @@ function saveData(producer, schema, data, endpoint) {
   return new Promise(function (resolve, reject) {
     transformProperties(producer, schema, data, false).then(function (savableData) {
       var url = endpoint + 'data/' + extractName(schema.$ref) + '/' + savableData.id;
-      putData(url, savableData).then(function (response) {
+      putData(url, endpoint, savableData).then(function (response) {
         resolve(response);
       }).catch(function (error) {
         reject(error);
@@ -2446,12 +2480,10 @@ function (_Component) {
                   });
                 });
               }).catch(function (saveError) {
-                // TODO: This error message is unclear
                 _this.setState({
-                  data: finished.returnData,
-                  schema: finished.returnSchema,
+                  schema: schemaWithoutErrors,
                   saved: false,
-                  message: saveError
+                  message: MESSAGES.WAS_NOT_SAVED + ' ' + saveError
                 }, function () {
                   return _this.setState({
                     ready: true
@@ -2465,7 +2497,7 @@ function (_Component) {
             ready: true,
             schema: schemaWithErrors,
             saved: false,
-            message: MESSAGES.WAS_NOT_SAVED
+            message: MESSAGES.CORRECT_ERRORS
           });
         });
       });
@@ -2769,7 +2801,16 @@ function producers$4(producer) {
 }
 
 function resolveTableHeaders(producer) {
-  return producers$4(producer).defaultTableHeaders;
+  return producers$4(producer).table.defaultTableHeaders;
+}
+function resolveTableObject(producer, data) {
+  switch (producer) {
+    case 'GSIM':
+      return resolveGSIMTableObject(data);
+
+    default:
+      return null;
+  }
 }
 
 var DCTableBuilder =
@@ -2805,7 +2846,7 @@ function (_Component) {
       tableColumn['accessor'] = header;
 
       switch (header) {
-        case 'id':
+        case 'name':
           tableColumn['Cell'] = function (props) {
             return React__default.createElement(reactRouterDom.Link, {
               to: routing + '/' + props.original.id
@@ -2842,17 +2883,15 @@ function (_Component) {
     value: function componentDidMount() {
       var _this2 = this;
 
-      var url = this.props.endpoint + 'data/' + this.state.name;
+      var _this$props2 = this.props,
+          producer = _this$props2.producer,
+          endpoint = _this$props2.endpoint;
+      var url = endpoint + 'data/' + this.state.name;
       var tableData = [];
       fetchData(url).then(function (result) {
         if (result.length !== 0) {
-          result.forEach(function (value) {
-            var tableObject = {}; // TODO: Make a producer for this
-
-            tableObject['id'] = value.id;
-            tableObject['name'] = value.name[0].languageText;
-            tableObject['description'] = value.description[0].languageText;
-            tableData.push(tableObject);
+          result.forEach(function (data) {
+            tableData.push(resolveTableObject(producer, data));
           });
         }
 

@@ -8,10 +8,12 @@ export const DIV = {
 }
 
 export const MESSAGES = {
+  CORRECT_ERRORS: 'Object was not saved, correct any errors and try again',
+  COULD_NOT_CONNECT: 'Could not connect to: ',
   FILTER_BY_NAME: 'Filter table by name',
   NAME_NOT_FOUND: 'Found nothing matching',
   NOT_EMPTY: 'Cannot be blank',
-  NOT_FILL: 'Could not fill data state: ',
+  NOT_FILL: 'Could not fill data state:',
   NOT_POPULATE: 'Could not populate dropdown: ',
   NOTHING_FOUND: 'Found nothing...',
   SAVED: 'saved',
@@ -20,7 +22,7 @@ export const MESSAGES = {
   UNKNOWN_GENERATE: 'Unknown type, cannot generate default value',
   UPDATED: 'updated',
   WAS_SAVED: 'Object was ',
-  WAS_NOT_SAVED: 'Object was not saved, correct any errors and try again'
+  WAS_NOT_SAVED: 'Object was not saved!'
 }
 
 export const TABLE = {

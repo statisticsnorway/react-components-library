@@ -1,1 +1,1 @@
-export { resolveTableHeaders } from './Resolve'
+export { resolveTableHeaders, resolveTableObject } from './Resolve'

@@ -5,7 +5,7 @@ import { Button, Divider, Header, Icon, Input, Label, Message, Popup } from 'sem
 
 import { extractName, splitOnUppercase } from '../utilities/Common'
 import { fetchData } from '../utilities/http-clients/fetch'
-import { resolveTableHeaders } from '../utilities/table-handling'
+import { resolveTableHeaders, resolveTableObject } from '../utilities/table-handling'
 import { MESSAGES, TABLE, UI } from '../utilities/Enum'
 
 class DCTableBuilder extends Component {
@@ -26,7 +26,7 @@ class DCTableBuilder extends Component {
       tableColumn['accessor'] = header
 
       switch (header) {
-        case 'id':
+        case 'name':
           tableColumn['Cell'] = props => (
             <Link to={routing + '/' + props.original.id}>
               {props.value}
@@ -53,20 +53,14 @@ class DCTableBuilder extends Component {
   }
 
   componentDidMount () {
-    const url = this.props.endpoint + 'data/' + this.state.name
+    const {producer, endpoint} = this.props
+    const url = endpoint + 'data/' + this.state.name
     const tableData = []
 
     fetchData(url).then(result => {
       if (result.length !== 0) {
-        result.forEach(value => {
-          const tableObject = {}
-
-          // TODO: Make a producer for this
-          tableObject['id'] = value.id
-          tableObject['name'] = value.name[0].languageText
-          tableObject['description'] = value.description[0].languageText
-
-          tableData.push(tableObject)
+        result.forEach(data => {
+          tableData.push(resolveTableObject(producer, data))
         })
       }
 
