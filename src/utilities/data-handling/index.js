@@ -1,5 +1,4 @@
-export { updateAutofill } from './Autofiller'
-export { setAutofillAndClean } from './Autofiller'
+export { updateAutofill, setAutofillAndClean } from './Autofiller'
 export { saveData } from './Saver'
 export { transformProperties } from './Transformer'
 export { validation } from './Validator'

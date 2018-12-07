@@ -6,20 +6,21 @@ export function transformGSIMProperties (producer, schema, data, fromSource) {
   const properties = schema.definitions[name].properties
 
   Object.keys(properties).forEach(property => {
-    // TODO: Too long if
-    if (properties[property].hasOwnProperty('customType') && properties[property].customType === 'MultilingualText' && returnData.hasOwnProperty(property)) {
-      if (fromSource) {
-        let text = data.name[0].languageText
-        data[property].forEach(multilingual => {
-          if (multilingual.languageCode === 'nb') {
-            text = multilingual.languageText
-          }
-        })
-        returnData[property] = text
-      } else {
-        const value = returnData[property]
+    if (properties[property].hasOwnProperty('customType') && properties[property].customType === 'MultilingualText') {
+      if (returnData.hasOwnProperty(property)) {
+        if (fromSource) {
+          let text = data.name[0].languageText
+          data[property].forEach(multilingual => {
+            if (multilingual.languageCode === 'nb') {
+              text = multilingual.languageText
+            }
+          })
+          returnData[property] = text
+        } else {
+          const value = returnData[property]
 
-        returnData[property] = [{languageCode: 'nb', languageText: value}]
+          returnData[property] = [{languageCode: 'nb', languageText: value}]
+        }
       }
     }
   })

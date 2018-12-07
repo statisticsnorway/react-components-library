@@ -1,7 +1,64 @@
 import DefaultGSIMUISchema from './DefaultGSIMUISchema'
 import { extractName } from '../../utilities/Common'
 
-// TODO: Split this function if possible
+function resolveReferences (properties, returnSchema, schema, key, name) {
+  const customType = extractName(properties[key].items.$ref)
+
+  returnSchema[name].properties[key].customType = customType
+
+  if (customType === 'MultilingualText') {
+    returnSchema[name].properties[key].component = 'DCText'
+  } else {
+    returnSchema[name].properties[key].multiValue = true
+    returnSchema[name].properties[key].component = 'DCMultiInput'
+  }
+
+  Object.keys(schema[customType].properties).forEach(property => {
+    if (schema[customType].properties[property].hasOwnProperty('enum')) {
+      const options = []
+
+      schema[customType].properties[property].enum.forEach(value => {
+        options.push({key: value, text: value, value: value})
+      })
+
+      returnSchema[name].properties[key].options = options
+
+      delete returnSchema[customType].properties[property].enum
+    }
+  })
+}
+
+function resolveLinks (properties, returnSchema, url, key) {
+  const linkedKey = key.replace('_link_property_', '')
+  const endpoints = []
+
+  Object.keys(properties[key].properties).forEach(property => {
+    endpoints.push(url + 'data/' + property)
+  })
+
+  returnSchema[linkedKey].endpoints = endpoints
+  returnSchema[linkedKey].component = 'DCDropdown'
+
+  if (properties[linkedKey].type === 'array') {
+    returnSchema[linkedKey].multiSelect = true
+  }
+
+  delete returnSchema[key]
+}
+
+function resolveEnums (properties, returnSchema) {
+  const options = []
+
+  properties.enum.forEach(value => {
+    options.push({key: value, text: value, value: value})
+  })
+
+  returnSchema.options = options
+  returnSchema.component = 'DCDropdown'
+
+  delete returnSchema.enum
+}
+
 export function resolveGSIMProperties (schema, url) {
   return new Promise(resolve => {
     const returnSchema = JSON.parse(JSON.stringify(schema))
@@ -11,30 +68,7 @@ export function resolveGSIMProperties (schema, url) {
     Object.keys(properties).forEach(key => {
       if (properties[key].hasOwnProperty('items')) {
         if (properties[key].items.hasOwnProperty('$ref')) {
-          const customType = extractName(properties[key].items.$ref)
-
-          returnSchema.definitions[name].properties[key].customType = customType
-
-          if (customType === 'MultilingualText') {
-            returnSchema.definitions[name].properties[key].component = 'DCText'
-          } else {
-            returnSchema.definitions[name].properties[key].multiValue = true
-            returnSchema.definitions[name].properties[key].component = 'DCMultiInput'
-          }
-
-          Object.keys(schema.definitions[customType].properties).forEach(property => {
-            if (schema.definitions[customType].properties[property].hasOwnProperty('enum')) {
-              const options = []
-
-              schema.definitions[customType].properties[property].enum.forEach(value => {
-                options.push({key: value, text: value, value: value})
-              })
-
-              returnSchema.definitions[name].properties[key].options = options
-
-              delete returnSchema.definitions[customType].properties[property].enum
-            }
-          })
+          resolveReferences(properties, returnSchema.definitions, schema.definitions, key, name)
         }
 
         if (properties[key].items.hasOwnProperty('format') && properties[key].items.format === 'date-time') {
@@ -46,34 +80,11 @@ export function resolveGSIMProperties (schema, url) {
       }
 
       if (key.startsWith('_link_property_')) {
-        const linkedKey = key.replace('_link_property_', '')
-        const endpoints = []
-
-        Object.keys(properties[key].properties).forEach(property => {
-          endpoints.push(url + 'data/' + property)
-        })
-
-        returnSchema.definitions[name].properties[linkedKey].endpoints = endpoints
-        returnSchema.definitions[name].properties[linkedKey].component = 'DCDropdown'
-
-        if (properties[linkedKey].type === 'array') {
-          returnSchema.definitions[name].properties[linkedKey].multiSelect = true
-        }
-
-        delete returnSchema.definitions[name].properties[key]
+        resolveLinks(properties, returnSchema.definitions[name].properties, url, key)
       }
 
       if (properties[key].hasOwnProperty('enum')) {
-        const options = []
-
-        properties[key].enum.forEach(value => {
-          options.push({key: value, text: value, value: value})
-        })
-
-        returnSchema.definitions[name].properties[key].options = options
-        returnSchema.definitions[name].properties[key].component = 'DCDropdown'
-
-        delete returnSchema.definitions[name].properties[key].enum
+        resolveEnums(properties[key], returnSchema.definitions[name].properties[key])
       }
 
       if (DefaultGSIMUISchema.icons.user.includes(key)) {

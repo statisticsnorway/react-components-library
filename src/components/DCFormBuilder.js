@@ -34,6 +34,7 @@ class DCFormBuilder extends Component {
     const {producer, schema, params, endpoint, user} = this.props
 
     populateOptions(producer, schema).then(populatedSchema => {
+      // TODO: Another check here for the state thing
       if (params.id === 'new') {
         this.newComponent(producer, populatedSchema, user)
       } else {
@@ -66,6 +67,7 @@ class DCFormBuilder extends Component {
 
     if (hiddenFields !== nextState.hiddenFields) return true
 
+    // TODO: Another check here for the state thing
     if (params.id !== nextProps.params.id && nextProps.params.id === 'new') {
       this.setState({ready: false}, () => {
         populateOptions(producer, schema).then(populatedSchema => {
@@ -154,6 +156,7 @@ class DCFormBuilder extends Component {
 
                 window.history.pushState({}, '', newUrl)
 
+                // TODO: Make this state instead of mutating props (check other TODO aswell, further up)
                 this.props.params.id = autofilledData.id.slice(0)
               }
 

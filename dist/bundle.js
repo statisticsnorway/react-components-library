@@ -1672,6 +1672,63 @@ var DefaultGSIMUISchema = {
 	icons: icons
 };
 
+function resolveReferences(properties, returnSchema, schema, key, name) {
+  var customType = extractName(properties[key].items.$ref);
+  returnSchema[name].properties[key].customType = customType;
+
+  if (customType === 'MultilingualText') {
+    returnSchema[name].properties[key].component = 'DCText';
+  } else {
+    returnSchema[name].properties[key].multiValue = true;
+    returnSchema[name].properties[key].component = 'DCMultiInput';
+  }
+
+  Object.keys(schema[customType].properties).forEach(function (property) {
+    if (schema[customType].properties[property].hasOwnProperty('enum')) {
+      var options = [];
+      schema[customType].properties[property].enum.forEach(function (value) {
+        options.push({
+          key: value,
+          text: value,
+          value: value
+        });
+      });
+      returnSchema[name].properties[key].options = options;
+      delete returnSchema[customType].properties[property].enum;
+    }
+  });
+}
+
+function resolveLinks(properties, returnSchema, url, key) {
+  var linkedKey = key.replace('_link_property_', '');
+  var endpoints = [];
+  Object.keys(properties[key].properties).forEach(function (property) {
+    endpoints.push(url + 'data/' + property);
+  });
+  returnSchema[linkedKey].endpoints = endpoints;
+  returnSchema[linkedKey].component = 'DCDropdown';
+
+  if (properties[linkedKey].type === 'array') {
+    returnSchema[linkedKey].multiSelect = true;
+  }
+
+  delete returnSchema[key];
+}
+
+function resolveEnums(properties, returnSchema) {
+  var options = [];
+  properties.enum.forEach(function (value) {
+    options.push({
+      key: value,
+      text: value,
+      value: value
+    });
+  });
+  returnSchema.options = options;
+  returnSchema.component = 'DCDropdown';
+  delete returnSchema.enum;
+}
+
 function resolveGSIMProperties(schema, url) {
   return new Promise(function (resolve) {
     var returnSchema = JSON.parse(JSON.stringify(schema));
@@ -1680,30 +1737,7 @@ function resolveGSIMProperties(schema, url) {
     Object.keys(properties).forEach(function (key) {
       if (properties[key].hasOwnProperty('items')) {
         if (properties[key].items.hasOwnProperty('$ref')) {
-          var customType = extractName(properties[key].items.$ref);
-          returnSchema.definitions[name].properties[key].customType = customType;
-
-          if (customType === 'MultilingualText') {
-            returnSchema.definitions[name].properties[key].component = 'DCText';
-          } else {
-            returnSchema.definitions[name].properties[key].multiValue = true;
-            returnSchema.definitions[name].properties[key].component = 'DCMultiInput';
-          }
-
-          Object.keys(schema.definitions[customType].properties).forEach(function (property) {
-            if (schema.definitions[customType].properties[property].hasOwnProperty('enum')) {
-              var options = [];
-              schema.definitions[customType].properties[property].enum.forEach(function (value) {
-                options.push({
-                  key: value,
-                  text: value,
-                  value: value
-                });
-              });
-              returnSchema.definitions[name].properties[key].options = options;
-              delete returnSchema.definitions[customType].properties[property].enum;
-            }
-          });
+          resolveReferences(properties, returnSchema.definitions, schema.definitions, key, name);
         }
 
         if (properties[key].items.hasOwnProperty('format') && properties[key].items.format === 'date-time') {
@@ -1715,33 +1749,11 @@ function resolveGSIMProperties(schema, url) {
       }
 
       if (key.startsWith('_link_property_')) {
-        var linkedKey = key.replace('_link_property_', '');
-        var endpoints = [];
-        Object.keys(properties[key].properties).forEach(function (property) {
-          endpoints.push(url + 'data/' + property);
-        });
-        returnSchema.definitions[name].properties[linkedKey].endpoints = endpoints;
-        returnSchema.definitions[name].properties[linkedKey].component = 'DCDropdown';
-
-        if (properties[linkedKey].type === 'array') {
-          returnSchema.definitions[name].properties[linkedKey].multiSelect = true;
-        }
-
-        delete returnSchema.definitions[name].properties[key];
+        resolveLinks(properties, returnSchema.definitions[name].properties, url, key);
       }
 
       if (properties[key].hasOwnProperty('enum')) {
-        var options = [];
-        properties[key].enum.forEach(function (value) {
-          options.push({
-            key: value,
-            text: value,
-            value: value
-          });
-        });
-        returnSchema.definitions[name].properties[key].options = options;
-        returnSchema.definitions[name].properties[key].component = 'DCDropdown';
-        delete returnSchema.definitions[name].properties[key].enum;
+        resolveEnums(properties[key], returnSchema.definitions[name].properties[key]);
       }
 
       if (DefaultGSIMUISchema.icons.user.includes(key)) {
@@ -1757,33 +1769,30 @@ function transformGSIMProperties(producer, schema, data, fromSource) {
   var name = extractName(schema.$ref);
   var properties = schema.definitions[name].properties;
   Object.keys(properties).forEach(function (property) {
-    // TODO: Too long if
-    if (properties[property].hasOwnProperty('customType') && properties[property].customType === 'MultilingualText' && returnData.hasOwnProperty(property)) {
-      if (fromSource) {
-        var text = data.name[0].languageText;
-        data[property].forEach(function (multilingual) {
-          if (multilingual.languageCode === 'nb') {
-            text = multilingual.languageText;
-          }
-        });
-        returnData[property] = text;
-      } else {
-        var value = returnData[property];
-        returnData[property] = [{
-          languageCode: 'nb',
-          languageText: value
-        }];
+    if (properties[property].hasOwnProperty('customType') && properties[property].customType === 'MultilingualText') {
+      if (returnData.hasOwnProperty(property)) {
+        if (fromSource) {
+          var text = data.name[0].languageText;
+          data[property].forEach(function (multilingual) {
+            if (multilingual.languageCode === 'nb') {
+              text = multilingual.languageText;
+            }
+          });
+          returnData[property] = text;
+        } else {
+          var value = returnData[property];
+          returnData[property] = [{
+            languageCode: 'nb',
+            languageText: value
+          }];
+        }
       }
     }
   });
   return returnData;
 }
 
-// TODO: This one is temporary
-var TEMP = {
-  USER: 'Test' // TODO: Rename ('DIV' is not a particularily good name)
-
-};
+// TODO: Rename ('DIV' is not a particularly good name)
 var DIV = {
   SAGA: 'saga-execution-id'
 };
@@ -1814,10 +1823,8 @@ var TABLE = {
 };
 var UI = {
   CREATE_NEW: 'Create new',
-  MENU_HEADER: 'GSIM domains',
   SAVE: 'Save',
   SEARCH: 'Search',
-  SHOW_ALL: 'Show all',
   UPDATE: 'Update'
 };
 
@@ -2285,8 +2292,46 @@ function producers$3(producer) {
     default:
       return null;
   }
-} // TODO: Split this function if possible
+}
 
+function cleanDefinitions(definitions, returnSchema) {
+  Object.keys(definitions).forEach(function (definition) {
+    Object.keys(definitions[definition].properties).forEach(function (property) {
+      if (definitions[definition].required.includes(property)) {
+        returnSchema.definitions[definition].properties[property].required = true;
+      }
+    });
+    delete returnSchema.definitions[definition].required;
+  });
+}
+
+function updateAndCleanProperties(properties, returnSchema, defaultUISchema, name) {
+  Object.keys(properties).forEach(function (key) {
+    returnSchema.definitions[name].properties[key].name = key;
+
+    if (defaultUISchema.type.hasOwnProperty(properties[key].type)) {
+      returnSchema.definitions[name].properties[key].component = defaultUISchema.type[properties[key].type].component;
+    }
+
+    if (defaultUISchema.format.hasOwnProperty(properties[key].format)) {
+      returnSchema.definitions[name].properties[key].component = defaultUISchema.format[properties[key].format].component;
+    }
+
+    if (defaultUISchema.autofilled.includes(key)) {
+      returnSchema.definitions[name].properties[key].autofilled = true;
+      returnSchema.definitions[name].properties[key].component = 'DCStatic';
+
+      if (properties[key].hasOwnProperty('format') && properties[key].format === 'date-time') {
+        returnSchema.definitions[name].properties[key].format = 'date';
+        returnSchema.definitions[name].properties[key].multiple = properties[key].type === 'array';
+      }
+    }
+
+    if (defaultUISchema.groups.common.includes(key)) {
+      returnSchema.definitions[name].properties[key].group = 'common';
+    }
+  });
+}
 
 function mergeDefaultUISchema(producer, schema) {
   return new Promise(function (resolve) {
@@ -2294,39 +2339,8 @@ function mergeDefaultUISchema(producer, schema) {
     var returnSchema = JSON.parse(JSON.stringify(schema));
     var name = extractName(schema.$ref);
     var properties = JSON.parse(JSON.stringify(schema.definitions[name].properties));
-    Object.keys(schema.definitions).forEach(function (definition) {
-      Object.keys(schema.definitions[definition].properties).forEach(function (property) {
-        if (schema.definitions[definition].required.includes(property)) {
-          returnSchema.definitions[definition].properties[property].required = true;
-        }
-      });
-      delete returnSchema.definitions[definition].required;
-    });
-    Object.keys(properties).forEach(function (key) {
-      returnSchema.definitions[name].properties[key].name = key;
-
-      if (defaultUISchema.type.hasOwnProperty(properties[key].type)) {
-        returnSchema.definitions[name].properties[key].component = defaultUISchema.type[properties[key].type].component;
-      }
-
-      if (defaultUISchema.format.hasOwnProperty(properties[key].format)) {
-        returnSchema.definitions[name].properties[key].component = defaultUISchema.format[properties[key].format].component;
-      }
-
-      if (defaultUISchema.autofilled.includes(key)) {
-        returnSchema.definitions[name].properties[key].autofilled = true;
-        returnSchema.definitions[name].properties[key].component = 'DCStatic';
-
-        if (properties[key].hasOwnProperty('format') && properties[key].format === 'date-time') {
-          returnSchema.definitions[name].properties[key].format = 'date';
-          returnSchema.definitions[name].properties[key].multiple = properties[key].type === 'array';
-        }
-      }
-
-      if (defaultUISchema.groups.common.includes(key)) {
-        returnSchema.definitions[name].properties[key].group = 'common';
-      }
-    });
+    cleanDefinitions(schema.definitions, returnSchema);
+    updateAndCleanProperties(properties, returnSchema, defaultUISchema, name);
     resolve(returnSchema);
   });
 }
@@ -2456,16 +2470,18 @@ function (_Component) {
         var _this$props = _this.props,
             producer = _this$props.producer,
             params = _this$props.params,
-            endpoint = _this$props.endpoint;
+            endpoint = _this$props.endpoint,
+            user = _this$props.user;
         var copiedSchema = JSON.parse(JSON.stringify(schema));
         validation(copiedSchema, data).then(function (schemaWithoutErrors) {
-          updateAutofill(producer, schemaWithoutErrors, data, TEMP.USER, versionIncrementation, params.id === 'new').then(function (autofilledData) {
+          updateAutofill(producer, schemaWithoutErrors, data, user, versionIncrementation, params.id === 'new').then(function (autofilledData) {
             setAutofillAndClean(schemaWithoutErrors, autofilledData, hiddenFields).then(function (finished) {
               var savedMessage = params.id === 'new' ? MESSAGES.SAVED : MESSAGES.UPDATED;
               saveData(producer, finished.returnSchema, finished.returnData, endpoint).then(function (response) {
                 if (params.id === 'new') {
                   var newUrl = window.location.pathname.replace('/new', '/' + autofilledData.id);
-                  window.history.pushState({}, '', newUrl);
+                  window.history.pushState({}, '', newUrl); // TODO: Make this state instead of mutating props (check other TODO aswell, further up)
+
                   _this.props.params.id = autofilledData.id.slice(0);
                 }
 
@@ -2536,10 +2552,12 @@ function (_Component) {
           producer = _this$props2.producer,
           schema = _this$props2.schema,
           params = _this$props2.params,
-          endpoint = _this$props2.endpoint;
+          endpoint = _this$props2.endpoint,
+          user = _this$props2.user;
       populateOptions(producer, schema).then(function (populatedSchema) {
+        // TODO: Another check here for the state thing
         if (params.id === 'new') {
-          _this2.newComponent(producer, populatedSchema, TEMP.USER);
+          _this2.newComponent(producer, populatedSchema, user);
         } else {
           fillDataState(producer, populatedSchema, params.id, endpoint).then(function (filledData) {
             setDataToSchema(populatedSchema, filledData).then(function (filled) {
@@ -2578,15 +2596,16 @@ function (_Component) {
       var _this$props3 = this.props,
           params = _this$props3.params,
           producer = _this$props3.producer,
-          schema = _this$props3.schema;
-      if (hiddenFields !== nextState.hiddenFields) return true;
+          schema = _this$props3.schema,
+          user = _this$props3.user;
+      if (hiddenFields !== nextState.hiddenFields) return true; // TODO: Another check here for the state thing
 
       if (params.id !== nextProps.params.id && nextProps.params.id === 'new') {
         this.setState({
           ready: false
         }, function () {
           populateOptions(producer, schema).then(function (populatedSchema) {
-            _this3.newComponent(producer, populatedSchema, TEMP.USER);
+            _this3.newComponent(producer, populatedSchema, user);
           });
         });
         return true;
