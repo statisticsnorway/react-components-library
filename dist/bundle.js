@@ -2708,7 +2708,7 @@ function (_Component) {
           description = _this$state4.description,
           problem = _this$state4.problem,
           isNew = _this$state4.isNew;
-      var enableSpecialFeatures = this.props.enableSpecialFeatures;
+      var specialFeatures = this.props.specialFeatures;
 
       if (problem) {
         return React__default.createElement("div", null, React__default.createElement(semanticUiReact.Header, {
@@ -2812,7 +2812,7 @@ function (_Component) {
           primary: true,
           content: isNew ? UI.SAVE : UI.UPDATE,
           onClick: this.validateAndSave
-        }))), enableSpecialFeatures && React__default.createElement(semanticUiReact.Popup, {
+        }))), specialFeatures && React__default.createElement(semanticUiReact.Popup, {
           flowing: true,
           hideOnScroll: true,
           position: "right center",

@@ -226,7 +226,7 @@ class DCFormBuilder extends Component {
 
   render () {
     const {ready, readOnly, message, saved, schema, hiddenFields, name, description, problem, isNew} = this.state
-    const {enableSpecialFeatures} = this.props
+    const {specialFeatures} = this.props
 
     if (problem) {
       return (
@@ -305,7 +305,7 @@ class DCFormBuilder extends Component {
                         onClick={this.validateAndSave} />
               </Grid.Column>
             </Grid>
-            {enableSpecialFeatures &&
+            {specialFeatures &&
             <Popup flowing hideOnScroll position='right center'
                    trigger={<Button color='teal' content={UI.CREATE_JSON}
                                     onClick={this.simulateSaveAndDownloadJson} />}>

@@ -35,7 +35,7 @@ class Forms extends Component {
 
   render () {
     const {ready, schemas, message} = this.state
-    const {producer, route, endpoint, languageCode, enableSpecialFeatures} = this.props
+    const {producer, route, endpoint, languageCode, specialFeatures} = this.props
 
     return (
       <div>
@@ -75,7 +75,7 @@ class Forms extends Component {
                           render={({match}) => <DCFormBuilder params={match.params} producer={producer}
                                                               schema={JSON.parse(JSON.stringify(schema))}
                                                               languageCode={languageCode}
-                                                              special={enableSpecialFeatures}
+                                                              specialFeatures={specialFeatures}
                                                               endpoint={endpoint} user='Test user' />} />
           })}
           {ready && schemas.map((schema, index) => {
@@ -86,7 +86,7 @@ class Forms extends Component {
                           render={({match}) => <DCTableBuilder params={match.params} producer={producer}
                                                                schema={JSON.parse(JSON.stringify(schema))}
                                                                languageCode={languageCode}
-                                                               special={enableSpecialFeatures}
+                                                               specialFeatures={specialFeatures}
                                                                endpoint={endpoint} routing={path} />} />
           })}
         </Container>
