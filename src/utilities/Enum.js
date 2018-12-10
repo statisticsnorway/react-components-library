@@ -5,38 +5,122 @@ export const DIV = {
 }
 
 export const MESSAGES = {
-  CORRECT_ERRORS: 'Object was not saved, correct any errors and try again',
-  COULD_NOT_CONNECT: 'Could not connect to: ',
-  FILTER_BY_NAME: 'Filter table by name',
-  GENERATE_JSON: 'Simulates storing the data to LDS and generates the JSON-file to download',
-  NAME_NOT_FOUND: 'Found nothing matching',
-  NOT_EMPTY: 'Cannot be blank',
-  NOT_FILL: 'Could not fill data state:',
-  NOT_POPULATE: 'Could not populate dropdown: ',
-  NOTHING_FOUND: 'Found nothing...',
-  SAVED: 'saved',
-  TIMEOUT: 'Request timeout for url: ',
-  UNKNOWN_CHECK: 'Unknown type, cannot check if empty',
-  UNKNOWN_GENERATE: 'Unknown type, cannot generate default value',
-  UPDATED: 'updated',
-  WAS_NOT_SAVED: 'Object was not saved!',
-  WAS_SAVED: 'Object was ',
+  CORRECT_ERRORS: {
+    en: 'Object was not saved, correct any errors and try again',
+    nb: 'Objektet ble ikke lagret, rett opp feil og prøv igjen'
+  },
+  COULD_NOT_CONNECT: {
+    en: 'Could not connect to: ',
+    nb: 'Klarte ikke å koble til: '
+  },
+  FILTER_BY_NAME: {
+    en: 'Filter table by name',
+    nb: 'Filtrere tabellen etter navn'
+  },
+  GENERATE_JSON: {
+    en: 'Simulates storing the data to LDS and generates the JSON-file to download',
+    nb: 'Simuler lagring av data til LDS og generer en JSON-fil for nedlastning'
+  },
+  NAME_NOT_FOUND: {
+    en: 'Found nothing matching',
+    nb: 'Fant ingenting som matcher'
+  },
+  NOT_EMPTY: {
+    en: 'Cannot be blank',
+    nb: 'Kan ikke være blankt'
+  },
+  NOT_FILL: {
+    en: 'Could not fill data state: ',
+    nb: 'Kunne ikke fylle data: '
+  },
+  NOT_POPULATE: {
+    en: 'Could not populate dropdown: ',
+    nb: 'Kunne ikke populere nedtrekkslister: '
+  },
+  NOTHING_FOUND: {
+    en: 'Found nothing...',
+    nb: 'Fant ingenting...'
+  },
+  SAVED: {
+    en: 'saved',
+    nb: 'lagret'
+  },
+  TIMEOUT: {
+    en: 'Request timeout for url: ',
+    nb: 'Tidsavbrudd for kobling mot: '
+  },
+  UNKNOWN_CHECK: {
+    en: 'Unknown type, cannot check if empty',
+    nb: 'Ukjent type, kan ikke sjekke om er tom/blank'
+  },
+  UNKNOWN_GENERATE: {
+    en: 'Unknown type, cannot generate default value',
+    nb: 'Ukjent type, kan ikke generere standardverdi'
+  },
+  UPDATED: {
+    en: 'updated',
+    nb: 'oppdatert'
+  },
+  WAS_NOT_SAVED: {
+    en: 'Object was not saved!',
+    nb: 'Objektet ble ikke lagret!'
+  },
+  WAS_SAVED: {
+    en: 'Object was ',
+    nb: 'Objektet ble '
+  }
 }
 
 export const TABLE = {
-  LOADING: 'Loading',
-  NEXT: 'Next',
-  OF: 'of',
-  PAGE: 'Page',
-  PREVIOUS: 'Previous',
-  ROWS: 'rows'
+  LOADING: {
+    en: 'Loading',
+    nb: 'Laster'
+  },
+  NEXT: {
+    en: 'Next',
+    nb: 'Neste'
+  },
+  OF: {
+    en: 'of',
+    nb: 'av'
+  },
+  PAGE: {
+    en: 'Page',
+    nb: 'Side'
+  },
+  PREVIOUS: {
+    en: 'Previous',
+    nb: 'Forrige'
+  },
+  ROWS: {
+    en: 'rows',
+    nb: 'rader'
+  }
 }
 
 export const UI = {
-  CREATE_JSON: 'Create JSON',
-  CREATE_NEW: 'Create new',
-  DOWNLOAD_JSON: 'Download JSON',
-  SAVE: 'Save',
-  SEARCH: 'Search',
-  UPDATE: 'Update'
+  CREATE_JSON: {
+    en: 'Create JSON',
+    nb: 'Lag JSON'
+  },
+  CREATE_NEW: {
+    en: 'Create new',
+    nb: 'Opprett ny'
+  },
+  DOWNLOAD_JSON: {
+    en: 'Download JSON',
+    nb: 'Last ned JSON'
+  },
+  SAVE: {
+    en: 'Save',
+    nb: 'Lagre'
+  },
+  SEARCH: {
+    en: 'Search',
+    nb: 'Søk'
+  },
+  UPDATE: {
+    en: 'Update',
+    nb: 'Oppdater'
+  }
 }

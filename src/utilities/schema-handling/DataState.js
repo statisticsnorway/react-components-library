@@ -22,7 +22,7 @@ function producers (producer, element, user) {
   }
 }
 
-export function generateDataState (producer, schema, user) {
+export function generateDataState (producer, schema, user, languageCode) {
   return new Promise(resolve => {
     const name = extractName(schema.$ref)
     const properties = schema.definitions[name].properties
@@ -35,7 +35,7 @@ export function generateDataState (producer, schema, user) {
         if (DEFAULT_VALUE_BY_TYPE.hasOwnProperty(properties[key].type)) {
           dataObject[key] = DEFAULT_VALUE_BY_TYPE[properties[key].type]
         } else {
-          throw Error(MESSAGES.UNKNOWN_GENERATE)
+          throw Error(MESSAGES.UNKNOWN_GENERATE[languageCode])
         }
       }
     })
@@ -49,7 +49,7 @@ export function fillDataState (producer, schema, id, endpoint, languageCode) {
     const name = extractName(schema.$ref)
     const url = endpoint + 'data/' + name + '/' + id
 
-    fetchData(url).then(response => {
+    fetchData(url, languageCode).then(response => {
       transformProperties(producer, schema, response, languageCode, true).then(transformedData => {
         resolve(transformedData)
       })

@@ -614,9 +614,18 @@ function (_Component) {
 }(React__default.Component);
 
 var UI = {
-  NO_OPTIONS: 'No options',
-  OPTIONS: 'Pick one',
-  TODAY: 'Today'
+  NO_OPTIONS: {
+    en: 'No options',
+    nb: 'Ingen valg'
+  },
+  OPTIONS: {
+    en: 'Pick one',
+    nb: 'Velg'
+  },
+  TODAY: {
+    en: 'Today',
+    nb: 'I dag'
+  }
 };
 
 var DCDate =
@@ -708,7 +717,8 @@ function (_Component) {
           error = _this$props3.error,
           warning = _this$props3.warning,
           required = _this$props3.required,
-          multiple = _this$props3.multiple;
+          multiple = _this$props3.multiple,
+          languageCode = _this$props3.languageCode;
       var icon = React__default$$1.createElement(semanticUiReact__default.Icon, {
         name: "calendar alternate outline",
         size: "big",
@@ -728,7 +738,7 @@ function (_Component) {
             placeholderText: shorten(displayName),
             showWeekNumbers: true,
             dropdownMode: "select",
-            todayButton: UI.TODAY
+            todayButton: UI.TODAY[languageCode]
           });
           return React__default$$1.createElement(semanticUiReact__default.Grid.Row, {
             key: index
@@ -793,7 +803,7 @@ function (_Component) {
           placeholderText: shorten(displayName),
           showWeekNumbers: true,
           dropdownMode: "select",
-          todayButton: UI.TODAY
+          todayButton: UI.TODAY[languageCode]
         });
         component = React__default$$1.createElement(semanticUiReact__default.Form.Group, {
           inline: true,
@@ -909,7 +919,8 @@ function (_Component) {
           warning = _this$props2.warning,
           required = _this$props2.required,
           multiSelect = _this$props2.multiSelect,
-          searchable = _this$props2.searchable;
+          searchable = _this$props2.searchable,
+          languageCode = _this$props2.languageCode;
 
       if (!ready) {
         var component = React__default$$1.createElement(semanticUiReact__default.Dropdown, {
@@ -934,7 +945,7 @@ function (_Component) {
 
       if (ready && !problem) {
         var _component2 = React__default$$1.createElement(semanticUiReact__default.Dropdown, {
-          placeholder: options.length === 0 ? UI.NO_OPTIONS : shorten(displayName),
+          placeholder: options.length === 0 ? UI.NO_OPTIONS[languageCode] : shorten(displayName),
           value: value,
           options: options,
           clearable: true,
@@ -1158,7 +1169,8 @@ function (_Component) {
           error = _this$props7.error,
           warning = _this$props7.warning,
           required = _this$props7.required,
-          multiValue = _this$props7.multiValue;
+          multiValue = _this$props7.multiValue,
+          languageCode = _this$props7.languageCode;
 
       if (!ready) {
         var component = React__default$$1.createElement(semanticUiReact__default.Grid, {
@@ -1198,7 +1210,7 @@ function (_Component) {
             value: entry.option,
             selection: true,
             disabled: options.length === 0,
-            placeholder: options.length === 0 ? UI.NO_OPTIONS : UI.OPTIONS,
+            placeholder: options.length === 0 ? UI.NO_OPTIONS[languageCode] : UI.OPTIONS[languageCode],
             clearable: true,
             fluid: !!multiValue,
             onChange: _this9.handleDropdownChange.bind(_this9, index)
@@ -1477,10 +1489,12 @@ function (_Component) {
     value: function render() {
       var _this$props = this.props,
           properties = _this$props.properties,
-          valueChange = _this$props.valueChange;
+          valueChange = _this$props.valueChange,
+          languageCode = _this$props.languageCode;
       var FormComponent = formComponents[properties.component];
       return React__default$$1.createElement(FormComponent, _extends({}, properties, {
-        valueChange: valueChange
+        valueChange: valueChange,
+        languageCode: languageCode
       }));
     }
   }]);
@@ -1798,47 +1812,131 @@ var DIV = {
   SAGA: 'saga-execution-id'
 };
 var MESSAGES = {
-  CORRECT_ERRORS: 'Object was not saved, correct any errors and try again',
-  COULD_NOT_CONNECT: 'Could not connect to: ',
-  FILTER_BY_NAME: 'Filter table by name',
-  GENERATE_JSON: 'Simulates storing the data to LDS and generates the JSON-file to download',
-  NAME_NOT_FOUND: 'Found nothing matching',
-  NOT_EMPTY: 'Cannot be blank',
-  NOT_FILL: 'Could not fill data state:',
-  NOT_POPULATE: 'Could not populate dropdown: ',
-  NOTHING_FOUND: 'Found nothing...',
-  SAVED: 'saved',
-  TIMEOUT: 'Request timeout for url: ',
-  UNKNOWN_CHECK: 'Unknown type, cannot check if empty',
-  UNKNOWN_GENERATE: 'Unknown type, cannot generate default value',
-  UPDATED: 'updated',
-  WAS_NOT_SAVED: 'Object was not saved!',
-  WAS_SAVED: 'Object was '
+  CORRECT_ERRORS: {
+    en: 'Object was not saved, correct any errors and try again',
+    nb: 'Objektet ble ikke lagret, rett opp feil og prøv igjen'
+  },
+  COULD_NOT_CONNECT: {
+    en: 'Could not connect to: ',
+    nb: 'Klarte ikke å koble til: '
+  },
+  FILTER_BY_NAME: {
+    en: 'Filter table by name',
+    nb: 'Filtrere tabellen etter navn'
+  },
+  GENERATE_JSON: {
+    en: 'Simulates storing the data to LDS and generates the JSON-file to download',
+    nb: 'Simuler lagring av data til LDS og generer en JSON-fil for nedlastning'
+  },
+  NAME_NOT_FOUND: {
+    en: 'Found nothing matching',
+    nb: 'Fant ingenting som matcher'
+  },
+  NOT_EMPTY: {
+    en: 'Cannot be blank',
+    nb: 'Kan ikke være blankt'
+  },
+  NOT_FILL: {
+    en: 'Could not fill data state: ',
+    nb: 'Kunne ikke fylle data: '
+  },
+  NOT_POPULATE: {
+    en: 'Could not populate dropdown: ',
+    nb: 'Kunne ikke populere nedtrekkslister: '
+  },
+  NOTHING_FOUND: {
+    en: 'Found nothing...',
+    nb: 'Fant ingenting...'
+  },
+  SAVED: {
+    en: 'saved',
+    nb: 'lagret'
+  },
+  TIMEOUT: {
+    en: 'Request timeout for url: ',
+    nb: 'Tidsavbrudd for kobling mot: '
+  },
+  UNKNOWN_CHECK: {
+    en: 'Unknown type, cannot check if empty',
+    nb: 'Ukjent type, kan ikke sjekke om er tom/blank'
+  },
+  UNKNOWN_GENERATE: {
+    en: 'Unknown type, cannot generate default value',
+    nb: 'Ukjent type, kan ikke generere standardverdi'
+  },
+  UPDATED: {
+    en: 'updated',
+    nb: 'oppdatert'
+  },
+  WAS_NOT_SAVED: {
+    en: 'Object was not saved!',
+    nb: 'Objektet ble ikke lagret!'
+  },
+  WAS_SAVED: {
+    en: 'Object was ',
+    nb: 'Objektet ble '
+  }
 };
 var TABLE = {
-  LOADING: 'Loading',
-  NEXT: 'Next',
-  OF: 'of',
-  PAGE: 'Page',
-  PREVIOUS: 'Previous',
-  ROWS: 'rows'
+  LOADING: {
+    en: 'Loading',
+    nb: 'Laster'
+  },
+  NEXT: {
+    en: 'Next',
+    nb: 'Neste'
+  },
+  OF: {
+    en: 'of',
+    nb: 'av'
+  },
+  PAGE: {
+    en: 'Page',
+    nb: 'Side'
+  },
+  PREVIOUS: {
+    en: 'Previous',
+    nb: 'Forrige'
+  },
+  ROWS: {
+    en: 'rows',
+    nb: 'rader'
+  }
 };
 var UI = {
-  CREATE_JSON: 'Create JSON',
-  CREATE_NEW: 'Create new',
-  DOWNLOAD_JSON: 'Download JSON',
-  SAVE: 'Save',
-  SEARCH: 'Search',
-  UPDATE: 'Update'
+  CREATE_JSON: {
+    en: 'Create JSON',
+    nb: 'Lag JSON'
+  },
+  CREATE_NEW: {
+    en: 'Create new',
+    nb: 'Opprett ny'
+  },
+  DOWNLOAD_JSON: {
+    en: 'Download JSON',
+    nb: 'Last ned JSON'
+  },
+  SAVE: {
+    en: 'Save',
+    nb: 'Lagre'
+  },
+  SEARCH: {
+    en: 'Search',
+    nb: 'Søk'
+  },
+  UPDATE: {
+    en: 'Update',
+    nb: 'Oppdater'
+  }
 };
 
-function fetchData(url) {
-  var timeout = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 3000;
+function fetchData(url, languageCode) {
+  var timeout = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : 3000;
   return new Promise(function (resolve, reject) {
     var controller = new AbortController();
     var signal = controller.signal;
     var timer = setTimeout(function () {
-      reject(MESSAGES.TIMEOUT + url);
+      reject(MESSAGES.TIMEOUT[languageCode] + url);
       controller.abort();
     }, timeout);
     fetch(url, {
@@ -1865,13 +1963,13 @@ function fetchData(url) {
   });
 }
 
-function putData(url, endpoint, data) {
-  var timeout = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : 3000;
+function putData(url, endpoint, data, languageCode) {
+  var timeout = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : 3000;
   return new Promise(function (resolve, reject) {
     var controller = new AbortController();
     var signal = controller.signal;
     var timer = setTimeout(function () {
-      reject(MESSAGES.TIMEOUT + url);
+      reject(MESSAGES.TIMEOUT[languageCode] + url);
       controller.abort();
     }, timeout);
     fetch(url, {
@@ -1892,7 +1990,7 @@ function putData(url, endpoint, data) {
         });
       }
     }).catch(function (error) {
-      reject(MESSAGES.COULD_NOT_CONNECT + '\'' + endpoint + '\' (' + error.toString() + ')');
+      reject(MESSAGES.COULD_NOT_CONNECT[languageCode] + '\'' + endpoint + '\' (' + error.toString() + ')');
     }).finally(function () {
       return clearTimeout(timer);
     });
@@ -2152,7 +2250,7 @@ function saveData(producer, schema, data, endpoint, languageCode) {
   return new Promise(function (resolve, reject) {
     transformProperties(producer, schema, data, languageCode, false).then(function (savableData) {
       var url = endpoint + 'data/' + extractName(schema.$ref) + '/' + savableData.id;
-      putData(url, endpoint, savableData).then(function (response) {
+      putData(url, endpoint, savableData, languageCode).then(function (response) {
         resolve(response);
       }).catch(function (error) {
         reject(error);
@@ -2163,30 +2261,30 @@ function saveData(producer, schema, data, endpoint, languageCode) {
 
 var types = ['string', 'number', 'object'];
 
-function checkRequiredIsNotEmpty(schema, data, name) {
+function checkRequiredIsNotEmpty(schema, data, name, languageCode) {
   var properties = schema.definitions[name].properties;
   var errors = {};
   Object.keys(properties).forEach(function (key) {
     if (properties[key].required) {
       if (properties[key].type === 'array' && data[key].length === 0) {
-        errors[key] = MESSAGES.NOT_EMPTY;
+        errors[key] = MESSAGES.NOT_EMPTY[languageCode];
       } else if (types.includes(_typeof(properties[key].type))) {
         if (data[key] === '' || data[key] === null || data[key] === undefined) {
-          errors[key] = MESSAGES.NOT_EMPTY;
+          errors[key] = MESSAGES.NOT_EMPTY[languageCode];
         }
       } else {
-        errors[key] = MESSAGES.UNKNOWN_CHECK;
+        errors[key] = MESSAGES.UNKNOWN_CHECK[languageCode];
       }
     }
   });
   return errors;
 }
 
-function validation(schema, data) {
+function validation(schema, data, languageCode) {
   return new Promise(function (resolve, reject) {
     var returnSchema = JSON.parse(JSON.stringify(schema));
     var name = extractName(schema.$ref);
-    var errors = checkRequiredIsNotEmpty(schema, data, name);
+    var errors = checkRequiredIsNotEmpty(schema, data, name, languageCode);
     Object.keys(schema.definitions[name].properties).forEach(function (key) {
       if (schema.definitions[name].properties[key].hasOwnProperty('autofilled')) {
         returnSchema.definitions[name].properties[key].value = [data[key]];
@@ -2231,7 +2329,7 @@ function producers$2(producer, element, user) {
   }
 }
 
-function generateDataState(producer, schema, user) {
+function generateDataState(producer, schema, user, languageCode) {
   return new Promise(function (resolve) {
     var name = extractName(schema.$ref);
     var properties = schema.definitions[name].properties;
@@ -2243,7 +2341,7 @@ function generateDataState(producer, schema, user) {
         if (DEFAULT_VALUE_BY_TYPE.hasOwnProperty(properties[key].type)) {
           dataObject[key] = DEFAULT_VALUE_BY_TYPE[properties[key].type];
         } else {
-          throw Error(MESSAGES.UNKNOWN_GENERATE);
+          throw Error(MESSAGES.UNKNOWN_GENERATE[languageCode]);
         }
       }
     });
@@ -2254,7 +2352,7 @@ function fillDataState(producer, schema, id, endpoint, languageCode) {
   return new Promise(function (resolve, reject) {
     var name = extractName(schema.$ref);
     var url = endpoint + 'data/' + name + '/' + id;
-    fetchData(url).then(function (response) {
+    fetchData(url, languageCode).then(function (response) {
       transformProperties(producer, schema, response, languageCode, true).then(function (transformedData) {
         resolve(transformedData);
       });
@@ -2478,10 +2576,10 @@ function (_Component) {
             user = _this$props.user,
             languageCode = _this$props.languageCode;
         var copiedSchema = JSON.parse(JSON.stringify(schema));
-        validation(copiedSchema, data).then(function (schemaWithoutErrors) {
+        validation(copiedSchema, data, languageCode).then(function (schemaWithoutErrors) {
           updateAutofill(producer, schemaWithoutErrors, data, user, versionIncrementation, isNew).then(function (autofilledData) {
             setAutofillAndClean(schemaWithoutErrors, autofilledData, hiddenFields).then(function (finished) {
-              var savedMessage = isNew ? MESSAGES.SAVED : MESSAGES.UPDATED;
+              var savedMessage = isNew ? MESSAGES.SAVED[languageCode] : MESSAGES.UPDATED[languageCode];
               saveData(producer, finished.returnSchema, finished.returnData, endpoint, languageCode).then(function (response) {
                 if (isNew) {
                   var newUrl = window.location.pathname.replace('/new', '/' + autofilledData.id);
@@ -2492,7 +2590,7 @@ function (_Component) {
                   schema: finished.returnSchema,
                   data: finished.returnData,
                   saved: true,
-                  message: MESSAGES.WAS_SAVED + savedMessage + ' (' + DIV.SAGA + ': ' + response[DIV.SAGA] + ')',
+                  message: MESSAGES.WAS_SAVED[languageCode] + savedMessage + ' (' + DIV.SAGA + ': ' + response[DIV.SAGA] + ')',
                   readOnly: true,
                   isNew: false
                 }, function () {
@@ -2504,7 +2602,7 @@ function (_Component) {
                 _this.setState({
                   schema: schemaWithoutErrors,
                   saved: false,
-                  message: MESSAGES.WAS_NOT_SAVED + ' ' + saveError
+                  message: MESSAGES.WAS_NOT_SAVED[languageCode] + ' ' + saveError
                 }, function () {
                   return _this.setState({
                     ready: true
@@ -2518,7 +2616,7 @@ function (_Component) {
             ready: true,
             schema: schemaWithErrors,
             saved: false,
-            message: MESSAGES.CORRECT_ERRORS
+            message: MESSAGES.CORRECT_ERRORS[languageCode]
           });
         });
       });
@@ -2539,16 +2637,17 @@ function (_Component) {
             isNew = _this$state2.isNew;
         var _this$props2 = _this.props,
             producer = _this$props2.producer,
-            user = _this$props2.user;
+            user = _this$props2.user,
+            languageCode = _this$props2.languageCode;
         var copiedSchema = JSON.parse(JSON.stringify(schema));
-        validation(copiedSchema, data).then(function (schemaWithoutErrors) {
+        validation(copiedSchema, data, languageCode).then(function (schemaWithoutErrors) {
           updateAutofill(producer, schemaWithoutErrors, data, user, versionIncrementation, isNew).then(function (autofilledData) {
             setAutofillAndClean(schemaWithoutErrors, autofilledData, hiddenFields).then(function (finished) {
               var downloadableJson = 'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(finished.returnData, null, ' '));
               var downloadLink = React__default.createElement("a", {
                 href: "data: ".concat(downloadableJson),
                 download: name + DIV.JSON_FILE_ENDING
-              }, UI.DOWNLOAD_JSON);
+              }, UI.DOWNLOAD_JSON[languageCode]);
 
               _this.setState({
                 schema: finished.returnSchema,
@@ -2567,7 +2666,7 @@ function (_Component) {
             ready: true,
             schema: schemaWithErrors,
             saved: false,
-            message: MESSAGES.CORRECT_ERRORS
+            message: MESSAGES.CORRECT_ERRORS[languageCode]
           });
         });
       });
@@ -2607,7 +2706,7 @@ function (_Component) {
           languageCode = _this$props3.languageCode;
       populateOptions(producer, schema, languageCode).then(function (populatedSchema) {
         if (isNew) {
-          _this2.newComponent(producer, populatedSchema, user);
+          _this2.newComponent(producer, populatedSchema, user, languageCode);
         } else {
           fillDataState(producer, populatedSchema, params.id, endpoint, languageCode).then(function (filledData) {
             setDataToSchema(populatedSchema, filledData).then(function (filled) {
@@ -2624,14 +2723,14 @@ function (_Component) {
           }).catch(function (error) {
             _this2.setState({
               problem: true,
-              message: MESSAGES.NOT_FILL + error
+              message: MESSAGES.NOT_FILL[languageCode] + error
             });
           });
         }
       }).catch(function (error) {
         _this2.setState({
           problem: true,
-          message: MESSAGES.NOT_POPULATE + error
+          message: MESSAGES.NOT_POPULATE[languageCode] + error
         });
       });
     }
@@ -2666,12 +2765,12 @@ function (_Component) {
     }
   }, {
     key: "newComponent",
-    value: function newComponent(producer, schema, user) {
+    value: function newComponent(producer, schema, user, languageCode) {
       var _this4 = this;
 
       var name = this.state.name;
       var properties = schema.definitions[name].properties;
-      generateDataState(producer, schema, user).then(function (generatedDataState) {
+      generateDataState(producer, schema, user, languageCode).then(function (generatedDataState) {
         Object.keys(properties).forEach(function (key) {
           if (properties[key].hasOwnProperty('autofilled')) {
             properties[key].value = [generatedDataState[key]];
@@ -2708,7 +2807,9 @@ function (_Component) {
           description = _this$state4.description,
           problem = _this$state4.problem,
           isNew = _this$state4.isNew;
-      var specialFeatures = this.props.specialFeatures;
+      var _this$props5 = this.props,
+          specialFeatures = _this$props5.specialFeatures,
+          languageCode = _this$props5.languageCode;
 
       if (problem) {
         return React__default.createElement("div", null, React__default.createElement(semanticUiReact.Header, {
@@ -2769,6 +2870,7 @@ function (_Component) {
               return React__default.createElement(bundle_1, {
                 key: index,
                 properties: properties[property],
+                languageCode: languageCode,
                 valueChange: _this5.handleVisibilityChange
               });
             } else {
@@ -2778,6 +2880,7 @@ function (_Component) {
                 return React__default.createElement(bundle_1, {
                   key: index,
                   properties: properties[property],
+                  languageCode: languageCode,
                   valueChange: _this5.handleValueChange
                 });
               }
@@ -2790,6 +2893,7 @@ function (_Component) {
             return React__default.createElement(bundle_1, {
               key: index,
               properties: properties[property],
+              languageCode: languageCode,
               valueChange: _this5.handleValueChange
             });
           }
@@ -2800,6 +2904,7 @@ function (_Component) {
             return React__default.createElement(bundle_1, {
               key: index,
               properties: properties[property],
+              languageCode: languageCode,
               valueChange: _this5.handleValueChange
             });
           }
@@ -2807,10 +2912,11 @@ function (_Component) {
           return null;
         }), !isNew && React__default.createElement(bundle_1, {
           properties: defaultVersioning,
-          valueChange: this.handleVersionIncrementationChange
+          valueChange: this.handleVersionIncrementationChange,
+          languageCode: languageCode
         }), React__default.createElement(semanticUiReact.Button, {
           primary: true,
-          content: isNew ? UI.SAVE : UI.UPDATE,
+          content: isNew ? UI.SAVE[languageCode] : UI.UPDATE[languageCode],
           onClick: this.validateAndSave
         }))), specialFeatures && React__default.createElement(semanticUiReact.Popup, {
           flowing: true,
@@ -2818,13 +2924,13 @@ function (_Component) {
           position: "right center",
           trigger: React__default.createElement(semanticUiReact.Button, {
             color: "teal",
-            content: UI.CREATE_JSON,
+            content: UI.CREATE_JSON[languageCode],
             onClick: this.simulateSaveAndDownloadJson
           })
         }, React__default.createElement(semanticUiReact.Icon, {
           color: "blue",
           name: "info circle"
-        }), MESSAGES.GENERATE_JSON)));
+        }), MESSAGES.GENERATE_JSON[languageCode])));
       }
 
       return React__default.createElement(semanticUiReact.Header, {
@@ -2997,14 +3103,17 @@ function (_Component) {
           description = _this$state.description,
           tableColumns = _this$state.tableColumns,
           tableData = _this$state.tableData;
+      var _this$props3 = this.props,
+          routing = _this$props3.routing,
+          languageCode = _this$props3.languageCode;
       var filteredTableData = tableData;
       var noDataText = '';
 
       if (ready) {
-        noDataText = MESSAGES.NOTHING_FOUND;
+        noDataText = MESSAGES.NOTHING_FOUND[languageCode];
 
         if (search) {
-          noDataText = MESSAGES.NAME_NOT_FOUND + ' \'' + search + '\'';
+          noDataText = MESSAGES.NAME_NOT_FOUND[languageCode] + ' \'' + search + '\'';
           filteredTableData = tableData.filter(function (row) {
             return row.name.toUpperCase().includes(search.toUpperCase());
           });
@@ -3027,23 +3136,23 @@ function (_Component) {
           position: "top center",
           trigger: React__default.createElement(semanticUiReact.Input, {
             icon: "search",
-            placeholder: UI.SEARCH,
+            placeholder: UI.SEARCH[languageCode],
             value: search,
             onChange: this.searchInputOnChange
           })
         }, React__default.createElement(semanticUiReact.Icon, {
           color: "blue",
           name: "info circle"
-        }), MESSAGES.FILTER_BY_NAME), React__default.createElement(semanticUiReact.Label, {
+        }), MESSAGES.FILTER_BY_NAME[languageCode]), React__default.createElement(semanticUiReact.Label, {
           color: "teal",
           size: "large",
           circular: true
         }, Object.keys(filteredTableData).length), React__default.createElement(reactRouterDom.Link, {
-          to: this.props.routing + '/new'
+          to: routing + '/new'
         }, React__default.createElement(semanticUiReact.Button, {
           primary: true,
           floated: "right",
-          content: UI.CREATE_NEW + ' ' + splitOnUppercase(name)
+          content: UI.CREATE_NEW[languageCode] + ' ' + splitOnUppercase(name)
         })), message ? React__default.createElement(semanticUiReact.Message, {
           negative: true,
           content: message
@@ -3056,12 +3165,12 @@ function (_Component) {
           columns: tableColumns,
           defaultPageSize: 10,
           noDataText: noDataText,
-          previousText: TABLE.PREVIOUS,
-          nextText: TABLE.NEXT,
-          ofText: TABLE.OF,
-          pageText: TABLE.PAGE,
-          loadingText: TABLE.LOADING,
-          rowsText: TABLE.ROWS,
+          previousText: TABLE.PREVIOUS[languageCode],
+          nextText: TABLE.NEXT[languageCode],
+          ofText: TABLE.OF[languageCode],
+          pageText: TABLE.PAGE[languageCode],
+          loadingText: TABLE.LOADING[languageCode],
+          rowsText: TABLE.ROWS[languageCode],
           className: "-highlight"
         }));
       }

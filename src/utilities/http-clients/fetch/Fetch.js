@@ -1,12 +1,12 @@
 import { MESSAGES } from '../../Enum'
 
-export function fetchData (url, timeout = 3000) {
+export function fetchData (url, languageCode, timeout = 3000) {
   return new Promise((resolve, reject) => {
     const controller = new AbortController()
     const signal = controller.signal
 
     let timer = setTimeout(() => {
-      reject(MESSAGES.TIMEOUT + url)
+      reject(MESSAGES.TIMEOUT[languageCode] + url)
       controller.abort()
     }, timeout)
 

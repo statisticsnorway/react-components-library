@@ -1,12 +1,12 @@
 import { MESSAGES } from '../../Enum'
 
-export function putData (url, endpoint, data, timeout = 3000) {
+export function putData (url, endpoint, data, languageCode, timeout = 3000) {
   return new Promise((resolve, reject) => {
     const controller = new AbortController()
     const signal = controller.signal
 
     let timer = setTimeout(() => {
-      reject(MESSAGES.TIMEOUT + url)
+      reject(MESSAGES.TIMEOUT[languageCode] + url)
       controller.abort()
     }, timeout)
 
@@ -28,7 +28,7 @@ export function putData (url, endpoint, data, timeout = 3000) {
         })
       }
     }).catch(error => {
-      reject(MESSAGES.COULD_NOT_CONNECT + '\'' + endpoint + '\' (' + error.toString() + ')')
+      reject(MESSAGES.COULD_NOT_CONNECT[languageCode] + '\'' + endpoint + '\' (' + error.toString() + ')')
     }).finally(() =>
       clearTimeout(timer)
     )

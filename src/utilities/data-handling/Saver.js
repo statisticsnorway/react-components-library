@@ -7,7 +7,7 @@ export function saveData (producer, schema, data, endpoint, languageCode) {
     transformProperties(producer, schema, data, languageCode, false).then(savableData => {
       const url = endpoint + 'data/' + extractName(schema.$ref) + '/' + savableData.id
 
-      putData(url, endpoint, savableData).then(response => {
+      putData(url, endpoint, savableData, languageCode).then(response => {
         resolve(response)
       }).catch(error => {
         reject(error)

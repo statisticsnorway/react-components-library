@@ -4,9 +4,9 @@ DC React Components Library is a React Component library used for generating com
 ### How it works
 This library consists of these components:
 * DCFormBuilder
-  * This component expects `params, producer, schema` and `endpoint`
+  * This component expects `params, producer, schema`, `languageCode` and `endpoint`
 * DCTableBuilder
-  * This component expects  `params, producer, schema, endpoint` and `routing`
+  * This component expects  `params, producer, schema, languageCode, endpoint` and `routing`
 * SchemaHandler
   * This function expects `url, producer` and `endpoint`
 
@@ -52,7 +52,7 @@ class App extends Component {
 
   render () {
     const {ready, schemas, message} = this.state
-    const {producer, route, endpoint} = this.props
+    const {producer, route, endpoint, languageCode, specialFeatures} = this.props
 
     return (
       <div>
@@ -91,6 +91,8 @@ class App extends Component {
             return <Route key={index} path={path} exact
                           render={({match}) => <DCFormBuilder params={match.params} producer={producer}
                                                               schema={JSON.parse(JSON.stringify(schema))}
+                                                              languageCode={languageCode}
+                                                              specialFeatures={specialFeatures}
                                                               endpoint={endpoint} user='Test user' />} />
           })}
           {ready && schemas.map((schema, index) => {
@@ -100,6 +102,8 @@ class App extends Component {
             return <Route key={index} path={path} exact
                           render={({match}) => <DCTableBuilder params={match.params} producer={producer}
                                                                schema={JSON.parse(JSON.stringify(schema))}
+                                                               languageCode={languageCode}
+                                                               specialFeatures={specialFeatures}
                                                                endpoint={endpoint} routing={path} />} />
           })}
         </Container>
@@ -120,7 +124,7 @@ class App extends Component {
     component `Form` (like in the example above)
     * Also do not forget to add `import 'semantic-ui-css/semantic.min.css'` in your `index.js`
 
-* This library uses [dc-react-form-fields-library](https://github.com/statisticsnorway/dc-react-form-fields-library) for its form fields and
+* This library also uses [dc-react-form-fields-library](https://github.com/statisticsnorway/dc-react-form-fields-library) for its form fields and
   the DCDate component requires [Moment.js](https://momentjs.com/docs/) and [ReactJS Datepicker](https://reactdatepicker.com/) 
   so if you wish to use it you need `react-datepicker` and `moment` as dependencies in your project
     * Again do not forget to add the css - `import 'react-datepicker/dist/react-datepicker.css'` in your `index.js`

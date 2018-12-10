@@ -82,15 +82,16 @@ class DCTableBuilder extends Component {
 
   render () {
     const {ready, message, search, name, description, tableColumns, tableData} = this.state
+    const {routing, languageCode} = this.props
 
     let filteredTableData = tableData
     let noDataText = ''
 
     if (ready) {
-      noDataText = MESSAGES.NOTHING_FOUND
+      noDataText = MESSAGES.NOTHING_FOUND[languageCode]
 
       if (search) {
-        noDataText = MESSAGES.NAME_NOT_FOUND + ' \'' + search + '\''
+        noDataText = MESSAGES.NAME_NOT_FOUND[languageCode] + ' \'' + search + '\''
 
         filteredTableData = tableData.filter(row => {
           return row.name.toUpperCase().includes(search.toUpperCase())
@@ -103,20 +104,22 @@ class DCTableBuilder extends Component {
                   icon={{name: 'list alternate outline', color: 'teal'}} />
           <Divider hidden />
           <Popup flowing hideOnScroll position='top center'
-                 trigger={<Input icon='search' placeholder={UI.SEARCH} value={search}
+                 trigger={<Input icon='search' placeholder={UI.SEARCH[languageCode]} value={search}
                                  onChange={this.searchInputOnChange} />}>
             <Icon color='blue' name='info circle' />
-            {MESSAGES.FILTER_BY_NAME}
+            {MESSAGES.FILTER_BY_NAME[languageCode]}
           </Popup>
           <Label color='teal' size='large' circular>{Object.keys(filteredTableData).length}</Label>
-          <Link to={this.props.routing + '/new'}>
-            <Button primary floated='right' content={UI.CREATE_NEW + ' ' + splitOnUppercase(name)} />
+          <Link to={routing + '/new'}>
+            <Button primary floated='right' content={UI.CREATE_NEW[languageCode] + ' ' + splitOnUppercase(name)} />
           </Link>
           {message ? <Message negative content={message} /> : <Divider hidden />}
 
           <ReactTable sortable data={filteredTableData} resizable={false} columns={tableColumns} defaultPageSize={10}
-                      noDataText={noDataText} previousText={TABLE.PREVIOUS} nextText={TABLE.NEXT} ofText={TABLE.OF}
-                      pageText={TABLE.PAGE} loadingText={TABLE.LOADING} rowsText={TABLE.ROWS} className='-highlight' />
+                      noDataText={noDataText} previousText={TABLE.PREVIOUS[languageCode]}
+                      nextText={TABLE.NEXT[languageCode]} ofText={TABLE.OF[languageCode]}
+                      pageText={TABLE.PAGE[languageCode]} loadingText={TABLE.LOADING[languageCode]}
+                      rowsText={TABLE.ROWS[languageCode]} className='-highlight' />
         </div>
       )
     }
