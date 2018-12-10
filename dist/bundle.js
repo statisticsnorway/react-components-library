@@ -1764,7 +1764,7 @@ function resolveGSIMProperties(schema, url) {
   });
 }
 
-function transformGSIMProperties(producer, schema, data, fromSource) {
+function transformGSIMProperties(producer, schema, data, languageCode, fromSource) {
   var returnData = JSON.parse(JSON.stringify(data));
   var name = extractName(schema.$ref);
   var properties = schema.definitions[name].properties;
@@ -1774,7 +1774,7 @@ function transformGSIMProperties(producer, schema, data, fromSource) {
         if (fromSource) {
           var text = data.name[0].languageText;
           data[property].forEach(function (multilingual) {
-            if (multilingual.languageCode === 'nb') {
+            if (multilingual.languageCode === languageCode) {
               text = multilingual.languageText;
             }
           });
@@ -1782,7 +1782,7 @@ function transformGSIMProperties(producer, schema, data, fromSource) {
         } else {
           var value = returnData[property];
           returnData[property] = [{
-            languageCode: 'nb',
+            languageCode: languageCode,
             languageText: value
           }];
         }
@@ -1794,12 +1794,14 @@ function transformGSIMProperties(producer, schema, data, fromSource) {
 
 // TODO: Rename ('DIV' is not a particularly good name)
 var DIV = {
+  JSON_FILE_ENDING: 'Example.json',
   SAGA: 'saga-execution-id'
 };
 var MESSAGES = {
   CORRECT_ERRORS: 'Object was not saved, correct any errors and try again',
   COULD_NOT_CONNECT: 'Could not connect to: ',
   FILTER_BY_NAME: 'Filter table by name',
+  GENERATE_JSON: 'Simulates storing the data to LDS and generates the JSON-file to download',
   NAME_NOT_FOUND: 'Found nothing matching',
   NOT_EMPTY: 'Cannot be blank',
   NOT_FILL: 'Could not fill data state:',
@@ -1810,8 +1812,8 @@ var MESSAGES = {
   UNKNOWN_CHECK: 'Unknown type, cannot check if empty',
   UNKNOWN_GENERATE: 'Unknown type, cannot generate default value',
   UPDATED: 'updated',
-  WAS_SAVED: 'Object was ',
-  WAS_NOT_SAVED: 'Object was not saved!'
+  WAS_NOT_SAVED: 'Object was not saved!',
+  WAS_SAVED: 'Object was '
 };
 var TABLE = {
   LOADING: 'Loading',
@@ -1822,7 +1824,9 @@ var TABLE = {
   ROWS: 'rows'
 };
 var UI = {
+  CREATE_JSON: 'Create JSON',
   CREATE_NEW: 'Create new',
+  DOWNLOAD_JSON: 'Download JSON',
   SAVE: 'Save',
   SEARCH: 'Search',
   UPDATE: 'Update'
@@ -1895,12 +1899,12 @@ function putData(url, endpoint, data) {
   });
 }
 
-function createOptions(response, prefix) {
+function createOptions(response, prefix, languageCode) {
   var options = [];
   Object.keys(response).forEach(function (value) {
     var text = response[value].name[0].languageText;
     response[value].name.forEach(function (name) {
-      if (name.languageCode === 'nb') text = name.languageText;
+      if (name.languageCode === languageCode) text = name.languageText;
     });
     options.push({
       key: response[value].id,
@@ -1911,13 +1915,13 @@ function createOptions(response, prefix) {
   return options;
 }
 
-function fetchGSIMOptions(url) {
+function fetchGSIMOptions(url, languageCode) {
   return new Promise(function (resolve, reject) {
     fetchData(url).then(function (response) {
       var prefix = '/' + url.substring(url.lastIndexOf('/') + 1) + '/';
 
       if (response.length !== 0) {
-        resolve(createOptions(response, prefix));
+        resolve(createOptions(response, prefix, languageCode));
       } else {
         resolve([]);
       }
@@ -1987,7 +1991,7 @@ function mergeGSIMUISchema(schema) {
   });
 }
 
-function resolveGSIMTableObject(data) {
+function resolveGSIMTableObject(data, languageCode) {
   var tableSchema = DefaultGSIMUISchema.table;
   var tableObject = {};
   tableSchema.defaultTableHeaders.forEach(function (header) {
@@ -1996,7 +2000,7 @@ function resolveGSIMTableObject(data) {
         case 'MultilingualText':
           var text = data[header][0].languageText;
           data[header].forEach(function (multilingual) {
-            if (multilingual.languageCode === 'nb') {
+            if (multilingual.languageCode === languageCode) {
               text = multilingual.languageText;
             }
           });
@@ -2085,10 +2089,10 @@ function producers$1(producer) {
   }
 }
 
-function producersSpecialProperties(producer, schema, data, fromSource) {
+function producersSpecialProperties(producer, schema, data, languageCode, fromSource) {
   switch (producer) {
     case 'GSIM':
-      return transformGSIMProperties(producer, schema, data, fromSource);
+      return transformGSIMProperties(producer, schema, data, languageCode, fromSource);
 
     default:
       return null;
@@ -2136,17 +2140,17 @@ function transformDefaultProperties(producer, schema, data, fromSource) {
   });
 }
 
-function transformProperties(producer, schema, data, fromSource) {
+function transformProperties(producer, schema, data, languageCode, fromSource) {
   return new Promise(function (resolve) {
     transformDefaultProperties(producer, schema, data, fromSource).then(function (transformedProperties) {
-      resolve(producersSpecialProperties(producer, schema, transformedProperties, fromSource));
+      resolve(producersSpecialProperties(producer, schema, transformedProperties, languageCode, fromSource));
     });
   });
 }
 
-function saveData(producer, schema, data, endpoint) {
+function saveData(producer, schema, data, endpoint, languageCode) {
   return new Promise(function (resolve, reject) {
-    transformProperties(producer, schema, data, false).then(function (savableData) {
+    transformProperties(producer, schema, data, languageCode, false).then(function (savableData) {
       var url = endpoint + 'data/' + extractName(schema.$ref) + '/' + savableData.id;
       putData(url, endpoint, savableData).then(function (response) {
         resolve(response);
@@ -2246,12 +2250,12 @@ function generateDataState(producer, schema, user) {
     resolve(dataObject);
   });
 }
-function fillDataState(producer, schema, id, endpoint) {
+function fillDataState(producer, schema, id, endpoint, languageCode) {
   return new Promise(function (resolve, reject) {
     var name = extractName(schema.$ref);
     var url = endpoint + 'data/' + name + '/' + id;
     fetchData(url).then(function (response) {
-      transformProperties(producer, schema, response, true).then(function (transformedData) {
+      transformProperties(producer, schema, response, languageCode, true).then(function (transformedData) {
         resolve(transformedData);
       });
     }).catch(function (error) {
@@ -2345,20 +2349,20 @@ function mergeDefaultUISchema(producer, schema) {
   });
 }
 
-function fetchOptions(producer, url) {
+function fetchOptions(producer, url, languageCode) {
   switch (producer) {
     case 'GSIM':
-      return fetchGSIMOptions(url);
+      return fetchGSIMOptions(url, languageCode);
 
     default:
       return null;
   }
 }
 
-function buildOptions(producer, endpoints) {
+function buildOptions(producer, endpoints, languageCode) {
   return new Promise(function (resolve, reject) {
     Promise.all(endpoints.map(function (url) {
-      return fetchOptions(producer, url);
+      return fetchOptions(producer, url, languageCode);
     })).then(function (allOptions) {
       var options = [].concat.apply([], allOptions);
       resolve(options);
@@ -2368,14 +2372,14 @@ function buildOptions(producer, endpoints) {
   });
 }
 
-function populateOptions(producer, schema) {
+function populateOptions(producer, schema, languageCode) {
   return new Promise(function (resolve, reject) {
     var returnSchema = JSON.parse(JSON.stringify(schema));
     var name = extractName(schema.$ref);
     var properties = JSON.parse(JSON.stringify(schema.definitions[name].properties));
     Promise.all(Object.keys(properties).map(function (value) {
       if (properties[value].hasOwnProperty('endpoints')) {
-        return buildOptions(producer, properties[value].endpoints);
+        return buildOptions(producer, properties[value].endpoints, languageCode);
       }
 
       return null;
@@ -2466,23 +2470,22 @@ function (_Component) {
             schema = _this$state.schema,
             data = _this$state.data,
             versionIncrementation = _this$state.versionIncrementation,
-            hiddenFields = _this$state.hiddenFields;
+            hiddenFields = _this$state.hiddenFields,
+            isNew = _this$state.isNew;
         var _this$props = _this.props,
             producer = _this$props.producer,
-            params = _this$props.params,
             endpoint = _this$props.endpoint,
-            user = _this$props.user;
+            user = _this$props.user,
+            languageCode = _this$props.languageCode;
         var copiedSchema = JSON.parse(JSON.stringify(schema));
         validation(copiedSchema, data).then(function (schemaWithoutErrors) {
-          updateAutofill(producer, schemaWithoutErrors, data, user, versionIncrementation, params.id === 'new').then(function (autofilledData) {
+          updateAutofill(producer, schemaWithoutErrors, data, user, versionIncrementation, isNew).then(function (autofilledData) {
             setAutofillAndClean(schemaWithoutErrors, autofilledData, hiddenFields).then(function (finished) {
-              var savedMessage = params.id === 'new' ? MESSAGES.SAVED : MESSAGES.UPDATED;
-              saveData(producer, finished.returnSchema, finished.returnData, endpoint).then(function (response) {
-                if (params.id === 'new') {
+              var savedMessage = isNew ? MESSAGES.SAVED : MESSAGES.UPDATED;
+              saveData(producer, finished.returnSchema, finished.returnData, endpoint, languageCode).then(function (response) {
+                if (isNew) {
                   var newUrl = window.location.pathname.replace('/new', '/' + autofilledData.id);
-                  window.history.pushState({}, '', newUrl); // TODO: Make this state instead of mutating props (check other TODO aswell, further up)
-
-                  _this.props.params.id = autofilledData.id.slice(0);
+                  window.history.pushState({}, '', newUrl);
                 }
 
                 _this.setState({
@@ -2490,7 +2493,8 @@ function (_Component) {
                   data: finished.returnData,
                   saved: true,
                   message: MESSAGES.WAS_SAVED + savedMessage + ' (' + DIV.SAGA + ': ' + response[DIV.SAGA] + ')',
-                  readOnly: true
+                  readOnly: true,
+                  isNew: false
                 }, function () {
                   return _this.setState({
                     ready: true
@@ -2520,9 +2524,53 @@ function (_Component) {
       });
     };
 
-    _this.checkState = function () {
-      console.log(_this.state);
-      console.log(_this.props);
+    _this.simulateSaveAndDownloadJson = function (event) {
+      event.preventDefault();
+
+      _this.setState({
+        ready: false
+      }, function () {
+        var _this$state2 = _this.state,
+            name = _this$state2.name,
+            schema = _this$state2.schema,
+            data = _this$state2.data,
+            versionIncrementation = _this$state2.versionIncrementation,
+            hiddenFields = _this$state2.hiddenFields,
+            isNew = _this$state2.isNew;
+        var _this$props2 = _this.props,
+            producer = _this$props2.producer,
+            user = _this$props2.user;
+        var copiedSchema = JSON.parse(JSON.stringify(schema));
+        validation(copiedSchema, data).then(function (schemaWithoutErrors) {
+          updateAutofill(producer, schemaWithoutErrors, data, user, versionIncrementation, isNew).then(function (autofilledData) {
+            setAutofillAndClean(schemaWithoutErrors, autofilledData, hiddenFields).then(function (finished) {
+              var downloadableJson = 'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(finished.returnData, null, ' '));
+              var downloadLink = React__default.createElement("a", {
+                href: "data: ".concat(downloadableJson),
+                download: name + DIV.JSON_FILE_ENDING
+              }, UI.DOWNLOAD_JSON);
+
+              _this.setState({
+                schema: finished.returnSchema,
+                data: finished.returnData,
+                saved: true,
+                message: downloadLink
+              }, function () {
+                _this.setState({
+                  ready: true
+                });
+              });
+            });
+          });
+        }).catch(function (schemaWithErrors) {
+          _this.setState({
+            ready: true,
+            schema: schemaWithErrors,
+            saved: false,
+            message: MESSAGES.CORRECT_ERRORS
+          });
+        });
+      });
     };
 
     var _name = extractName(_this.props.schema.$ref);
@@ -2538,7 +2586,8 @@ function (_Component) {
       hiddenFields: [],
       name: _name,
       description: _this.props.schema.definitions[_name].description,
-      problem: false
+      problem: false,
+      isNew: _this.props.params.id === 'new'
     };
     return _this;
   }
@@ -2548,18 +2597,19 @@ function (_Component) {
     value: function componentDidMount() {
       var _this2 = this;
 
-      var _this$props2 = this.props,
-          producer = _this$props2.producer,
-          schema = _this$props2.schema,
-          params = _this$props2.params,
-          endpoint = _this$props2.endpoint,
-          user = _this$props2.user;
-      populateOptions(producer, schema).then(function (populatedSchema) {
-        // TODO: Another check here for the state thing
-        if (params.id === 'new') {
+      var isNew = this.state.isNew;
+      var _this$props3 = this.props,
+          producer = _this$props3.producer,
+          schema = _this$props3.schema,
+          params = _this$props3.params,
+          endpoint = _this$props3.endpoint,
+          user = _this$props3.user,
+          languageCode = _this$props3.languageCode;
+      populateOptions(producer, schema, languageCode).then(function (populatedSchema) {
+        if (isNew) {
           _this2.newComponent(producer, populatedSchema, user);
         } else {
-          fillDataState(producer, populatedSchema, params.id, endpoint).then(function (filledData) {
+          fillDataState(producer, populatedSchema, params.id, endpoint, languageCode).then(function (filledData) {
             setDataToSchema(populatedSchema, filledData).then(function (filled) {
               _this2.setState({
                 data: filledData,
@@ -2590,19 +2640,20 @@ function (_Component) {
     value: function shouldComponentUpdate(nextProps, nextState) {
       var _this3 = this;
 
-      var _this$state2 = this.state,
-          hiddenFields = _this$state2.hiddenFields,
-          data = _this$state2.data;
-      var _this$props3 = this.props,
-          params = _this$props3.params,
-          producer = _this$props3.producer,
-          schema = _this$props3.schema,
-          user = _this$props3.user;
-      if (hiddenFields !== nextState.hiddenFields) return true; // TODO: Another check here for the state thing
+      var _this$state3 = this.state,
+          hiddenFields = _this$state3.hiddenFields,
+          data = _this$state3.data;
+      var _this$props4 = this.props,
+          params = _this$props4.params,
+          producer = _this$props4.producer,
+          schema = _this$props4.schema,
+          user = _this$props4.user;
+      if (hiddenFields !== nextState.hiddenFields) return true;
 
       if (params.id !== nextProps.params.id && nextProps.params.id === 'new') {
         this.setState({
-          ready: false
+          ready: false,
+          isNew: true
         }, function () {
           populateOptions(producer, schema).then(function (populatedSchema) {
             _this3.newComponent(producer, populatedSchema, user);
@@ -2646,17 +2697,18 @@ function (_Component) {
     value: function render() {
       var _this5 = this;
 
-      var _this$state3 = this.state,
-          ready = _this$state3.ready,
-          readOnly = _this$state3.readOnly,
-          message = _this$state3.message,
-          saved = _this$state3.saved,
-          schema = _this$state3.schema,
-          hiddenFields = _this$state3.hiddenFields,
-          name = _this$state3.name,
-          description = _this$state3.description,
-          problem = _this$state3.problem;
-      var params = this.props.params;
+      var _this$state4 = this.state,
+          ready = _this$state4.ready,
+          readOnly = _this$state4.readOnly,
+          message = _this$state4.message,
+          saved = _this$state4.saved,
+          schema = _this$state4.schema,
+          hiddenFields = _this$state4.hiddenFields,
+          name = _this$state4.name,
+          description = _this$state4.description,
+          problem = _this$state4.problem,
+          isNew = _this$state4.isNew;
+      var enableSpecialFeatures = this.props.enableSpecialFeatures;
 
       if (problem) {
         return React__default.createElement("div", null, React__default.createElement(semanticUiReact.Header, {
@@ -2753,18 +2805,26 @@ function (_Component) {
           }
 
           return null;
-        }), params.id !== 'new' && React__default.createElement(bundle_1, {
+        }), !isNew && React__default.createElement(bundle_1, {
           properties: defaultVersioning,
           valueChange: this.handleVersionIncrementationChange
         }), React__default.createElement(semanticUiReact.Button, {
           primary: true,
-          content: params.id === 'new' ? UI.SAVE : UI.UPDATE,
+          content: isNew ? UI.SAVE : UI.UPDATE,
           onClick: this.validateAndSave
-        })))), React__default.createElement(semanticUiReact.Button, {
-          color: "pink",
-          content: "Inner State",
-          onClick: this.checkState
-        }));
+        }))), enableSpecialFeatures && React__default.createElement(semanticUiReact.Popup, {
+          flowing: true,
+          hideOnScroll: true,
+          position: "right center",
+          trigger: React__default.createElement(semanticUiReact.Button, {
+            color: "teal",
+            content: UI.CREATE_JSON,
+            onClick: this.simulateSaveAndDownloadJson
+          })
+        }, React__default.createElement(semanticUiReact.Icon, {
+          color: "blue",
+          name: "info circle"
+        }), MESSAGES.GENERATE_JSON)));
       }
 
       return React__default.createElement(semanticUiReact.Header, {

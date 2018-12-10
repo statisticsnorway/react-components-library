@@ -44,13 +44,13 @@ export function generateDataState (producer, schema, user) {
   })
 }
 
-export function fillDataState (producer, schema, id, endpoint) {
+export function fillDataState (producer, schema, id, endpoint, languageCode) {
   return new Promise((resolve, reject) => {
     const name = extractName(schema.$ref)
     const url = endpoint + 'data/' + name + '/' + id
 
     fetchData(url).then(response => {
-      transformProperties(producer, schema, response, true).then(transformedData => {
+      transformProperties(producer, schema, response, languageCode, true).then(transformedData => {
         resolve(transformedData)
       })
     }).catch(error => {

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Button, Dimmer, Form, Grid, Header, Message } from 'semantic-ui-react'
+import { Button, Dimmer, Form, Grid, Header, Icon, Message, Popup } from 'semantic-ui-react'
 
 import { DCFormField } from 'dc-react-form-fields-library'
 import { defaultVersioning } from '../producers'
@@ -26,19 +26,20 @@ class DCFormBuilder extends Component {
       hiddenFields: [],
       name: name,
       description: this.props.schema.definitions[name].description,
-      problem: false
+      problem: false,
+      isNew: this.props.params.id === 'new'
     }
   }
 
   componentDidMount () {
-    const {producer, schema, params, endpoint, user} = this.props
+    const {isNew} = this.state
+    const {producer, schema, params, endpoint, user, languageCode} = this.props
 
-    populateOptions(producer, schema).then(populatedSchema => {
-      // TODO: Another check here for the state thing
-      if (params.id === 'new') {
+    populateOptions(producer, schema, languageCode).then(populatedSchema => {
+      if (isNew) {
         this.newComponent(producer, populatedSchema, user)
       } else {
-        fillDataState(producer, populatedSchema, params.id, endpoint).then(filledData => {
+        fillDataState(producer, populatedSchema, params.id, endpoint, languageCode).then(filledData => {
           setDataToSchema(populatedSchema, filledData).then(filled => {
             this.setState({
               data: filledData,
@@ -67,9 +68,11 @@ class DCFormBuilder extends Component {
 
     if (hiddenFields !== nextState.hiddenFields) return true
 
-    // TODO: Another check here for the state thing
     if (params.id !== nextProps.params.id && nextProps.params.id === 'new') {
-      this.setState({ready: false}, () => {
+      this.setState({
+        ready: false,
+        isNew: true
+      }, () => {
         populateOptions(producer, schema).then(populatedSchema => {
           this.newComponent(producer, populatedSchema, user)
         })
@@ -141,23 +144,20 @@ class DCFormBuilder extends Component {
     event.preventDefault()
 
     this.setState({ready: false}, () => {
-      const {schema, data, versionIncrementation, hiddenFields} = this.state
-      const {producer, params, endpoint, user} = this.props
+      const {schema, data, versionIncrementation, hiddenFields, isNew} = this.state
+      const {producer, endpoint, user, languageCode} = this.props
       const copiedSchema = JSON.parse(JSON.stringify(schema))
 
       validation(copiedSchema, data).then(schemaWithoutErrors => {
-        updateAutofill(producer, schemaWithoutErrors, data, user, versionIncrementation, (params.id === 'new')).then(autofilledData => {
+        updateAutofill(producer, schemaWithoutErrors, data, user, versionIncrementation, isNew).then(autofilledData => {
           setAutofillAndClean(schemaWithoutErrors, autofilledData, hiddenFields).then(finished => {
-            const savedMessage = params.id === 'new' ? MESSAGES.SAVED : MESSAGES.UPDATED
+            const savedMessage = isNew ? MESSAGES.SAVED : MESSAGES.UPDATED
 
-            saveData(producer, finished.returnSchema, finished.returnData, endpoint).then(response => {
-              if (params.id === 'new') {
+            saveData(producer, finished.returnSchema, finished.returnData, endpoint, languageCode).then(response => {
+              if (isNew) {
                 const newUrl = window.location.pathname.replace('/new', '/' + autofilledData.id)
 
                 window.history.pushState({}, '', newUrl)
-
-                // TODO: Make this state instead of mutating props (check other TODO aswell, further up)
-                this.props.params.id = autofilledData.id.slice(0)
               }
 
               this.setState({
@@ -165,7 +165,8 @@ class DCFormBuilder extends Component {
                 data: finished.returnData,
                 saved: true,
                 message: MESSAGES.WAS_SAVED + savedMessage + ' (' + DIV.SAGA + ': ' + response[DIV.SAGA] + ')',
-                readOnly: true
+                readOnly: true,
+                isNew: false
               }, () => this.setState({ready: true}))
             }).catch(saveError => {
               this.setState({
@@ -187,15 +188,45 @@ class DCFormBuilder extends Component {
     })
   }
 
-  // TODO: Remove
-  checkState = () => {
-    console.log(this.state)
-    console.log(this.props)
+  simulateSaveAndDownloadJson = (event) => {
+    event.preventDefault()
+
+    this.setState({ready: false}, () => {
+      const {name, schema, data, versionIncrementation, hiddenFields, isNew} = this.state
+      const {producer, user} = this.props
+      const copiedSchema = JSON.parse(JSON.stringify(schema))
+
+      validation(copiedSchema, data).then(schemaWithoutErrors => {
+        updateAutofill(producer, schemaWithoutErrors, data, user, versionIncrementation, isNew).then(autofilledData => {
+          setAutofillAndClean(schemaWithoutErrors, autofilledData, hiddenFields).then(finished => {
+            const downloadableJson = 'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(finished.returnData, null, ' '))
+            const downloadLink = <a href={`data: ${downloadableJson}`}
+                                    download={name + DIV.JSON_FILE_ENDING}>{UI.DOWNLOAD_JSON}</a>
+
+            this.setState({
+              schema: finished.returnSchema,
+              data: finished.returnData,
+              saved: true,
+              message: downloadLink
+            }, () => {
+              this.setState({ready: true})
+            })
+          })
+        })
+      }).catch(schemaWithErrors => {
+        this.setState({
+          ready: true,
+          schema: schemaWithErrors,
+          saved: false,
+          message: MESSAGES.CORRECT_ERRORS
+        })
+      })
+    })
   }
 
   render () {
-    const {ready, readOnly, message, saved, schema, hiddenFields, name, description, problem} = this.state
-    const {params} = this.props
+    const {ready, readOnly, message, saved, schema, hiddenFields, name, description, problem, isNew} = this.state
+    const {enableSpecialFeatures} = this.props
 
     if (problem) {
       return (
@@ -266,17 +297,23 @@ class DCFormBuilder extends Component {
                   return null
                 })}
 
-                {params.id !== 'new' &&
+                {!isNew &&
                 <DCFormField properties={defaultVersioning} valueChange={this.handleVersionIncrementationChange} />
                 }
 
-                <Button primary content={params.id === 'new' ? UI.SAVE : UI.UPDATE}
+                <Button primary content={isNew ? UI.SAVE : UI.UPDATE}
                         onClick={this.validateAndSave} />
               </Grid.Column>
             </Grid>
+            {enableSpecialFeatures &&
+            <Popup flowing hideOnScroll position='right center'
+                   trigger={<Button color='teal' content={UI.CREATE_JSON}
+                                    onClick={this.simulateSaveAndDownloadJson} />}>
+              <Icon color='blue' name='info circle' />
+              {MESSAGES.GENERATE_JSON}
+            </Popup>
+            }
           </Dimmer.Dimmable>
-          {/*TODO: Remove*/}
-          <Button color='pink' content='Inner State' onClick={this.checkState} />
         </Form>
       )
     }

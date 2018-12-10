@@ -17,7 +17,9 @@ class App extends Component {
           <Route path='/axios' exact component={Axios} />
           <Route path='/merge' exact component={Merge} />
           <Route path={GSIM.route}
-                 render={() => <Forms producer={GSIM.producer} endpoint={GSIM.endpoint} route={GSIM.route} />} />
+                 render={() => <Forms producer={GSIM.producer} endpoint={GSIM.endpoint} route={GSIM.route}
+                                      languageCode={GSIM.languageCode}
+                                      enableSpecialFeatures={GSIM.specialFeatures} />} />
         </Switch>
       </Segment>
     )

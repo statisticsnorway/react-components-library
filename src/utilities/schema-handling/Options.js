@@ -1,21 +1,21 @@
 import { fetchGSIMOptions } from '../../producers/gsim'
 import { extractName } from '../Common'
 
-export function fetchOptions (producer, url) {
+export function fetchOptions (producer, url, languageCode) {
   switch (producer) {
     case 'GSIM':
-      return fetchGSIMOptions(url)
+      return fetchGSIMOptions(url, languageCode)
 
     default:
       return null
   }
 }
 
-function buildOptions (producer, endpoints) {
+function buildOptions (producer, endpoints, languageCode) {
   return new Promise((resolve, reject) => {
     Promise.all(
       endpoints.map(url => {
-        return fetchOptions(producer, url)
+        return fetchOptions(producer, url, languageCode)
       })
     ).then(allOptions => {
       const options = [].concat.apply([], allOptions)
@@ -27,7 +27,7 @@ function buildOptions (producer, endpoints) {
   })
 }
 
-export function populateOptions (producer, schema) {
+export function populateOptions (producer, schema, languageCode) {
   return new Promise((resolve, reject) => {
     const returnSchema = JSON.parse(JSON.stringify(schema))
     const name = extractName(schema.$ref)
@@ -36,7 +36,7 @@ export function populateOptions (producer, schema) {
     Promise.all(
       Object.keys(properties).map(value => {
         if (properties[value].hasOwnProperty('endpoints')) {
-          return buildOptions(producer, properties[value].endpoints)
+          return buildOptions(producer, properties[value].endpoints, languageCode)
         }
 
         return null

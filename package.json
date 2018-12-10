@@ -19,7 +19,7 @@
     "react-scripts": "2.1.1",
     "react-table": "^6.8.6",
     "semantic-ui-css": "^2.4.1",
-    "semantic-ui-react": "^0.83.0",
+    "semantic-ui-react": "^0.84.0",
     "uuid": "^3.3.2"
   },
   "scripts": {
@@ -53,6 +53,6 @@
     "rollup-plugin-babel": "^4.0.3",
     "rollup-plugin-commonjs": "^9.2.0",
     "rollup-plugin-json": "^3.1.0",
-    "rollup-plugin-node-resolve": "^3.4.0"
+    "rollup-plugin-node-resolve": "^4.0.0"
   }
 }

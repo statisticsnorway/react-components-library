@@ -1,13 +1,13 @@
 import { fetchData } from '../../utilities/http-clients/fetch'
 
-function createOptions (response, prefix) {
+function createOptions (response, prefix, languageCode) {
   const options = []
 
   Object.keys(response).forEach(value => {
     let text = response[value].name[0].languageText
 
     response[value].name.forEach(name => {
-      if (name.languageCode === 'nb') text = name.languageText
+      if (name.languageCode === languageCode) text = name.languageText
     })
 
     options.push({
@@ -20,13 +20,13 @@ function createOptions (response, prefix) {
   return options
 }
 
-export function fetchGSIMOptions (url) {
+export function fetchGSIMOptions (url, languageCode) {
   return new Promise((resolve, reject) => {
     fetchData(url).then(response => {
       const prefix = '/' + url.substring(url.lastIndexOf('/') + 1) + '/'
 
       if (response.length !== 0) {
-        resolve(createOptions(response, prefix))
+        resolve(createOptions(response, prefix, languageCode))
       } else {
         resolve([])
       }

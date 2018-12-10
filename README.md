@@ -147,6 +147,8 @@ your own producers and provide DefaultUISchema and spesific UISchemas
 `yarn upgrade dc-react-components-library` in your React application to get the latest "build"
 
 ### Test it yourself
+The first time you clone the repository, remember to run `yarn install`
+
 An App.js is added to the library for test purpose. Run `yarn start` and navigate to `http://localhost:3000/`
 
 ##### Alternatively try a more optimized production build:

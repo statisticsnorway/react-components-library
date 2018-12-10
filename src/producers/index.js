@@ -2,7 +2,9 @@ export const GSIM = {
   name: 'GSIM',
   producer: 'GSIM',
   endpoint: 'http://localhost:9090/',
-  route: '/form/'
+  route: '/form/',
+  languageCode: 'en',
+  specialFeatures: false
 }
 
 export const defaultVersioning = {

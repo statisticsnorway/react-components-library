@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Link, Route } from 'react-router-dom'
-import { Button, Container, Dropdown, Icon, Label, Menu, Message } from 'semantic-ui-react'
+import { Container, Dropdown, Icon, Label, Menu, Message } from 'semantic-ui-react'
 
 import { DCFormBuilder, DCTableBuilder, SchemaHandler } from '../components'
 import { extractName, splitOnUppercase } from '../utilities/Common'
@@ -33,15 +33,9 @@ class Forms extends Component {
     })
   }
 
-  // TODO: Remove
-  checkState = () => {
-    console.log(this.state)
-    console.log(this.props)
-  }
-
   render () {
     const {ready, schemas, message} = this.state
-    const {producer, route, endpoint} = this.props
+    const {producer, route, endpoint, languageCode, enableSpecialFeatures} = this.props
 
     return (
       <div>
@@ -80,6 +74,8 @@ class Forms extends Component {
             return <Route key={index} path={path} exact
                           render={({match}) => <DCFormBuilder params={match.params} producer={producer}
                                                               schema={JSON.parse(JSON.stringify(schema))}
+                                                              languageCode={languageCode}
+                                                              special={enableSpecialFeatures}
                                                               endpoint={endpoint} user='Test user' />} />
           })}
           {ready && schemas.map((schema, index) => {
@@ -89,10 +85,10 @@ class Forms extends Component {
             return <Route key={index} path={path} exact
                           render={({match}) => <DCTableBuilder params={match.params} producer={producer}
                                                                schema={JSON.parse(JSON.stringify(schema))}
+                                                               languageCode={languageCode}
+                                                               special={enableSpecialFeatures}
                                                                endpoint={endpoint} routing={path} />} />
           })}
-          {/*TODO: Remove*/}
-          <Button color='pink' content='Outer State' onClick={this.checkState} />
         </Container>
       </div>
     )

@@ -1,6 +1,6 @@
 import DefaultGSIMUISchema from '../../producers/gsim/DefaultGSIMUISchema'
 
-export function resolveGSIMTableObject (data) {
+export function resolveGSIMTableObject (data, languageCode) {
   const tableSchema = DefaultGSIMUISchema.table
   const tableObject = {}
 
@@ -11,7 +11,7 @@ export function resolveGSIMTableObject (data) {
           let text = data[header][0].languageText
 
           data[header].forEach(multilingual => {
-            if (multilingual.languageCode === 'nb') {
+            if (multilingual.languageCode === languageCode) {
               text = multilingual.languageText
             }
           })
