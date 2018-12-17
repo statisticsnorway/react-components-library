@@ -26,14 +26,13 @@ export function mergeUiSchema (schema, uiSchemaFiles) {
     const fileName = uiSchemaFiles[key].name
     if (fileName === uiSchemaFileName) {
       let fileReader = new FileReader()
-      fileReader.readAsText(uiSchemaFiles[key]);
+      fileReader.readAsText(uiSchemaFiles[key])
       fileReader.onloadend = () => {
         let data = fileReader.result
         let uiSchema = JSON.parse(data.toString())
         Object.keys(properties).forEach(key => {
           if (uiSchema[name].hasOwnProperty(key)) {
             Object.keys(uiSchema[name][key]).forEach(property => {
-              let temp = uiSchema[name][key][property]
               returnSchema.definitions[name].properties[key][property] = uiSchema[name][key][property]
             })
           }

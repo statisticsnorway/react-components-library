@@ -1,4 +1,3 @@
-import React from 'react'
 import axios from 'axios'
 
 export function dataFetcher (url) {
@@ -12,4 +11,3 @@ export function dataFetcher (url) {
     })
   })
 }
-
