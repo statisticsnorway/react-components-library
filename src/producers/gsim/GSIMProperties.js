@@ -5,6 +5,7 @@ function resolveReferences (properties, returnSchema, schema, key, name) {
   const customType = extractName(properties[key].items.$ref)
 
   returnSchema[name].properties[key].customType = customType
+  returnSchema[name].properties[key].description.push('Input type: ' + customType)
 
   if (customType === 'MultilingualText') {
     returnSchema[name].properties[key].component = 'DCText'
@@ -25,6 +26,11 @@ function resolveReferences (properties, returnSchema, schema, key, name) {
 
       delete returnSchema[customType].properties[property].enum
     }
+
+    returnSchema[name].properties[key].description.push(
+      schema[customType].properties[property].displayName + ': '
+      + returnSchema[customType].properties[property].description
+    )
   })
 }
 
@@ -66,6 +72,11 @@ export function resolveGSIMProperties (schema, url) {
     const properties = JSON.parse(JSON.stringify(schema.definitions[name].properties))
 
     Object.keys(properties).forEach(key => {
+      const description = []
+
+      description.push(returnSchema.definitions[name].properties[key].description)
+      returnSchema.definitions[name].properties[key].description = description
+
       if (properties[key].hasOwnProperty('items')) {
         if (properties[key].items.hasOwnProperty('$ref')) {
           resolveReferences(properties, returnSchema.definitions, schema.definitions, key, name)

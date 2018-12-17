@@ -1,10 +1,10 @@
 import { fetchGSIMOptions } from '../../producers/gsim'
 import { extractName } from '../Common'
 
-export function fetchOptions (producer, url, languageCode) {
+export function fetchOptions (producer, url, languageCode, addPrefix) {
   switch (producer) {
     case 'GSIM':
-      return fetchGSIMOptions(url, languageCode)
+      return fetchGSIMOptions(url, languageCode, addPrefix)
 
     default:
       return null
@@ -15,7 +15,7 @@ function buildOptions (producer, endpoints, languageCode) {
   return new Promise((resolve, reject) => {
     Promise.all(
       endpoints.map(url => {
-        return fetchOptions(producer, url, languageCode)
+        return fetchOptions(producer, url, languageCode, (endpoints.length > 1))
       })
     ).then(allOptions => {
       const options = [].concat.apply([], allOptions)

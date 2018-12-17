@@ -1,7 +1,13 @@
 import { fetchData } from '../../utilities/http-clients/fetch'
 
-function createOptions (response, prefix, languageCode) {
+function createOptions (response, prefix, languageCode, addPrefix) {
   const options = []
+
+  let cleanedPrefix = ''
+
+  if (addPrefix) {
+    cleanedPrefix = ' (' + prefix.replace(/\//ig, '') + ')'
+  }
 
   Object.keys(response).forEach(value => {
     let text = response[value].name[0].languageText
@@ -12,7 +18,7 @@ function createOptions (response, prefix, languageCode) {
 
     options.push({
       key: response[value].id,
-      text: text,
+      text: text + cleanedPrefix,
       value: prefix + response[value].id
     })
   })
@@ -20,13 +26,13 @@ function createOptions (response, prefix, languageCode) {
   return options
 }
 
-export function fetchGSIMOptions (url, languageCode) {
+export function fetchGSIMOptions (url, languageCode, addPrefix) {
   return new Promise((resolve, reject) => {
     fetchData(url).then(response => {
       const prefix = '/' + url.substring(url.lastIndexOf('/') + 1) + '/'
 
       if (response.length !== 0) {
-        resolve(createOptions(response, prefix, languageCode))
+        resolve(createOptions(response, prefix, languageCode, addPrefix))
       } else {
         resolve([])
       }

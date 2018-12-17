@@ -45,6 +45,7 @@ export const MESSAGES = {
     en: 'saved',
     nb: 'lagret'
   },
+  SCHEMA_HANDLER_ERROR: 'SchemaHandler error: ',
   TIMEOUT: {
     en: 'Request timeout for url: ',
     nb: 'Tidsavbrudd for kobling mot: '

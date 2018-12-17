@@ -289,6 +289,14 @@ var InlineWarning = function InlineWarning(_ref2) {
   }, text);
 };
 
+var structureDescription = function structureDescription(description) {
+  return React__default$$1.createElement("div", null, description.map(function (value, index) {
+    return React__default$$1.createElement("p", {
+      key: index
+    }, value);
+  }));
+};
+
 function fullFormField(displayName, description, error, warning, required, component) {
   return React__default$$1.createElement(semanticUiReact__default.Form.Field, {
     error: !!error,
@@ -299,7 +307,7 @@ function fullFormField(displayName, description, error, warning, required, compo
     header: displayName,
     wide: "very",
     trigger: React__default$$1.createElement("label", null, displayName),
-    content: description
+    content: structureDescription(description)
   }), component, warning && !error && React__default$$1.createElement(InlineWarning, {
     text: warning
   }), error && !warning && React__default$$1.createElement(InlineError, {
@@ -320,7 +328,7 @@ function simpleFormField(displayName, description, component) {
     header: displayName,
     wide: "very",
     trigger: component,
-    content: description
+    content: structureDescription(description)
   }));
 }
 function simpleStaticFormField(displayName, description, component) {
@@ -330,7 +338,7 @@ function simpleStaticFormField(displayName, description, component) {
     position: "top left",
     header: displayName,
     wide: "very",
-    content: description,
+    content: structureDescription(description),
     trigger: React__default$$1.createElement("label", null, displayName, " ", icon)
   }), component);
 }
@@ -1689,6 +1697,7 @@ var DefaultGSIMUISchema = {
 function resolveReferences(properties, returnSchema, schema, key, name) {
   var customType = extractName(properties[key].items.$ref);
   returnSchema[name].properties[key].customType = customType;
+  returnSchema[name].properties[key].description.push('Input type: ' + customType);
 
   if (customType === 'MultilingualText') {
     returnSchema[name].properties[key].component = 'DCText';
@@ -1710,6 +1719,8 @@ function resolveReferences(properties, returnSchema, schema, key, name) {
       returnSchema[name].properties[key].options = options;
       delete returnSchema[customType].properties[property].enum;
     }
+
+    returnSchema[name].properties[key].description.push(schema[customType].properties[property].displayName + ': ' + returnSchema[customType].properties[property].description);
   });
 }
 
@@ -1749,6 +1760,10 @@ function resolveGSIMProperties(schema, url) {
     var name = extractName(schema.$ref);
     var properties = JSON.parse(JSON.stringify(schema.definitions[name].properties));
     Object.keys(properties).forEach(function (key) {
+      var description = [];
+      description.push(returnSchema.definitions[name].properties[key].description);
+      returnSchema.definitions[name].properties[key].description = description;
+
       if (properties[key].hasOwnProperty('items')) {
         if (properties[key].items.hasOwnProperty('$ref')) {
           resolveReferences(properties, returnSchema.definitions, schema.definitions, key, name);
@@ -1852,6 +1867,7 @@ var MESSAGES = {
     en: 'saved',
     nb: 'lagret'
   },
+  SCHEMA_HANDLER_ERROR: 'SchemaHandler error: ',
   TIMEOUT: {
     en: 'Request timeout for url: ',
     nb: 'Tidsavbrudd for kobling mot: '
@@ -1997,8 +2013,14 @@ function putData(url, endpoint, data, languageCode) {
   });
 }
 
-function createOptions(response, prefix, languageCode) {
+function createOptions(response, prefix, languageCode, addPrefix) {
   var options = [];
+  var cleanedPrefix = '';
+
+  if (addPrefix) {
+    cleanedPrefix = ' (' + prefix.replace(/\//ig, '') + ')';
+  }
+
   Object.keys(response).forEach(function (value) {
     var text = response[value].name[0].languageText;
     response[value].name.forEach(function (name) {
@@ -2006,20 +2028,20 @@ function createOptions(response, prefix, languageCode) {
     });
     options.push({
       key: response[value].id,
-      text: text,
+      text: text + cleanedPrefix,
       value: prefix + response[value].id
     });
   });
   return options;
 }
 
-function fetchGSIMOptions(url, languageCode) {
+function fetchGSIMOptions(url, languageCode, addPrefix) {
   return new Promise(function (resolve, reject) {
     fetchData(url).then(function (response) {
       var prefix = '/' + url.substring(url.lastIndexOf('/') + 1) + '/';
 
       if (response.length !== 0) {
-        resolve(createOptions(response, prefix, languageCode));
+        resolve(createOptions(response, prefix, languageCode, addPrefix));
       } else {
         resolve([]);
       }
@@ -2447,10 +2469,10 @@ function mergeDefaultUISchema(producer, schema) {
   });
 }
 
-function fetchOptions(producer, url, languageCode) {
+function fetchOptions(producer, url, languageCode, addPrefix) {
   switch (producer) {
     case 'GSIM':
-      return fetchGSIMOptions(url, languageCode);
+      return fetchGSIMOptions(url, languageCode, addPrefix);
 
     default:
       return null;
@@ -2460,7 +2482,7 @@ function fetchOptions(producer, url, languageCode) {
 function buildOptions(producer, endpoints, languageCode) {
   return new Promise(function (resolve, reject) {
     Promise.all(endpoints.map(function (url) {
-      return fetchOptions(producer, url, languageCode);
+      return fetchOptions(producer, url, languageCode, endpoints.length > 1);
     })).then(function (allOptions) {
       var options = [].concat.apply([], allOptions);
       resolve(options);
@@ -2963,12 +2985,14 @@ function SchemaHandler(url, producer, endpoint) {
             return mergeUISchema(producer, resolvedSchema);
           })).then(function (finishedSchemas) {
             resolve(finishedSchemas);
+          }).catch(function (error) {
+            reject(MESSAGES.SCHEMA_HANDLER_ERROR + error.toString());
           });
         }).catch(function (error) {
-          reject(error);
+          reject(MESSAGES.SCHEMA_HANDLER_ERROR + error.toString());
         });
       }).catch(function (error) {
-        reject(error);
+        reject(MESSAGES.SCHEMA_HANDLER_ERROR + error.toString());
       });
     }).catch(function (error) {
       reject(error);

@@ -1,5 +1,6 @@
 import { fetchData } from '../utilities/http-clients/fetch'
 import { mergeDefaultUISchema, mergeUISchema, resolveProperties } from '../utilities/schema-handling'
+import { MESSAGES } from '../utilities/Enum'
 
 export function SchemaHandler (url, producer, endpoint) {
   return new Promise((resolve, reject) => {
@@ -20,12 +21,14 @@ export function SchemaHandler (url, producer, endpoint) {
             })
           ).then(finishedSchemas => {
             resolve(finishedSchemas)
+          }).catch(error => {
+            reject(MESSAGES.SCHEMA_HANDLER_ERROR + error.toString())
           })
         }).catch(error => {
-          reject(error)
+          reject(MESSAGES.SCHEMA_HANDLER_ERROR + error.toString())
         })
       }).catch(error => {
-        reject(error)
+        reject(MESSAGES.SCHEMA_HANDLER_ERROR + error.toString())
       })
     }).catch(error => {
       reject(error)
