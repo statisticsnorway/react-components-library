@@ -13,3 +13,12 @@ export function extractName (string) {
     return string
   }
 }
+
+export function setVersion (version, versionIncrementation) {
+  const versionIncrement = parseInt(versionIncrementation)
+  const versionArray = version.split('.')
+
+  versionArray[versionIncrement] = parseInt(versionArray[versionIncrement]) + 1
+
+  return versionArray.join('.')
+}

@@ -1,3 +1,4 @@
+import DefaultUISchema from '../../producers/default/DefaultUISchema'
 import DefaultGSIMUISchema from '../../producers/gsim/DefaultGSIMUISchema'
 import { extractName } from '../Common'
 
@@ -5,6 +6,9 @@ function producers (producer) {
   switch (producer) {
     case 'GSIM':
       return DefaultGSIMUISchema
+
+    case 'Default':
+      return DefaultUISchema
 
     default:
       return null

@@ -1,3 +1,4 @@
+import { updateDefaultDataState, updateNewDefaultDataState } from '../../producers/default'
 import { updateGSIMDataState, updateNewGSIMDataState } from '../../producers/gsim'
 import { extractName } from '../Common'
 
@@ -8,6 +9,12 @@ function producers (producer, element, user, version, versionIncrementation) {
 
     case 'GSIMNew':
       return updateNewGSIMDataState(element, user)
+
+    case 'Default':
+      return updateDefaultDataState(element, version, versionIncrementation)
+
+    case 'DefaultNew':
+      return updateNewDefaultDataState(element)
 
     default:
       return null

@@ -2,7 +2,16 @@ export const GSIM = {
   name: 'GSIM',
   producer: 'GSIM',
   endpoint: 'http://localhost:9090/',
-  route: '/form/',
+  route: '/gsim/',
+  languageCode: 'en',
+  specialFeatures: false
+}
+
+export const Default = {
+  name: 'Default',
+  producer: 'Default',
+  endpoint: 'http://localhost:9090/',
+  route: '/default/',
   languageCode: 'en',
   specialFeatures: false
 }

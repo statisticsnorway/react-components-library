@@ -138,8 +138,8 @@ Because JSONSchemas can have different structures the Producers are functions th
 be used by the UI, all based upon a default UISchema and alternatively special UISchemas for spesific objects
 
 ### Usage
-The `GSIM Producer` comes with the library but if you want to use this library on another structure than GSIM you need to write
-your own producers and provide DefaultUISchema and spesific UISchemas
+A default producer and the `GSIM Producer` comes with the library but if you want to use this library on another structure 
+than GSIMm og basic JSONSchemas you need to writeyour own producers and provide DefaultUISchema and spesific UISchemas
 
 ### How to import this library directly from GitHub (useful in early development)
 1. In your React application run `yarn add https://github.com/statisticsnorway/dc-react-components-library.git` 
