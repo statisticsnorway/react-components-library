@@ -2198,10 +2198,11 @@ function transformGSIMProperties(producer, schema, data, languageCode, fromSourc
           });
           returnData[property] = text;
         } else {
-          var value = returnData[property];
+          // TODO: This array overrides array stored in object in LDS which means it loses stored langauge texts for other
+          // language codes on save.
           returnData[property] = [{
             languageCode: languageCode,
-            languageText: value
+            languageText: data[property]
           }];
         }
       }
