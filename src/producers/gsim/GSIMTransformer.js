@@ -9,7 +9,7 @@ export function transformGSIMProperties (producer, schema, data, languageCode, f
     if (properties[property].hasOwnProperty('customType') && properties[property].customType === 'MultilingualText') {
       if (returnData.hasOwnProperty(property)) {
         if (fromSource) {
-          let text = data.name[0].languageText
+          let text = data[property][0].languageText
 
           data[property].forEach(multilingual => {
             if (multilingual.languageCode === languageCode) {

@@ -4,7 +4,13 @@ import { Button, Dimmer, Form, Grid, Header, Icon, Message, Popup } from 'semant
 import { DCFormField } from 'dc-react-form-fields-library'
 import { defaultVersioning } from '../producers'
 import { extractName, splitOnUppercase } from '../utilities/Common'
-import { saveData, setAutofillAndClean, updateAutofill, validation } from '../utilities/data-handling'
+import {
+  saveData,
+  setAutofillAndClean,
+  transformProperties,
+  updateAutofill,
+  validation
+} from '../utilities/data-handling'
 import { fillDataState, generateDataState, populateOptions } from '../utilities/schema-handling'
 import { DIV, MESSAGES, UI } from '../utilities/Enum'
 import { setDataToSchema } from '../utilities/schema-handling/DataState'
@@ -199,17 +205,19 @@ class DCFormBuilder extends Component {
       validation(copiedSchema, data, languageCode).then(schemaWithoutErrors => {
         updateAutofill(producer, schemaWithoutErrors, data, user, versionIncrementation, isNew).then(autofilledData => {
           setAutofillAndClean(schemaWithoutErrors, autofilledData, hiddenFields).then(finished => {
-            const downloadableJson = 'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(finished.returnData, null, ' '))
-            const downloadLink = <a href={`data: ${downloadableJson}`}
-                                    download={name + DIV.JSON_FILE_ENDING}>{UI.DOWNLOAD_JSON[languageCode]}</a>
+            transformProperties(producer, finished.returnSchema, finished.returnData, languageCode, false).then(saveableData => {
+              const downloadableJson = 'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(saveableData, null, ' '))
+              const downloadLink = <a href={`data: ${downloadableJson}`}
+                                      download={name + DIV.JSON_FILE_ENDING}>{UI.DOWNLOAD_JSON[languageCode]}</a>
 
-            this.setState({
-              schema: finished.returnSchema,
-              data: finished.returnData,
-              saved: true,
-              message: downloadLink
-            }, () => {
-              this.setState({ready: true})
+              this.setState({
+                schema: finished.returnSchema,
+                data: finished.returnData,
+                saved: true,
+                message: downloadLink
+              }, () => {
+                this.setState({ready: true})
+              })
             })
           })
         })
