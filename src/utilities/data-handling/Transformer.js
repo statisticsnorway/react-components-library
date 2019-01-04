@@ -1,3 +1,4 @@
+import DefaultUISchema from '../../producers/default/DefaultUISchema'
 import DefaultGSIMUISchema from '../../producers/gsim/DefaultGSIMUISchema'
 import { transformGSIMProperties } from '../../producers/gsim'
 import { extractName } from '../Common'
@@ -6,6 +7,9 @@ function producers (producer) {
   switch (producer) {
     case 'GSIM':
       return DefaultGSIMUISchema
+
+    case 'Default':
+      return DefaultUISchema
 
     default:
       return null
@@ -16,6 +20,9 @@ function producersSpecialProperties (producer, schema, data, languageCode, fromS
   switch (producer) {
     case 'GSIM':
       return transformGSIMProperties(producer, schema, data, languageCode, fromSource)
+
+    case 'Default':
+      return data
 
     default:
       return null

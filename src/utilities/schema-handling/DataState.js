@@ -1,3 +1,4 @@
+import { generateDefaultDataState } from '../../producers/default'
 import { generateGSIMDataState } from '../../producers/gsim'
 import { transformProperties } from '../data-handling'
 import { fetchData } from '../http-clients/fetch'
@@ -16,6 +17,9 @@ function producers (producer, element, user) {
   switch (producer) {
     case 'GSIM':
       return generateGSIMDataState(element, user)
+
+    case 'Default':
+      return generateDefaultDataState(element)
 
     default:
       return null

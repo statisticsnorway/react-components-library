@@ -1,3 +1,4 @@
+import { fetchDefaultOptions } from '../../producers/default'
 import { fetchGSIMOptions } from '../../producers/gsim'
 import { extractName } from '../Common'
 
@@ -5,6 +6,9 @@ export function fetchOptions (producer, url, languageCode, addPrefix) {
   switch (producer) {
     case 'GSIM':
       return fetchGSIMOptions(url, languageCode, addPrefix)
+
+    case 'Default':
+      return fetchDefaultOptions(url, languageCode, addPrefix)
 
     default:
       return null
