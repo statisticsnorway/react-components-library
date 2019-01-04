@@ -4,14 +4,14 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var reactDatepicker = _interopDefault(require('react-datepicker'));
-var moment = _interopDefault(require('moment'));
 var React = require('react');
 var React__default = _interopDefault(React);
-var ReactTable = _interopDefault(require('react-table'));
-var reactRouterDom = require('react-router-dom');
 var semanticUiReact = require('semantic-ui-react');
 var semanticUiReact__default = _interopDefault(semanticUiReact);
+var reactDatepicker = _interopDefault(require('react-datepicker'));
+var moment = _interopDefault(require('moment'));
+var ReactTable = _interopDefault(require('react-table'));
+var reactRouterDom = require('react-router-dom');
 
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -144,10 +144,10 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
-var DatePicker = _interopDefault(reactDatepicker);
 
 var React__default$$1 = _interopDefault(React__default);
 
+var DatePicker = _interopDefault(reactDatepicker);
 var moment$$1 = _interopDefault(moment);
 
 function _typeof(obj) {
@@ -271,6 +271,22 @@ function _nonIterableSpread() {
   throw new TypeError("Invalid attempt to spread non-iterable instance");
 }
 
+var UI = {
+  LINK: 'Link',
+  NO_OPTIONS: {
+    en: 'No options',
+    nb: 'Ingen valg'
+  },
+  OPTIONS: {
+    en: 'Pick one',
+    nb: 'Velg'
+  },
+  TODAY: {
+    en: 'Today',
+    nb: 'I dag'
+  }
+};
+
 var InlineError = function InlineError(_ref) {
   var text = _ref.text;
   return React__default$$1.createElement("span", {
@@ -297,7 +313,29 @@ var structureDescription = function structureDescription(description) {
   }));
 };
 
-function fullFormField(displayName, description, error, warning, required, component) {
+var links = function links(route, value) {
+  if (value !== '' && value !== undefined && value !== null) {
+    if (route === undefined) {
+      route = '';
+    }
+
+    if (Array.isArray(value)) {
+      return React__default$$1.createElement("div", null, value.map(function (thing, index) {
+        return React__default$$1.createElement("a", {
+          key: index,
+          href: route + thing
+        }, UI.LINK, " #", index + 1, React__default$$1.createElement("br", null));
+      }));
+    } else {
+      return React__default$$1.createElement("div", null, React__default$$1.createElement("a", {
+        href: route + value
+      }, UI.LINK));
+    }
+  } else {
+    return null;
+  }
+};
+function fullFormField(displayName, description, error, warning, required, component, showLinks, value, route) {
   return React__default$$1.createElement(semanticUiReact__default.Form.Field, {
     error: !!error,
     required: required
@@ -308,7 +346,7 @@ function fullFormField(displayName, description, error, warning, required, compo
     wide: "very",
     trigger: React__default$$1.createElement("label", null, displayName),
     content: structureDescription(description)
-  }), component, warning && !error && React__default$$1.createElement(InlineWarning, {
+  }), component, showLinks && links(route, value), warning && !error && React__default$$1.createElement(InlineWarning, {
     text: warning
   }), error && !warning && React__default$$1.createElement(InlineError, {
     text: error
@@ -621,21 +659,6 @@ function (_Component) {
   return DCRadio;
 }(React__default.Component);
 
-var UI = {
-  NO_OPTIONS: {
-    en: 'No options',
-    nb: 'Ingen valg'
-  },
-  OPTIONS: {
-    en: 'Pick one',
-    nb: 'Velg'
-  },
-  TODAY: {
-    en: 'Today',
-    nb: 'I dag'
-  }
-};
-
 var DCDate =
 /*#__PURE__*/
 function (_Component) {
@@ -675,7 +698,7 @@ function (_Component) {
 
     _this.handleAddEntry = function () {
       _this.setState({
-        value: _toConsumableArray(_this.state.value).concat([null])
+        value: [].concat(_toConsumableArray(_this.state.value), [null])
       }, function () {
         return _this.props.valueChange(_this.props.name, _this.state.value);
       });
@@ -928,7 +951,9 @@ function (_Component) {
           required = _this$props2.required,
           multiSelect = _this$props2.multiSelect,
           searchable = _this$props2.searchable,
-          languageCode = _this$props2.languageCode;
+          languageCode = _this$props2.languageCode,
+          showLinks = _this$props2.showLinks,
+          route = _this$props2.route;
 
       if (!ready) {
         var component = React__default$$1.createElement(semanticUiReact__default.Dropdown, {
@@ -969,7 +994,7 @@ function (_Component) {
           }
         });
 
-        return fullFormField(displayName, description, error, warning, required, _component2);
+        return fullFormField(displayName, description, error, warning, required, _component2, showLinks, value, route);
       }
 
       return null;
@@ -998,7 +1023,7 @@ function (_Component) {
           multiValue = _this$props.multiValue;
 
       _this.setState({
-        value: _toConsumableArray(_this.state.value).concat([{
+        value: [].concat(_toConsumableArray(_this.state.value), [{
           text: multiValue ? [''] : '',
           option: ''
         }])
@@ -1131,7 +1156,7 @@ function (_Component) {
 
       var entries = _toConsumableArray(this.state.value);
 
-      entries[parseInt(index)].text = _toConsumableArray(this.state.value[parseInt(index)].text).concat(['']);
+      entries[parseInt(index)].text = [].concat(_toConsumableArray(this.state.value[parseInt(index)].text), ['']);
       this.setState({
         value: entries
       }, function () {
@@ -1178,7 +1203,9 @@ function (_Component) {
           warning = _this$props7.warning,
           required = _this$props7.required,
           multiValue = _this$props7.multiValue,
-          languageCode = _this$props7.languageCode;
+          languageCode = _this$props7.languageCode,
+          showLinks = _this$props7.showLinks,
+          route = _this$props7.route;
 
       if (!ready) {
         var component = React__default$$1.createElement(semanticUiReact__default.Grid, {
@@ -1252,7 +1279,7 @@ function (_Component) {
               margin: 0,
               paddingLeft: 0
             }
-          }, dropdown), multiValue && React__default$$1.createElement(semanticUiReact__default.Grid.Column, {
+          }, dropdown, showLinks && links(route, entry.option)), multiValue && React__default$$1.createElement(semanticUiReact__default.Grid.Column, {
             width: 7,
             style: {
               margin: 0
@@ -1295,7 +1322,7 @@ function (_Component) {
             actionPosition: "left",
             onChange: _this9.handleInputChange.bind(_this9, index, index),
             action: dropdown
-          })));
+          }), showLinks && links(route, entry.option)));
         }), React__default$$1.createElement(semanticUiReact__default.Grid.Row, {
           style: {
             paddingTop: 0
@@ -1554,6 +1581,15 @@ function setVersion(version, versionIncrementation) {
   versionArray[versionIncrement] = parseInt(versionArray[versionIncrement]) + 1;
   return versionArray.join('.');
 }
+function handleRoute(route) {
+  if (typeof route === 'string') {
+    if (route.endsWith('/')) {
+      return route.substring(0, route.length - 1);
+    } else {
+      return route;
+    }
+  }
+}
 
 var uuidv4 = require('uuid/v4');
 
@@ -1588,18 +1624,24 @@ function updateDefaultDataState(element, version, versionIncrementation) {
   }
 }
 
-function resolveReferences(properties, returnSchema, schema, key, name) {
+function resolveReferences(properties, returnSchema, schema, key, name, specialFeatures, route) {
   var customType = extractName(properties[key].items.$ref);
   returnSchema[name].properties[key].customType = customType;
   returnSchema[name].properties[key].description.push('Input type: ' + customType);
   returnSchema[name].properties[key].multiValue = true;
   returnSchema[name].properties[key].component = 'DCMultiInput';
+
+  if (specialFeatures) {
+    returnSchema[name].properties[key].showLinks = true;
+    returnSchema[name].properties[key].route = handleRoute(route);
+  }
+
   Object.keys(schema[customType].properties).forEach(function (property) {
     returnSchema[name].properties[key].description.push(schema[customType].properties[property].displayName + ': ' + returnSchema[customType].properties[property].description);
   });
 }
 
-function resolveLinks(properties, returnSchema, url, key) {
+function resolveLinks(properties, returnSchema, url, key, specialFeatures, route) {
   var linkedKey = key.replace('_link_property_', '');
   var endpoints = [];
   Object.keys(properties[key].properties).forEach(function (property) {
@@ -1608,6 +1650,11 @@ function resolveLinks(properties, returnSchema, url, key) {
   returnSchema[linkedKey].endpoints = endpoints;
   returnSchema[linkedKey].component = 'DCDropdown';
 
+  if (specialFeatures) {
+    returnSchema[linkedKey].showLinks = true;
+    returnSchema[linkedKey].route = handleRoute(route);
+  }
+
   if (properties[linkedKey].type === 'array') {
     returnSchema[linkedKey].multiSelect = true;
   }
@@ -1615,7 +1662,7 @@ function resolveLinks(properties, returnSchema, url, key) {
   delete returnSchema[key];
 }
 
-function resolveDefaultProperties(schema, url) {
+function resolveDefaultProperties(schema, url, specialFeatures, route) {
   return new Promise(function (resolve) {
     var returnSchema = JSON.parse(JSON.stringify(schema));
     var name = extractName(schema.$ref);
@@ -1627,7 +1674,7 @@ function resolveDefaultProperties(schema, url) {
 
       if (properties[key].hasOwnProperty('items')) {
         if (properties[key].items.hasOwnProperty('$ref')) {
-          resolveReferences(properties, returnSchema.definitions, schema.definitions, key, name);
+          resolveReferences(properties, returnSchema.definitions, schema.definitions, key, name, specialFeatures, route);
         }
 
         if (properties[key].items.hasOwnProperty('format') && properties[key].items.format === 'date-time') {
@@ -2083,7 +2130,7 @@ var DefaultGSIMUISchema = {
 	icons: icons$1
 };
 
-function resolveReferences$1(properties, returnSchema, schema, key, name) {
+function resolveReferences$1(properties, returnSchema, schema, key, name, specialFeatures, route) {
   var customType = extractName(properties[key].items.$ref);
   returnSchema[name].properties[key].customType = customType;
   returnSchema[name].properties[key].description.push('Input type: ' + customType);
@@ -2093,6 +2140,11 @@ function resolveReferences$1(properties, returnSchema, schema, key, name) {
   } else {
     returnSchema[name].properties[key].multiValue = true;
     returnSchema[name].properties[key].component = 'DCMultiInput';
+
+    if (specialFeatures) {
+      returnSchema[name].properties[key].showLinks = true;
+      returnSchema[name].properties[key].route = handleRoute(route);
+    }
   }
 
   Object.keys(schema[customType].properties).forEach(function (property) {
@@ -2107,13 +2159,15 @@ function resolveReferences$1(properties, returnSchema, schema, key, name) {
       });
       returnSchema[name].properties[key].options = options;
       delete returnSchema[customType].properties[property].enum;
+      delete returnSchema[name].properties[key].showLinks;
+      delete returnSchema[name].properties[key].route;
     }
 
     returnSchema[name].properties[key].description.push(schema[customType].properties[property].displayName + ': ' + returnSchema[customType].properties[property].description);
   });
 }
 
-function resolveLinks$1(properties, returnSchema, url, key) {
+function resolveLinks$1(properties, returnSchema, url, key, specialFeatures, route) {
   var linkedKey = key.replace('_link_property_', '');
   var endpoints = [];
   Object.keys(properties[key].properties).forEach(function (property) {
@@ -2121,6 +2175,11 @@ function resolveLinks$1(properties, returnSchema, url, key) {
   });
   returnSchema[linkedKey].endpoints = endpoints;
   returnSchema[linkedKey].component = 'DCDropdown';
+
+  if (specialFeatures) {
+    returnSchema[linkedKey].showLinks = true;
+    returnSchema[linkedKey].route = handleRoute(route);
+  }
 
   if (properties[linkedKey].type === 'array') {
     returnSchema[linkedKey].multiSelect = true;
@@ -2143,7 +2202,7 @@ function resolveEnums(properties, returnSchema) {
   delete returnSchema.enum;
 }
 
-function resolveGSIMProperties(schema, url) {
+function resolveGSIMProperties(schema, url, specialFeatures, route) {
   return new Promise(function (resolve) {
     var returnSchema = JSON.parse(JSON.stringify(schema));
     var name = extractName(schema.$ref);
@@ -2155,7 +2214,7 @@ function resolveGSIMProperties(schema, url) {
 
       if (properties[key].hasOwnProperty('items')) {
         if (properties[key].items.hasOwnProperty('$ref')) {
-          resolveReferences$1(properties, returnSchema.definitions, schema.definitions, key, name);
+          resolveReferences$1(properties, returnSchema.definitions, schema.definitions, key, name, specialFeatures, route);
         }
 
         if (properties[key].items.hasOwnProperty('format') && properties[key].items.format === 'date-time') {
@@ -2167,7 +2226,7 @@ function resolveGSIMProperties(schema, url) {
       }
 
       if (key.startsWith('_link_property_')) {
-        resolveLinks$1(properties, returnSchema.definitions[name].properties, url, key);
+        resolveLinks$1(properties, returnSchema.definitions[name].properties, url, key, specialFeatures, route);
       }
 
       if (properties[key].hasOwnProperty('enum')) {
@@ -2736,13 +2795,13 @@ function populateOptions(producer, schema, languageCode) {
   });
 }
 
-function resolveProperties(producer, schema, url) {
+function resolveProperties(producer, schema, url, specialFeatures, route) {
   switch (producer) {
     case 'GSIM':
-      return resolveGSIMProperties(schema, url);
+      return resolveGSIMProperties(schema, url, specialFeatures, route);
 
     case 'Default':
-      return resolveDefaultProperties(schema, url);
+      return resolveDefaultProperties(schema, url, specialFeatures, route);
 
     default:
       return null;
@@ -3199,14 +3258,14 @@ function (_Component) {
   return DCFormBuilder;
 }(React.Component);
 
-function SchemaHandler(url, producer, endpoint) {
+function SchemaHandler(url, producer, endpoint, specialFeatures, route) {
   return new Promise(function (resolve, reject) {
     fetchData(url).then(function (result) {
       Promise.all(result.map(function (schema) {
         return mergeDefaultUISchema(producer, schema);
       })).then(function (mergedSchemas) {
         Promise.all(mergedSchemas.map(function (mergedSchema) {
-          return resolveProperties(producer, mergedSchema, endpoint);
+          return resolveProperties(producer, mergedSchema, endpoint, specialFeatures, route);
         })).then(function (resolvedSchemas) {
           Promise.all(resolvedSchemas.map(function (resolvedSchema) {
             return mergeUISchema(producer, resolvedSchema);

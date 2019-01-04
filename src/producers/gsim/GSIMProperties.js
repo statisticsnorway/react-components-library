@@ -1,7 +1,7 @@
 import DefaultGSIMUISchema from './DefaultGSIMUISchema'
-import { extractName } from '../../utilities/Common'
+import { extractName, handleRoute } from '../../utilities/Common'
 
-function resolveReferences (properties, returnSchema, schema, key, name) {
+function resolveReferences (properties, returnSchema, schema, key, name, specialFeatures, route) {
   const customType = extractName(properties[key].items.$ref)
 
   returnSchema[name].properties[key].customType = customType
@@ -12,6 +12,11 @@ function resolveReferences (properties, returnSchema, schema, key, name) {
   } else {
     returnSchema[name].properties[key].multiValue = true
     returnSchema[name].properties[key].component = 'DCMultiInput'
+
+    if (specialFeatures) {
+      returnSchema[name].properties[key].showLinks = true
+      returnSchema[name].properties[key].route = handleRoute(route)
+    }
   }
 
   Object.keys(schema[customType].properties).forEach(property => {
@@ -25,6 +30,8 @@ function resolveReferences (properties, returnSchema, schema, key, name) {
       returnSchema[name].properties[key].options = options
 
       delete returnSchema[customType].properties[property].enum
+      delete returnSchema[name].properties[key].showLinks
+      delete returnSchema[name].properties[key].route
     }
 
     returnSchema[name].properties[key].description.push(
@@ -34,7 +41,7 @@ function resolveReferences (properties, returnSchema, schema, key, name) {
   })
 }
 
-function resolveLinks (properties, returnSchema, url, key) {
+function resolveLinks (properties, returnSchema, url, key, specialFeatures, route) {
   const linkedKey = key.replace('_link_property_', '')
   const endpoints = []
 
@@ -44,6 +51,11 @@ function resolveLinks (properties, returnSchema, url, key) {
 
   returnSchema[linkedKey].endpoints = endpoints
   returnSchema[linkedKey].component = 'DCDropdown'
+
+  if (specialFeatures) {
+    returnSchema[linkedKey].showLinks = true
+    returnSchema[linkedKey].route = handleRoute(route)
+  }
 
   if (properties[linkedKey].type === 'array') {
     returnSchema[linkedKey].multiSelect = true
@@ -65,7 +77,7 @@ function resolveEnums (properties, returnSchema) {
   delete returnSchema.enum
 }
 
-export function resolveGSIMProperties (schema, url) {
+export function resolveGSIMProperties (schema, url, specialFeatures, route) {
   return new Promise(resolve => {
     const returnSchema = JSON.parse(JSON.stringify(schema))
     const name = extractName(schema.$ref)
@@ -79,7 +91,7 @@ export function resolveGSIMProperties (schema, url) {
 
       if (properties[key].hasOwnProperty('items')) {
         if (properties[key].items.hasOwnProperty('$ref')) {
-          resolveReferences(properties, returnSchema.definitions, schema.definitions, key, name)
+          resolveReferences(properties, returnSchema.definitions, schema.definitions, key, name, specialFeatures, route)
         }
 
         if (properties[key].items.hasOwnProperty('format') && properties[key].items.format === 'date-time') {
@@ -91,7 +103,7 @@ export function resolveGSIMProperties (schema, url) {
       }
 
       if (key.startsWith('_link_property_')) {
-        resolveLinks(properties, returnSchema.definitions[name].properties, url, key)
+        resolveLinks(properties, returnSchema.definitions[name].properties, url, key, specialFeatures, route)
       }
 
       if (properties[key].hasOwnProperty('enum')) {
