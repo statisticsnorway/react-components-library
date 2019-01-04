@@ -2190,7 +2190,7 @@ function transformGSIMProperties(producer, schema, data, languageCode, fromSourc
     if (properties[property].hasOwnProperty('customType') && properties[property].customType === 'MultilingualText') {
       if (returnData.hasOwnProperty(property)) {
         if (fromSource) {
-          var text = data.name[0].languageText;
+          var text = data[property][0].languageText;
           data[property].forEach(function (multilingual) {
             if (multilingual.languageCode === languageCode) {
               text = multilingual.languageText;
@@ -2198,10 +2198,11 @@ function transformGSIMProperties(producer, schema, data, languageCode, fromSourc
           });
           returnData[property] = text;
         } else {
-          var value = returnData[property];
+          // TODO: This array overrides array stored in object in LDS which means it loses stored langauge texts for other
+          // language codes on save.
           returnData[property] = [{
             languageCode: languageCode,
-            languageText: value
+            languageText: data[property]
           }];
         }
       }
@@ -2889,20 +2890,22 @@ function (_Component) {
         validation(copiedSchema, data, languageCode).then(function (schemaWithoutErrors) {
           updateAutofill(producer, schemaWithoutErrors, data, user, versionIncrementation, isNew).then(function (autofilledData) {
             setAutofillAndClean(schemaWithoutErrors, autofilledData, hiddenFields).then(function (finished) {
-              var downloadableJson = 'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(finished.returnData, null, ' '));
-              var downloadLink = React__default.createElement("a", {
-                href: "data: ".concat(downloadableJson),
-                download: name + DIV.JSON_FILE_ENDING
-              }, UI.DOWNLOAD_JSON[languageCode]);
+              transformProperties(producer, finished.returnSchema, finished.returnData, languageCode, false).then(function (saveableData) {
+                var downloadableJson = 'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(saveableData, null, ' '));
+                var downloadLink = React__default.createElement("a", {
+                  href: "data: ".concat(downloadableJson),
+                  download: name + DIV.JSON_FILE_ENDING
+                }, UI.DOWNLOAD_JSON[languageCode]);
 
-              _this.setState({
-                schema: finished.returnSchema,
-                data: finished.returnData,
-                saved: true,
-                message: downloadLink
-              }, function () {
                 _this.setState({
-                  ready: true
+                  schema: finished.returnSchema,
+                  data: finished.returnData,
+                  saved: true,
+                  message: downloadLink
+                }, function () {
+                  _this.setState({
+                    ready: true
+                  });
                 });
               });
             });
