@@ -16,10 +16,10 @@ class Forms extends Component {
   }
 
   componentDidMount () {
-    const {producer, endpoint} = this.props
+    const {producer, endpoint, specialFeatures, route} = this.props
     const updatedUrl = endpoint + 'data?schema=embed'
 
-    SchemaHandler(updatedUrl, producer, endpoint).then(schemas => {
+    SchemaHandler(updatedUrl, producer, endpoint, specialFeatures, route).then(schemas => {
       this.setState({
         schemas: schemas,
         ready: true

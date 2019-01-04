@@ -22,3 +22,13 @@ export function setVersion (version, versionIncrementation) {
 
   return versionArray.join('.')
 }
+
+export function handleRoute (route) {
+  if (typeof route === 'string') {
+    if (route.endsWith('/')) {
+      return route.substring(0, route.length - 1)
+    } else {
+      return route
+    }
+  }
+}
