@@ -55,6 +55,8 @@ function transformDefaultProperties (producer, schema, data, fromSource) {
             returnData[property].forEach((value, index) => {
               Object.keys(transformer[transformable]).forEach(transformKey => {
                 if (fromSource) {
+                  // TODO: If this variable is an array and any of its elements is null, the input fields does not handle them
+                  // correctly. This must either be adressed in the backend or here. Awaiting discussion.
                   returnData[property][index][transformKey] = returnData[property][index][transformer[transformable][transformKey]]
 
                   delete returnData[property][index][transformer[transformable][transformKey]]

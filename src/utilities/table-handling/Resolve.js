@@ -20,10 +20,10 @@ export function resolveTableHeaders (producer) {
   return producers(producer).table.defaultTableHeaders
 }
 
-export function resolveTableObject (producer, data) {
+export function resolveTableObject (producer, data, languageCode) {
   switch (producer) {
     case 'GSIM':
-      return resolveGSIMTableObject(data)
+      return resolveGSIMTableObject(data, languageCode)
 
     case 'Default':
       return resolveDefaultTableObject(data)
