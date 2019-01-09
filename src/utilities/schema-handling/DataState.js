@@ -63,7 +63,7 @@ export function fillDataState (producer, schema, id, endpoint, languageCode) {
   })
 }
 
-export function setDataToSchema (schema, data) {
+export function setDataToSchema (schema, data, languageCode) {
   return new Promise(resolve => {
     const name = extractName(schema.$ref)
     const returnSchema = JSON.parse(JSON.stringify(schema))
@@ -75,6 +75,18 @@ export function setDataToSchema (schema, data) {
       if (properties[key].hasOwnProperty('autofilled')) {
         properties[key].value = [data[key]]
       } else {
+        if (properties[key].component === 'DCDropdown') {
+          if (!properties[key].options.some(r => data[key].includes(r.value))) {
+            properties[key].warning = MESSAGES.MISSING_LINK[languageCode]
+          }
+        }
+
+        if (properties[key].component === 'DCMultiInput') {
+          if (data[key].hasOwnProperty('option') && !properties[key].options.some(r => data[key].option === r.value)) {
+            properties[key].warning = MESSAGES.MISSING_LINK[languageCode]
+          }
+        }
+
         properties[key].value = data[key]
       }
     })
