@@ -53,14 +53,14 @@ class DCTableBuilder extends Component {
   }
 
   componentDidMount () {
-    const {producer, endpoint} = this.props
+    const {producer, endpoint, languageCode} = this.props
     const url = endpoint + 'data/' + this.state.name
     const tableData = []
 
     fetchData(url).then(result => {
       if (result.length !== 0) {
         result.forEach(data => {
-          tableData.push(resolveTableObject(producer, data))
+          tableData.push(resolveTableObject(producer, data, languageCode))
         })
       }
 

@@ -2513,6 +2513,8 @@ function transformDefaultProperties(producer, schema, data, fromSource) {
             returnData[property].forEach(function (value, index) {
               Object.keys(transformer$$1[transformable]).forEach(function (transformKey) {
                 if (fromSource) {
+                  // TODO: If this variable is an array and any of its elements is null, the input fields does not handle them
+                  // correctly. This must either be adressed in the backend or here. Awaiting discussion.
                   returnData[property][index][transformKey] = returnData[property][index][transformer$$1[transformable][transformKey]];
                   delete returnData[property][index][transformer$$1[transformable][transformKey]];
                 } else {
@@ -3302,10 +3304,10 @@ function producers$4(producer) {
 function resolveTableHeaders(producer) {
   return producers$4(producer).table.defaultTableHeaders;
 }
-function resolveTableObject(producer, data) {
+function resolveTableObject(producer, data, languageCode) {
   switch (producer) {
     case 'GSIM':
-      return resolveGSIMTableObject(data);
+      return resolveGSIMTableObject(data, languageCode);
 
     case 'Default':
       return resolveDefaultTableObject(data);
@@ -3387,13 +3389,14 @@ function (_Component) {
 
       var _this$props2 = this.props,
           producer = _this$props2.producer,
-          endpoint = _this$props2.endpoint;
+          endpoint = _this$props2.endpoint,
+          languageCode = _this$props2.languageCode;
       var url = endpoint + 'data/' + this.state.name;
       var tableData = [];
       fetchData(url).then(function (result) {
         if (result.length !== 0) {
           result.forEach(function (data) {
-            tableData.push(resolveTableObject(producer, data));
+            tableData.push(resolveTableObject(producer, data, languageCode));
           });
         }
 
