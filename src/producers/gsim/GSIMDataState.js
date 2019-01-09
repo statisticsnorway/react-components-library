@@ -1,15 +1,8 @@
 import moment from 'moment'
 
+import { setVersion } from '../../utilities/Common'
+
 const uuidv4 = require('uuid/v4')
-
-function setVersion (version, versionIncrementation) {
-  const versionIncrement = parseInt(versionIncrementation)
-  const versionArray = version.split('.')
-
-  versionArray[versionIncrement] = parseInt(versionArray[versionIncrement]) + 1
-
-  return versionArray.join('.')
-}
 
 export function generateGSIMDataState (element, user) {
   switch (element) {

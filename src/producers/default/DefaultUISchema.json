@@ -1,0 +1,39 @@
+{
+  "type": {
+    "string": {
+      "component": "DCText"
+    },
+    "array": {
+      "component": "DCDropdown"
+    },
+    "number": {
+      "component": "DCNumber"
+    },
+    "boolean": {
+      "component": "DCBoolean"
+    },
+    "object": {
+      "component": "DCMultiInput"
+    }
+  },
+  "format": {
+    "date-time": {
+      "component": "DCDate"
+    }
+  },
+  "autofilled": [
+    "id",
+    "version"
+  ],
+  "groups": {
+    "common": []
+  },
+  "transformer": {},
+  "table": {
+    "defaultTableHeaders": [
+      "id"
+    ],
+    "needsTransforming": {}
+  },
+  "icons": {}
+}

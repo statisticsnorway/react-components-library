@@ -9,7 +9,7 @@ export function transformGSIMProperties (producer, schema, data, languageCode, f
     if (properties[property].hasOwnProperty('customType') && properties[property].customType === 'MultilingualText') {
       if (returnData.hasOwnProperty(property)) {
         if (fromSource) {
-          let text = data.name[0].languageText
+          let text = data[property][0].languageText
 
           data[property].forEach(multilingual => {
             if (multilingual.languageCode === languageCode) {
@@ -19,12 +19,13 @@ export function transformGSIMProperties (producer, schema, data, languageCode, f
 
           returnData[property] = text
         } else {
-          const value = returnData[property]
-
-          returnData[property] = [{languageCode: languageCode, languageText: value}]
+          // TODO: This array overrides array stored in object in LDS which means it loses stored langauge texts for other
+          // language codes on save.
+          returnData[property] = [{languageCode: languageCode, languageText: data[property]}]
         }
       }
     }
   })
+
   return returnData
 }

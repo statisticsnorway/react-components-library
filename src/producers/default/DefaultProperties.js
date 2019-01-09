@@ -1,39 +1,21 @@
-import DefaultGSIMUISchema from './DefaultGSIMUISchema'
 import { extractName, handleRoute } from '../../utilities/Common'
 
+// TODO: There is little difference between producers here that should be dealt with
 function resolveReferences (properties, returnSchema, schema, key, name, specialFeatures, route) {
   const customType = extractName(properties[key].items.$ref)
 
   returnSchema[name].properties[key].customType = customType
   returnSchema[name].properties[key].description.push('Input type: ' + customType)
 
-  if (customType === 'MultilingualText') {
-    returnSchema[name].properties[key].component = 'DCText'
-  } else {
-    returnSchema[name].properties[key].multiValue = true
-    returnSchema[name].properties[key].component = 'DCMultiInput'
+  returnSchema[name].properties[key].multiValue = true
+  returnSchema[name].properties[key].component = 'DCMultiInput'
 
-    if (specialFeatures) {
-      returnSchema[name].properties[key].showLinks = true
-      returnSchema[name].properties[key].route = handleRoute(route)
-    }
+  if (specialFeatures) {
+    returnSchema[name].properties[key].showLinks = true
+    returnSchema[name].properties[key].route = handleRoute(route)
   }
 
   Object.keys(schema[customType].properties).forEach(property => {
-    if (schema[customType].properties[property].hasOwnProperty('enum')) {
-      const options = []
-
-      schema[customType].properties[property].enum.forEach(value => {
-        options.push({key: value, text: value, value: value})
-      })
-
-      returnSchema[name].properties[key].options = options
-
-      delete returnSchema[customType].properties[property].enum
-      delete returnSchema[name].properties[key].showLinks
-      delete returnSchema[name].properties[key].route
-    }
-
     returnSchema[name].properties[key].description.push(
       schema[customType].properties[property].displayName + ': '
       + returnSchema[customType].properties[property].description
@@ -64,20 +46,7 @@ function resolveLinks (properties, returnSchema, url, key, specialFeatures, rout
   delete returnSchema[key]
 }
 
-function resolveEnums (properties, returnSchema) {
-  const options = []
-
-  properties.enum.forEach(value => {
-    options.push({key: value, text: value, value: value})
-  })
-
-  returnSchema.options = options
-  returnSchema.component = 'DCDropdown'
-
-  delete returnSchema.enum
-}
-
-export function resolveGSIMProperties (schema, url, specialFeatures, route) {
+export function resolveDefaultProperties (schema, url, specialFeatures, route) {
   return new Promise(resolve => {
     const returnSchema = JSON.parse(JSON.stringify(schema))
     const name = extractName(schema.$ref)
@@ -103,15 +72,7 @@ export function resolveGSIMProperties (schema, url, specialFeatures, route) {
       }
 
       if (key.startsWith('_link_property_')) {
-        resolveLinks(properties, returnSchema.definitions[name].properties, url, key, specialFeatures, route)
-      }
-
-      if (properties[key].hasOwnProperty('enum')) {
-        resolveEnums(properties[key], returnSchema.definitions[name].properties[key])
-      }
-
-      if (DefaultGSIMUISchema.icons.user.includes(key)) {
-        returnSchema.definitions[name].properties[key].icon = 'user'
+        resolveLinks(properties, returnSchema.definitions[name].properties, url, key)
       }
     })
 

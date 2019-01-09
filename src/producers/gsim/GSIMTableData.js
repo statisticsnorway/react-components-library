@@ -1,4 +1,4 @@
-import DefaultGSIMUISchema from '../../producers/gsim/DefaultGSIMUISchema'
+import DefaultGSIMUISchema from './DefaultGSIMUISchema'
 
 export function resolveGSIMTableObject (data, languageCode) {
   const tableSchema = DefaultGSIMUISchema.table

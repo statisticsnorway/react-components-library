@@ -5,6 +5,9 @@ export function mergeUISchema (producer, schema) {
     case 'GSIM':
       return mergeGSIMUISchema(schema)
 
+    case 'Default':
+      return schema
+
     default:
       return null
   }

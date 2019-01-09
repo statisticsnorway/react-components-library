@@ -2,7 +2,16 @@ export const GSIM = {
   name: 'GSIM',
   producer: 'GSIM',
   endpoint: 'http://localhost:9090/',
-  route: '/form/',
+  route: '/gsim/',
+  languageCode: 'en',
+  specialFeatures: false
+}
+
+export const Default = {
+  name: 'Default',
+  producer: 'Default',
+  endpoint: 'http://localhost:9090/',
+  route: '/default/',
   languageCode: 'en',
   specialFeatures: false
 }
@@ -11,7 +20,7 @@ export const defaultVersioning = {
   component: 'DCRadio',
   name: 'versionIncrementation',
   displayName: 'Version incrementation',
-  description: 'How should the versioning increment?',
+  description: ['How should the versioning increment?'],
   value: '2',
   options: [
     {text: 'Major', value: '0'},
