@@ -1699,6 +1699,10 @@ var DIV = {
   SAGA: 'saga-execution-id'
 };
 var MESSAGES = {
+  CHANGES_MADE: {
+    en: 'Changes has been made since last save',
+    nb: 'Endringer er blitt gjort siden siste lagring'
+  },
   CORRECT_ERRORS: {
     en: 'Object was not saved, correct any errors and try again',
     nb: 'Objektet ble ikke lagret, rett opp feil og prøv igjen'
@@ -1722,6 +1726,10 @@ var MESSAGES = {
   NAME_NOT_FOUND: {
     en: 'Found nothing matching',
     nb: 'Fant ingenting som matcher'
+  },
+  NO_CHANGES_MADE: {
+    en: 'No changes has been made since last save',
+    nb: 'Ingen endringer er blitt gjort siden siste lagring'
   },
   NOT_EMPTY: {
     en: 'Cannot be blank',
@@ -2870,6 +2878,7 @@ function (_Component) {
     _this.handleValueChange = function (name, value) {
       _this.setState({
         data: _objectSpread({}, _this.state.data, _defineProperty({}, name, value)),
+        fresh: false,
         saved: false
       });
     };
@@ -2922,7 +2931,8 @@ function (_Component) {
                   saved: true,
                   message: MESSAGES.WAS_SAVED[languageCode] + savedMessage + ' (' + DIV.SAGA + ': ' + response[DIV.SAGA] + ')',
                   readOnly: true,
-                  isNew: false
+                  isNew: false,
+                  fresh: true
                 }, function () {
                   return _this.setState({
                     ready: true
@@ -3018,7 +3028,8 @@ function (_Component) {
       name: _name,
       description: _this.props.schema.definitions[_name].description,
       problem: false,
-      isNew: _this.props.params.id === 'new'
+      isNew: _this.props.params.id === 'new',
+      fresh: true
     };
     return _this;
   }
@@ -3073,13 +3084,15 @@ function (_Component) {
 
       var _this$state3 = this.state,
           hiddenFields = _this$state3.hiddenFields,
-          data = _this$state3.data;
+          data = _this$state3.data,
+          fresh = _this$state3.fresh;
       var _this$props4 = this.props,
           params = _this$props4.params,
           producer = _this$props4.producer,
           schema = _this$props4.schema,
           user = _this$props4.user;
       if (hiddenFields !== nextState.hiddenFields) return true;
+      if (fresh !== nextState.fresh) return true;
 
       if (params.id !== nextProps.params.id && nextProps.params.id === 'new') {
         this.setState({
@@ -3138,7 +3151,8 @@ function (_Component) {
           name = _this$state4.name,
           description = _this$state4.description,
           problem = _this$state4.problem,
-          isNew = _this$state4.isNew;
+          isNew = _this$state4.isNew,
+          fresh = _this$state4.fresh;
       var _this$props5 = this.props,
           specialFeatures = _this$props5.specialFeatures,
           languageCode = _this$props5.languageCode;
@@ -3163,7 +3177,24 @@ function (_Component) {
         var formIcon = readOnly ? 'lock' : 'unlock';
         var formIconColor = readOnly ? 'red' : 'green';
         var properties = schema.definitions[name].properties;
-        return React__default.createElement(semanticUiReact.Form, null, React__default.createElement(semanticUiReact.Header, {
+        return React__default.createElement(semanticUiReact.Form, null, React__default.createElement(semanticUiReact.Popup, {
+          flowing: true,
+          hideOnScroll: true,
+          position: "left center",
+          trigger: React__default.createElement(semanticUiReact.Label, {
+            attached: "top right",
+            color: fresh ? 'green' : 'orange',
+            circular: true,
+            size: "big",
+            icon: {
+              fitted: true,
+              name: fresh ? 'save' : 'edit'
+            }
+          })
+        }, React__default.createElement(semanticUiReact.Icon, {
+          color: "blue",
+          name: "info circle"
+        }), fresh ? MESSAGES.NO_CHANGES_MADE[languageCode] : MESSAGES.CHANGES_MADE[languageCode]), React__default.createElement(semanticUiReact.Header, {
           as: "h1",
           content: splitOnUppercase(name),
           subheader: description,
