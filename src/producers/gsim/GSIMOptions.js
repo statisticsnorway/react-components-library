@@ -37,6 +37,8 @@ export function fetchGSIMOptions (url, languageCode, addPrefix) {
         resolve([])
       }
     }).catch(error => {
+      // TODO: LDS now responds with 404 if emtpy, that however should not block a form from generating, rather it should
+      // show 'No options'
       reject(error)
     })
   })
