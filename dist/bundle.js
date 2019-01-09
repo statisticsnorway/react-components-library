@@ -2816,7 +2816,12 @@ function populateOptions(producer, schema, languageCode) {
     })).then(function (options) {
       Object.keys(returnSchema.definitions[name].properties).forEach(function (key, index) {
         if (options[index] !== null) {
-          returnSchema.definitions[name].properties[key].options = options[index];
+          returnSchema.definitions[name].properties[key].options = options[index]; // TODO: Only works on DCDropdown. If we want it on DCMultiInput it has to be enabled in dc-react-form-fields
+
+          if (returnSchema.definitions[name].properties[key].options.length > 10) {
+            returnSchema.definitions[name].properties[key].searchable = true;
+          }
+
           delete returnSchema.definitions[name].properties[key].endpoints;
         }
       });
