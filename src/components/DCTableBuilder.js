@@ -58,7 +58,7 @@ class DCTableBuilder extends Component {
     const tableData = []
 
     fetchData(url).then(result => {
-      if (result.length !== 0) {
+      if (Array.isArray(result) && result.length !== 0) {
         result.forEach(data => {
           tableData.push(resolveTableObject(producer, data, languageCode))
         })
