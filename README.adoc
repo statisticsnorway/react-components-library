@@ -3,14 +3,12 @@
 DC React Components Library is a React Component library used for generating complex forms from JSONSchemas with Producers.
 
 === How it works
-
-This library consists of these components:
 * DCFormBuilder
- * This component expects `params, producer, schema`, `languageCode` and `endpoint`
+    ** This component expects `params, producer, schema`, `languageCode` and `endpoint`
 * DCTableBuilder
- * This component expects `params, producer, schema, languageCode, endpoint` and `routing`
+    ** This component expects `params, producer, schema, languageCode, endpoint` and `routing`
 * SchemaHandler
- * This function expects `url, producer` and `endpoint`
+    ** This function expects `url, producer` and `endpoint`
 
 The SchemaHandler fetches JSONSchemas from the provided url, then resolves its properties with help from the Producer.
 The provided endpoint should point to the data storage.
@@ -18,146 +16,138 @@ The provided endpoint should point to the data storage.
 DCFormBuilder and DCTableBuilder use the schema produced by SchemaHandler and builds the UI.
 
 The concept of this library is to be able to produce forms and tables from data stored in
-https://github.com/statisticsnorway/linked-data-store-documentation[LDS].
+https://github.com/statisticsnorway/linked-data-store-docmentation[LDS].
 
 === Example:
 [source]
 ----
-import { DCFormBuilder, DCTableBuilder, SchemaHandler } from 'dc-react-components-library'
+import { DCFormBuilder, DCTableBuilder, SchemaHandler }  from 'dc-react-components-library'
 
 class App extends Component {
- constructor (props) {
- super(props)
- this.state = {
- ready: false,
- schemas: [],
- message: ''
- }
- }
+  constructor (props) {
+    super(props)
+    this.state = {
+      ready: false,
+      schemas: [],
+      message: ''
+    }
+  }
 
-componentDidMount () {
- const {producer, endpoint} = this.props
- const updatedUrl = endpoint + 'data?schema=embed'
-----
+  componentDidMount () {
+    const {producer, endpoint} = this.props
+    const updatedUrl = endpoint + 'data?schema=embed'
 
-[source]
-----
-SchemaHandler(updatedUrl, producer, endpoint).then(schemas => {
-  this.setState({
-    schemas: schemas,
-    ready: true
-  })
-}).catch(error => {
-  this.setState({
-    schemas: [],
-    ready: true,
-    message: error
-  })
-})
-}
-----
 
-[source]
-----
-render () {
- const {ready, schemas, message} = this.state
- const {producer, route, endpoint, languageCode, specialFeatures} = this.props
+   SchemaHandler(updatedUrl, producer, endpoint).then(schemas => {
+      this.setState({
+        schemas: schemas,
+        ready: true
+      })
+    }).catch(error => {
+      this.setState({
+        schemas: [],
+        ready: true,
+        message: error
+      })
+    })
+  }
 
-return (
-  <div>
-    <Menu fixed='top'>
-      <Menu.Item header as={Link} to={route} disabled={!ready}>
-        GSIM domains
-        <Label color='teal' size='large'>{ready ? schemas.length : <Icon fitted loading name='spinner' />}</Label>
-      </Menu.Item>
-      <Dropdown item text='Show all' scrolling disabled={!ready}>
-        <Dropdown.Menu>
+  render () {
+    const {ready, schemas, message} = this.state
+    const {producer, route, endpoint, languageCode, specialFeatures} = this.props
+
+    return (
+      <div>
+        <Menu fixed='top'>
+          <Menu.Item header as={Link} to={route} disabled={!ready}>
+            GSIM domains
+            <Label color='teal' size='large'>{ready ? schemas.length : <Icon fitted loading name='spinner' />}</Label>
+          </Menu.Item>
+          <Dropdown item text='Show all' scrolling disabled={!ready}>
+            <Dropdown.Menu>
+              {ready && schemas.map((schema, index) => {
+                const domain = extractName(schema.$ref)
+                const link = route + domain
+
+                return <Dropdown.Item key={index} as={Link} to={link} content={splitOnUppercase(domain)} />
+              })}
+            </Dropdown.Menu>
+          </Dropdown>
+          <Dropdown item text='Create new' scrolling disabled={!ready}>
+            <Dropdown.Menu>
+              {ready && schemas.map((schema, index) => {
+                const domain = extractName(schema.$ref)
+                const link = route + domain + '/new'
+
+                return <Dropdown.Item key={index} as={Link} to={link} content={splitOnUppercase(domain)} />
+              })}
+            </Dropdown.Menu>
+          </Dropdown>
+        </Menu>
+        <Container fluid style={{marginTop: '5em'}}>
+          {ready && message !== '' && <Message error content={message} />}
           {ready && schemas.map((schema, index) => {
             const domain = extractName(schema.$ref)
-            const link = route + domain
+            const path = route + domain + '/:id'
 
-            return <Dropdown.Item key={index} as={Link} to={link} content={splitOnUppercase(domain)} />
+            return <Route key={index} path={path} exact
+                          render={({match}) => <DCFormBuilder params={match.params} producer={producer}
+                                                              schema={JSON.parse(JSON.stringify(schema))}
+                                                              languageCode={languageCode}
+                                                              specialFeatures={specialFeatures}
+                                                              endpoint={endpoint} user='Test user' />} />
           })}
-        </Dropdown.Menu>
-      </Dropdown>
-      <Dropdown item text='Create new' scrolling disabled={!ready}>
-        <Dropdown.Menu>
           {ready && schemas.map((schema, index) => {
             const domain = extractName(schema.$ref)
-            const link = route + domain + '/new'
+            const path = route + domain
 
-            return <Dropdown.Item key={index} as={Link} to={link} content={splitOnUppercase(domain)} />
+            return <Route key={index} path={path} exact
+                          render={({match}) => <DCTableBuilder params={match.params} producer={producer}
+                                                               schema={JSON.parse(JSON.stringify(schema))}
+                                                               languageCode={languageCode}
+                                                               specialFeatures={specialFeatures}
+                                                               endpoint={endpoint} routing={path} />} />
           })}
-        </Dropdown.Menu>
-      </Dropdown>
-    </Menu>
-    <Container fluid style={{marginTop: '5em'}}>
-      {ready && message !== '' && <Message error content={message} />}
-      {ready && schemas.map((schema, index) => {
-        const domain = extractName(schema.$ref)
-        const path = route + domain + '/:id'
-
-        return <Route key={index} path={path} exact
-                      render={({match}) => <DCFormBuilder params={match.params} producer={producer}
-                                                          schema={JSON.parse(JSON.stringify(schema))}
-                                                          languageCode={languageCode}
-                                                          specialFeatures={specialFeatures}
-                                                          endpoint={endpoint} user='Test user' />} />
-      })}
-      {ready && schemas.map((schema, index) => {
-        const domain = extractName(schema.$ref)
-        const path = route + domain
-
-        return <Route key={index} path={path} exact
-                      render={({match}) => <DCTableBuilder params={match.params} producer={producer}
-                                                           schema={JSON.parse(JSON.stringify(schema))}
-                                                           languageCode={languageCode}
-                                                           specialFeatures={specialFeatures}
-                                                           endpoint={endpoint} routing={path} />} />
-      })}
-    </Container>
-  </div>
-)
-}
+        </Container>
+      </div>
+    )
+  }
 }
 ----
 
 *Note:*
+
 * Notice have how the routing handles the distinction between presenting an existing object versus a new object by checking the id in params
 
-*
-
-The producer takes care of special functionality given by the structure of the JSONSchema. With the producer the library
+* The producer takes care of special functionality given by the structure of the JSONSchema. With the producer the library
  it flattens properties and resolves them so they are more tailored for UI generation and handling
 
-*
-
-This library uses https://semantic-ui.com/introduction/getting-started.html[Semantic UI] for styling and therefore
+* This library uses https://semantic-ui.com/introduction/getting-started.html[Semantic UI] for styling and therefore
  requires your project to to have `semantic-ui-css` and `semantic-ui-react` as dependencies (since those are not packaged with this library)
 
 ** Do not forget to wrap your DCFormField components inside the https://react.semantic-ui.com/[Semantic UI React]
 component `Form` (like in the example above)
 ** Also do not forget to add `import &#39;semantic-ui-css/semantic.min.css&#39;` in your `index.js`
-*
 
-This library also uses https://github.com/statisticsnorway/dc-react-form-fields-library[dc-react-form-fields-library] for its form fields and
+* This library also uses https://github.com/statisticsnorway/dc-react-form-fields-library[dc-react-form-fields-library] for its form fields and
  the DCDate component requires https://momentjs.com/docs/[Moment.js] and https://reactdatepicker.com/[ReactJS Datepicker]
  so if you wish to use it you need `react-datepicker` and `moment` as dependencies in your project
 
 ** Again do not forget to add the css - `import &#39;react-datepicker/dist/react-datepicker.css&#39;` in your `index.js`
-*
 
-Lastly the DCTableBuilder component of this library uses https://react-table.js.org/#/story/readme[React Table] so therefore when using it
+* Lastly the DCTableBuilder component of this library uses https://react-table.js.org/#/story/readme[React Table] so therefore when using it
  your project needs `react-table` as a dependency
 
-* Once more do not forget to add the css - `import &#39;react-table/react-table.css&#39;` in your `index.js`
+** Once more do not forget to add the css - `import &#39;react-table/react-table.css&#39;` in your `index.js`
 
 
 === How Producers work
 
 Because JSONSchemas can have different structures the Producers are functions that merges, resolves, builds and populates the schema to
 be used by the UI, all based upon a default UISchema and alternatively special UISchemas for specific objects.
-The `GSIM Producer` is included in the library, other structure than GSIM requires producers written for the specific purpose.
+
+The `GSIM Producer` comes with the library but if you want to use this library on another structure than GSIM you need to write	A default producer and the `GSIM Producer` comes with the library but if you want to use this library on another structure
+your own producers and provide DefaultUISchema and spesific UISchemas	than GSIMm og basic JSONSchemas you need to writeyour own producers and provide DefaultUISchema and spesific UISchemas
 
 
 === GSIM producer
@@ -174,7 +164,7 @@ in the JSONSchemas from the provided url.
 
 . In your React application run `yarn add https://github.com/statisticsnorway/dc-react-components-library.git`
 ** Optionally add `#name-of-branch` at the end to use a specific branch instead of master
-* Import functions in your React application e.g. `import { dataFetcher } from &#39;dc-react-components-library&#39;`
+. Import functions in your React application e.g. `import { dataFetcher } from &#39;dc-react-components-library&#39;`
 
 === Useful information
 
