@@ -1852,6 +1852,14 @@ function fetchData(url, languageCode) {
         });
       } else {
         response.text().then(function (text) {
+          if (text === null || text === '') {
+            try {
+              text = response.statusText.toString();
+            } catch (error) {
+              text = 'Error: ';
+            }
+          }
+
           reject(text + ' (' + url + ')');
         });
       }
@@ -3452,7 +3460,7 @@ function (_Component) {
       var url = endpoint + 'data/' + this.state.name;
       var tableData = [];
       fetchData(url).then(function (result) {
-        if (result.length !== 0) {
+        if (Array.isArray(result) && result.length !== 0) {
           result.forEach(function (data) {
             tableData.push(resolveTableObject(producer, data, languageCode));
           });

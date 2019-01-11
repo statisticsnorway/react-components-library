@@ -23,6 +23,14 @@ export function fetchData (url, languageCode, timeout = 3000) {
         )
       } else {
         response.text().then(text => {
+          if (text === null || text === '') {
+            try {
+              text = response.statusText.toString()
+            } catch (error) {
+              text = 'Error: '
+            }
+          }
+
           reject(text + ' (' + url + ')')
         })
       }
