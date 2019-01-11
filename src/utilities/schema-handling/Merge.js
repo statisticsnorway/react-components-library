@@ -41,7 +41,7 @@ function updateAndCleanProperties (properties, returnSchema, defaultUISchema, na
 
     if (defaultUISchema.autofilled.includes(key)) {
       returnSchema.definitions[name].properties[key].autofilled = true
-      returnSchema.definitions[name].properties[key].component = 'DCStatic'
+      returnSchema.definitions[name].properties[key].component = 'UIStatic'
 
       if (properties[key].hasOwnProperty('format') && properties[key].format === 'date-time') {
         returnSchema.definitions[name].properties[key].format = 'date'
