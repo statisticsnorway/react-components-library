@@ -19,8 +19,8 @@ export function transformGSIMProperties (producer, schema, data, languageCode, f
 
           returnData[property] = text
         } else {
-          // TODO: This array overrides array stored in object in LDS which means it loses stored langauge texts for other
-          // language codes on save.
+          // TODO: This array overrides the array stored in the object in LDS which means it loses stored langauge texts
+          // for other language codes on save. That might not be a desired outcome
           returnData[property] = [{languageCode: languageCode, languageText: data[property]}]
         }
       }

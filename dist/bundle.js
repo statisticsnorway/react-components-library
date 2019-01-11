@@ -287,6 +287,17 @@ var UI = {
   }
 };
 
+function checkValueAndType(value, type) {
+  return value !== undefined && value !== '' && value !== null && _typeof(value) === type;
+}
+function cutoffString(string) {
+  if (typeof string === 'string' && string.length > 32) {
+    return string.substring(0, 30) + '...';
+  } else {
+    return string;
+  }
+}
+
 var InlineError = function InlineError(_ref) {
   var text = _ref.text;
   return React__default$$1.createElement("span", {
@@ -313,7 +324,7 @@ var structureDescription = function structureDescription(description) {
   }));
 };
 
-var links = function links(route, value) {
+var formatLinks = function formatLinks(route, value) {
   if (value !== '' && value !== undefined && value !== null) {
     if (route === undefined) {
       route = '';
@@ -346,7 +357,7 @@ function fullFormField(displayName, description, error, warning, required, compo
     wide: "very",
     trigger: React__default$$1.createElement("label", null, displayName),
     content: structureDescription(description)
-  }), component, showLinks && links(route, value), warning && !error && React__default$$1.createElement(InlineWarning, {
+  }), component, showLinks && formatLinks(route, value), warning && !error && React__default$$1.createElement(InlineWarning, {
     text: warning
   }), error && !warning && React__default$$1.createElement(InlineError, {
     text: error
@@ -379,17 +390,6 @@ function simpleStaticFormField(displayName, description, component) {
     content: structureDescription(description),
     trigger: React__default$$1.createElement("label", null, displayName, " ", icon)
   }), component);
-}
-
-function checkValueAndType(value, type) {
-  return value !== undefined && value !== '' && value !== null && _typeof(value) === type;
-}
-function shorten(string) {
-  if (typeof string === 'string' && string.length > 32) {
-    return string.substring(0, 30) + '...';
-  } else {
-    return string;
-  }
 }
 
 var DCText =
@@ -445,7 +445,7 @@ function (_Component) {
         autoHeight: true,
         rows: 1,
         name: name,
-        placeholder: shorten(displayName),
+        placeholder: cutoffString(displayName),
         value: value,
         onChange: this.handleChange
       });
@@ -574,7 +574,7 @@ function (_Component) {
         iconPosition: "left",
         name: name,
         value: value,
-        placeholder: shorten(displayName),
+        placeholder: cutoffString(displayName),
         onChange: this.handleChange
       });
       return fullFormField(displayName, description, error, warning, required, component);
@@ -766,7 +766,7 @@ function (_Component) {
             selected: value[index],
             onChange: _this3.handleChange.bind(_this3, index),
             dateFormat: "DD/MM/YYYY",
-            placeholderText: shorten(displayName),
+            placeholderText: cutoffString(displayName),
             showWeekNumbers: true,
             dropdownMode: "select",
             todayButton: UI.TODAY[languageCode]
@@ -831,7 +831,7 @@ function (_Component) {
           onChange: this.handleChange.bind(this, null),
           isClearable: true,
           dateFormat: "DD/MM/YYYY",
-          placeholderText: shorten(displayName),
+          placeholderText: cutoffString(displayName),
           showWeekNumbers: true,
           dropdownMode: "select",
           todayButton: UI.TODAY[languageCode]
@@ -957,7 +957,7 @@ function (_Component) {
 
       if (!ready) {
         var component = React__default$$1.createElement(semanticUiReact__default.Dropdown, {
-          placeholder: shorten(displayName),
+          placeholder: cutoffString(displayName),
           selection: true,
           options: [],
           loading: true,
@@ -978,7 +978,7 @@ function (_Component) {
 
       if (ready && !problem) {
         var _component2 = React__default$$1.createElement(semanticUiReact__default.Dropdown, {
-          placeholder: options.length === 0 ? UI.NO_OPTIONS[languageCode] : shorten(displayName),
+          placeholder: options.length === 0 ? UI.NO_OPTIONS[languageCode] : cutoffString(displayName),
           value: value,
           options: options,
           clearable: true,
@@ -1279,7 +1279,7 @@ function (_Component) {
               margin: 0,
               paddingLeft: 0
             }
-          }, dropdown, showLinks && links(route, entry.option)), multiValue && React__default$$1.createElement(semanticUiReact__default.Grid.Column, {
+          }, dropdown, showLinks && formatLinks(route, entry.option)), multiValue && React__default$$1.createElement(semanticUiReact__default.Grid.Column, {
             width: 7,
             style: {
               margin: 0
@@ -1299,7 +1299,7 @@ function (_Component) {
               style: {
                 paddingTop: innerIndex === 0 ? 0 : '0.5rem'
               },
-              placeholder: shorten(displayName),
+              placeholder: cutoffString(displayName),
               value: innerValue,
               name: name + innerIndex,
               onChange: _this9.handleInputChange.bind(_this9, index, innerIndex)
@@ -1317,12 +1317,12 @@ function (_Component) {
             }
           }, React__default$$1.createElement(semanticUiReact__default.Input, {
             name: name,
-            placeholder: shorten(displayName),
+            placeholder: cutoffString(displayName),
             value: entry.text,
             actionPosition: "left",
             onChange: _this9.handleInputChange.bind(_this9, index, index),
             action: dropdown
-          }), showLinks && links(route, entry.option)));
+          }), showLinks && formatLinks(route, entry.option)));
         }), React__default$$1.createElement(semanticUiReact__default.Grid.Row, {
           style: {
             paddingTop: 0
@@ -1850,6 +1850,10 @@ function fetchData(url, languageCode) {
         response.json().then(function (json) {
           return resolve(json);
         });
+      } else if (response.status === 404) {
+        // TODO: LDS now responds with 404 if empty, that however should not block a form from generating, rather it should
+        // show 'No options'. This is a temporary fix to that. It is still undecided if LDS should return an empty array or 404.
+        resolve([]);
       } else {
         response.text().then(function (text) {
           if (text === null || text === '') {
@@ -2155,7 +2159,7 @@ function resolveReferences$1(properties, returnSchema, schema, key, name, specia
   returnSchema[name].properties[key].customType = customType;
   returnSchema[name].properties[key].description.push('Input type: ' + customType);
 
-  if (customType === 'MultilingualText') {
+  if (customType === 'MultilingualText' && !specialFeatures) {
     returnSchema[name].properties[key].component = 'DCText';
   } else {
     returnSchema[name].properties[key].multiValue = true;
@@ -2277,8 +2281,8 @@ function transformGSIMProperties(producer, schema, data, languageCode, fromSourc
           });
           returnData[property] = text;
         } else {
-          // TODO: This array overrides array stored in object in LDS which means it loses stored langauge texts for other
-          // language codes on save.
+          // TODO: This array overrides the array stored in the object in LDS which means it loses stored langauge texts
+          // for other language codes on save. That might not be a desired outcome
           returnData[property] = [{
             languageCode: languageCode,
             languageText: data[property]
@@ -2323,8 +2327,6 @@ function fetchGSIMOptions(url, languageCode, addPrefix) {
         resolve([]);
       }
     }).catch(function (error) {
-      // TODO: LDS now responds with 404 if emtpy, that however should not block a form from generating, rather it should
-      // show 'No options'
       reject(error);
     });
   });

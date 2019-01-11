@@ -7,7 +7,7 @@ function resolveReferences (properties, returnSchema, schema, key, name, special
   returnSchema[name].properties[key].customType = customType
   returnSchema[name].properties[key].description.push('Input type: ' + customType)
 
-  if (customType === 'MultilingualText') {
+  if (customType === 'MultilingualText' && !specialFeatures) {
     returnSchema[name].properties[key].component = 'DCText'
   } else {
     returnSchema[name].properties[key].multiValue = true
