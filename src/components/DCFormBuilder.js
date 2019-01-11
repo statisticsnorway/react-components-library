@@ -46,7 +46,7 @@ class DCFormBuilder extends Component {
         this.newComponent(producer, populatedSchema, user, languageCode)
       } else {
         fillDataState(producer, populatedSchema, params.id, endpoint, languageCode).then(filledData => {
-          setDataToSchema(populatedSchema, filledData).then(filled => {
+          setDataToSchema(populatedSchema, filledData, languageCode).then(filled => {
             this.setState({
               data: filledData,
               schema: filled.returnSchema,

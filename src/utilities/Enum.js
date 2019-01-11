@@ -21,6 +21,10 @@ export const MESSAGES = {
     en: 'Simulates storing the data to LDS and generates the JSON-file to download',
     nb: 'Simuler lagring av data til LDS og generer en JSON-fil for nedlastning'
   },
+  MISSING_LINK: {
+    en: 'Selected value(s) refers to non-existent object',
+    nb: 'Valgt(e) verdi(er) referer til et ikke-eksisterende objekt'
+  },
   NAME_NOT_FOUND: {
     en: 'Found nothing matching',
     nb: 'Fant ingenting som matcher'

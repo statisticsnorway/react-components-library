@@ -1715,6 +1715,10 @@ var MESSAGES = {
     en: 'Simulates storing the data to LDS and generates the JSON-file to download',
     nb: 'Simuler lagring av data til LDS og generer en JSON-fil for nedlastning'
   },
+  MISSING_LINK: {
+    en: 'Selected value(s) refers to non-existent object',
+    nb: 'Valgt(e) verdi(er) referer til et ikke-eksisterende objekt'
+  },
   NAME_NOT_FOUND: {
     en: 'Found nothing matching',
     nb: 'Fant ingenting som matcher'
@@ -2303,6 +2307,8 @@ function fetchGSIMOptions(url, languageCode, addPrefix) {
         resolve([]);
       }
     }).catch(function (error) {
+      // TODO: LDS now responds with 404 if emtpy, that however should not block a form from generating, rather it should
+      // show 'No options'
       reject(error);
     });
   });
@@ -2657,7 +2663,7 @@ function fillDataState(producer, schema, id, endpoint, languageCode) {
     });
   });
 }
-function setDataToSchema(schema, data) {
+function setDataToSchema(schema, data, languageCode) {
   return new Promise(function (resolve) {
     var name = extractName(schema.$ref);
     var returnSchema = JSON.parse(JSON.stringify(schema));
@@ -2667,6 +2673,22 @@ function setDataToSchema(schema, data) {
       if (properties[key].hasOwnProperty('autofilled')) {
         properties[key].value = [data[key]];
       } else {
+        if (properties[key].component === 'DCDropdown') {
+          if (!properties[key].options.some(function (r) {
+            return data[key].includes(r.value);
+          })) {
+            properties[key].warning = MESSAGES.MISSING_LINK[languageCode];
+          }
+        }
+
+        if (properties[key].component === 'DCMultiInput') {
+          if (data[key].hasOwnProperty('option') && !properties[key].options.some(function (r) {
+            return data[key].option === r.value;
+          })) {
+            properties[key].warning = MESSAGES.MISSING_LINK[languageCode];
+          }
+        }
+
         properties[key].value = data[key];
       }
     });
@@ -3019,7 +3041,7 @@ function (_Component) {
           _this2.newComponent(producer, populatedSchema, user, languageCode);
         } else {
           fillDataState(producer, populatedSchema, params.id, endpoint, languageCode).then(function (filledData) {
-            setDataToSchema(populatedSchema, filledData).then(function (filled) {
+            setDataToSchema(populatedSchema, filledData, languageCode).then(function (filled) {
               _this2.setState({
                 data: filledData,
                 schema: filled.returnSchema,
