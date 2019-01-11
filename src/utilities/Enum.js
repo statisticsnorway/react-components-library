@@ -5,6 +5,10 @@ export const DIV = {
 }
 
 export const MESSAGES = {
+  CHANGES_MADE: {
+    en: 'Changes has been made since last save',
+    nb: 'Endringer er blitt gjort siden siste lagring'
+  },
   CORRECT_ERRORS: {
     en: 'Object was not saved, correct any errors and try again',
     nb: 'Objektet ble ikke lagret, rett opp feil og prøv igjen'
@@ -28,6 +32,10 @@ export const MESSAGES = {
   NAME_NOT_FOUND: {
     en: 'Found nothing matching',
     nb: 'Fant ingenting som matcher'
+  },
+  NO_CHANGES_MADE: {
+    en: 'No changes has been made since last save',
+    nb: 'Ingen endringer er blitt gjort siden siste lagring'
   },
   NOT_EMPTY: {
     en: 'Cannot be blank',

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Button, Dimmer, Form, Grid, Header, Icon, Message, Popup } from 'semantic-ui-react'
+import { Button, Dimmer, Form, Grid, Header, Icon, Label, Message, Popup } from 'semantic-ui-react'
 
 import { DCFormField } from 'dc-react-form-fields-library'
 import { defaultVersioning } from '../producers'
@@ -33,7 +33,8 @@ class DCFormBuilder extends Component {
       name: name,
       description: this.props.schema.definitions[name].description,
       problem: false,
-      isNew: this.props.params.id === 'new'
+      isNew: this.props.params.id === 'new',
+      fresh: true
     }
   }
 
@@ -69,10 +70,12 @@ class DCFormBuilder extends Component {
   }
 
   shouldComponentUpdate (nextProps, nextState) {
-    const {hiddenFields, data} = this.state
+    const {hiddenFields, data, fresh} = this.state
     const {params, producer, schema, user} = this.props
 
     if (hiddenFields !== nextState.hiddenFields) return true
+
+    if (fresh !== nextState.fresh) return true
 
     if (params.id !== nextProps.params.id && nextProps.params.id === 'new') {
       this.setState({
@@ -124,6 +127,7 @@ class DCFormBuilder extends Component {
         ...this.state.data,
         [name]: value
       },
+      fresh: false,
       saved: false
     })
   }
@@ -172,7 +176,8 @@ class DCFormBuilder extends Component {
                 saved: true,
                 message: MESSAGES.WAS_SAVED[languageCode] + savedMessage + ' (' + DIV.SAGA + ': ' + response[DIV.SAGA] + ')',
                 readOnly: true,
-                isNew: false
+                isNew: false,
+                fresh: true
               }, () => this.setState({ready: true}))
             }).catch(saveError => {
               this.setState({
@@ -233,7 +238,7 @@ class DCFormBuilder extends Component {
   }
 
   render () {
-    const {ready, readOnly, message, saved, schema, hiddenFields, name, description, problem, isNew} = this.state
+    const {ready, readOnly, message, saved, schema, hiddenFields, name, description, problem, isNew, fresh} = this.state
     const {specialFeatures, languageCode} = this.props
 
     if (problem) {
@@ -253,6 +258,13 @@ class DCFormBuilder extends Component {
 
       return (
         <Form>
+          <Popup flowing hideOnScroll position='left center'
+                 trigger={<Label attached='top right' color={fresh ? 'green' : 'orange'} circular size='big'
+                                 icon={{fitted: true, name: fresh ? 'save' : 'edit'}} />}>
+            <Icon color='blue' name='info circle' />
+            {fresh ? MESSAGES.NO_CHANGES_MADE[languageCode] : MESSAGES.CHANGES_MADE[languageCode]}
+          </Popup>
+
           <Header as='h1' content={splitOnUppercase(name)} subheader={description} dividing
                   icon={{name: formIcon, color: formIconColor, link: true, onClick: this.handleLockClick}} />
           {message !== '' && <Message color={saved ? 'green' : 'red'} content={message} />}
