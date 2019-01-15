@@ -1,6 +1,6 @@
 = react-components-library
 
-UI React Components Library is a React Component library used for generating complex forms from JSONSchemas with Producers.
+React Components Library is a React Component library used for generating complex forms from JSONSchemas with Producers.
 
 === How it works
 * UIFormBuilder
