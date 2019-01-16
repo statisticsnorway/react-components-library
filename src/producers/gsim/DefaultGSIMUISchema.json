@@ -1,24 +1,24 @@
 {
   "type": {
     "string": {
-      "component": "DCText"
+      "component": "UIText"
     },
     "array": {
-      "component": "DCDropdown"
+      "component": "UIDropdown"
     },
     "number": {
-      "component": "DCNumber"
+      "component": "UINumber"
     },
     "boolean": {
-      "component": "DCBoolean"
+      "component": "UIBoolean"
     },
     "object": {
-      "component": "DCMultiInput"
+      "component": "UIMultiInput"
     }
   },
   "format": {
     "date-time": {
-      "component": "DCDate"
+      "component": "UIDate"
     }
   },
   "autofilled": [

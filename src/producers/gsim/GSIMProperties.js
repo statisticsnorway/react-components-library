@@ -7,11 +7,11 @@ function resolveReferences (properties, returnSchema, schema, key, name, special
   returnSchema[name].properties[key].customType = customType
   returnSchema[name].properties[key].description.push('Input type: ' + customType)
 
-  if (customType === 'MultilingualText' && !specialFeatures) {
-    returnSchema[name].properties[key].component = 'DCText'
+  if (customType === 'MultilingualText') {
+    returnSchema[name].properties[key].component = specialFeatures ? 'UIMultiInput' : 'UIText'
   } else {
     returnSchema[name].properties[key].multiValue = true
-    returnSchema[name].properties[key].component = 'DCMultiInput'
+    returnSchema[name].properties[key].component = 'UIMultiInput'
 
     if (specialFeatures) {
       returnSchema[name].properties[key].showLinks = true
@@ -41,16 +41,16 @@ function resolveReferences (properties, returnSchema, schema, key, name, special
   })
 }
 
-function resolveLinks (properties, returnSchema, url, key, specialFeatures, route) {
+function resolveLinks (properties, returnSchema, url, namespace, key, specialFeatures, route) {
   const linkedKey = key.replace('_link_property_', '')
   const endpoints = []
 
   Object.keys(properties[key].properties).forEach(property => {
-    endpoints.push(url + 'data/' + property)
+    endpoints.push(url + namespace + property)
   })
 
   returnSchema[linkedKey].endpoints = endpoints
-  returnSchema[linkedKey].component = 'DCDropdown'
+  returnSchema[linkedKey].component = 'UIDropdown'
 
   if (specialFeatures) {
     returnSchema[linkedKey].showLinks = true
@@ -72,12 +72,12 @@ function resolveEnums (properties, returnSchema) {
   })
 
   returnSchema.options = options
-  returnSchema.component = 'DCDropdown'
+  returnSchema.component = 'UIDropdown'
 
   delete returnSchema.enum
 }
 
-export function resolveGSIMProperties (schema, url, specialFeatures, route) {
+export function resolveGSIMProperties (schema, url, namespace, specialFeatures, route) {
   return new Promise(resolve => {
     const returnSchema = JSON.parse(JSON.stringify(schema))
     const name = extractName(schema.$ref)
@@ -95,7 +95,7 @@ export function resolveGSIMProperties (schema, url, specialFeatures, route) {
         }
 
         if (properties[key].items.hasOwnProperty('format') && properties[key].items.format === 'date-time') {
-          returnSchema.definitions[name].properties[key].component = 'DCDate'
+          returnSchema.definitions[name].properties[key].component = 'UIDate'
           returnSchema.definitions[name].properties[key].multiple = properties[key].type === 'array'
         }
 
@@ -103,7 +103,7 @@ export function resolveGSIMProperties (schema, url, specialFeatures, route) {
       }
 
       if (key.startsWith('_link_property_')) {
-        resolveLinks(properties, returnSchema.definitions[name].properties, url, key, specialFeatures, route)
+        resolveLinks(properties, returnSchema.definitions[name].properties, url, namespace, key, specialFeatures, route)
       }
 
       if (properties[key].hasOwnProperty('enum')) {

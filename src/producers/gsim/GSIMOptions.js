@@ -9,19 +9,33 @@ function createOptions (response, prefix, languageCode, addPrefix) {
     cleanedPrefix = ' (' + prefix.replace(/\//ig, '') + ')'
   }
 
-  Object.keys(response).forEach(value => {
-    let text = response[value].name[0].languageText
+  if (Array.isArray(response)) {
+    Object.keys(response).forEach(value => {
+      let text = response[value].name[0].languageText
 
-    response[value].name.forEach(name => {
+      response[value].name.forEach(name => {
+        if (name.languageCode === languageCode) text = name.languageText
+      })
+
+      options.push({
+        key: response[value].id,
+        text: text + cleanedPrefix,
+        value: prefix + response[value].id
+      })
+    })
+  } else {
+    let text = response.name[0].languageText
+
+    response.name.forEach(name => {
       if (name.languageCode === languageCode) text = name.languageText
     })
 
     options.push({
-      key: response[value].id,
+      key: response.id,
       text: text + cleanedPrefix,
-      value: prefix + response[value].id
+      value: prefix + response.id
     })
-  })
+  }
 
   return options
 }

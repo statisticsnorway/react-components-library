@@ -2,6 +2,7 @@ export const GSIM = {
   name: 'GSIM',
   producer: 'GSIM',
   endpoint: 'http://localhost:9090/',
+  namespace: 'data/',
   route: '/gsim/',
   languageCode: 'en',
   specialFeatures: false
@@ -11,13 +12,14 @@ export const Default = {
   name: 'Default',
   producer: 'Default',
   endpoint: 'http://localhost:9090/',
+  namespace: 'data/',
   route: '/default/',
   languageCode: 'en',
   specialFeatures: false
 }
 
 export const defaultVersioning = {
-  component: 'DCRadio',
+  component: 'UIRadio',
   name: 'versionIncrementation',
   displayName: 'Version incrementation',
   description: ['How should the versioning increment?'],

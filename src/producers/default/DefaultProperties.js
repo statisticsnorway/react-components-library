@@ -8,7 +8,7 @@ function resolveReferences (properties, returnSchema, schema, key, name, special
   returnSchema[name].properties[key].description.push('Input type: ' + customType)
 
   returnSchema[name].properties[key].multiValue = true
-  returnSchema[name].properties[key].component = 'DCMultiInput'
+  returnSchema[name].properties[key].component = 'UIMultiInput'
 
   if (specialFeatures) {
     returnSchema[name].properties[key].showLinks = true
@@ -23,16 +23,16 @@ function resolveReferences (properties, returnSchema, schema, key, name, special
   })
 }
 
-function resolveLinks (properties, returnSchema, url, key, specialFeatures, route) {
+function resolveLinks (properties, returnSchema, url, namespace, key, specialFeatures, route) {
   const linkedKey = key.replace('_link_property_', '')
   const endpoints = []
 
   Object.keys(properties[key].properties).forEach(property => {
-    endpoints.push(url + 'data/' + property)
+    endpoints.push(url + namespace + property)
   })
 
   returnSchema[linkedKey].endpoints = endpoints
-  returnSchema[linkedKey].component = 'DCDropdown'
+  returnSchema[linkedKey].component = 'UIDropdown'
 
   if (specialFeatures) {
     returnSchema[linkedKey].showLinks = true
@@ -46,7 +46,7 @@ function resolveLinks (properties, returnSchema, url, key, specialFeatures, rout
   delete returnSchema[key]
 }
 
-export function resolveDefaultProperties (schema, url, specialFeatures, route) {
+export function resolveDefaultProperties (schema, url, namespace, specialFeatures, route) {
   return new Promise(resolve => {
     const returnSchema = JSON.parse(JSON.stringify(schema))
     const name = extractName(schema.$ref)
@@ -64,7 +64,7 @@ export function resolveDefaultProperties (schema, url, specialFeatures, route) {
         }
 
         if (properties[key].items.hasOwnProperty('format') && properties[key].items.format === 'date-time') {
-          returnSchema.definitions[name].properties[key].component = 'DCDate'
+          returnSchema.definitions[name].properties[key].component = 'UIDate'
           returnSchema.definitions[name].properties[key].multiple = properties[key].type === 'array'
         }
 
@@ -72,7 +72,7 @@ export function resolveDefaultProperties (schema, url, specialFeatures, route) {
       }
 
       if (key.startsWith('_link_property_')) {
-        resolveLinks(properties, returnSchema.definitions[name].properties, url, key)
+        resolveLinks(properties, returnSchema.definitions[name].properties, url, namespace, key)
       }
     })
 

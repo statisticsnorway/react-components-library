@@ -18,10 +18,11 @@ class App extends Component {
           <Route path='/merge' exact component={Merge} />
           <Route path={GSIM.route}
                  render={() => <Forms producer={GSIM.producer} endpoint={GSIM.endpoint} route={GSIM.route}
-                                      languageCode={GSIM.languageCode} specialFeatures={GSIM.specialFeatures} />} />
+                                      namespace={GSIM.namespace} languageCode={GSIM.languageCode}
+                                      specialFeatures={GSIM.specialFeatures} />} />
           <Route path={Default.route}
                  render={() => <Forms producer={Default.producer} endpoint={Default.endpoint} route={Default.route}
-                                      languageCode={Default.languageCode}
+                                      languageCode={Default.languageCode} namespace={Default.namespace}
                                       specialFeatures={Default.specialFeatures} />} />
         </Switch>
       </Segment>

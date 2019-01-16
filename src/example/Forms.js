@@ -2,8 +2,8 @@ import React, { Component } from 'react'
 import { Link, Route } from 'react-router-dom'
 import { Container, Dropdown, Icon, Label, Menu, Message } from 'semantic-ui-react'
 
-import { DCFormBuilder, DCTableBuilder, SchemaHandler } from '../components'
-import { extractName, splitOnUppercase } from '../utilities/Common'
+import { UIFormBuilder, UITableBuilder, SchemaHandler } from '../components'
+import { extractName, handleRoute, splitOnUppercase } from '../utilities/Common'
 
 class Forms extends Component {
   constructor (props) {
@@ -16,10 +16,10 @@ class Forms extends Component {
   }
 
   componentDidMount () {
-    const {producer, endpoint, specialFeatures, route} = this.props
-    const updatedUrl = endpoint + 'data?schema=embed'
+    const {producer, endpoint, namespace, specialFeatures, route} = this.props
+    const updatedUrl = endpoint + handleRoute(namespace) + '?schema=embed'
 
-    SchemaHandler(updatedUrl, producer, endpoint, specialFeatures, route).then(schemas => {
+    SchemaHandler(updatedUrl, producer, endpoint, namespace, specialFeatures, route).then(schemas => {
       this.setState({
         schemas: schemas,
         ready: true
@@ -35,7 +35,7 @@ class Forms extends Component {
 
   render () {
     const {ready, schemas, message} = this.state
-    const {producer, route, endpoint, languageCode, specialFeatures} = this.props
+    const {producer, route, endpoint, namespace, languageCode, specialFeatures} = this.props
 
     return (
       <div>
@@ -72,9 +72,9 @@ class Forms extends Component {
             const path = route + domain + '/:id'
 
             return <Route key={index} path={path} exact
-                          render={({match}) => <DCFormBuilder params={match.params} producer={producer}
+                          render={({match}) => <UIFormBuilder params={match.params} producer={producer}
                                                               schema={JSON.parse(JSON.stringify(schema))}
-                                                              languageCode={languageCode}
+                                                              languageCode={languageCode} namespace={namespace}
                                                               specialFeatures={specialFeatures}
                                                               endpoint={endpoint} user='Test user' />} />
           })}
@@ -83,9 +83,9 @@ class Forms extends Component {
             const path = route + domain
 
             return <Route key={index} path={path} exact
-                          render={({match}) => <DCTableBuilder params={match.params} producer={producer}
+                          render={({match}) => <UITableBuilder params={match.params} producer={producer}
                                                                schema={JSON.parse(JSON.stringify(schema))}
-                                                               languageCode={languageCode}
+                                                               languageCode={languageCode} namespace={namespace}
                                                                specialFeatures={specialFeatures}
                                                                endpoint={endpoint} routing={path} />} />
           })}

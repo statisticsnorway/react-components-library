@@ -392,17 +392,17 @@ function simpleStaticFormField(displayName, description, component) {
   }), component);
 }
 
-var DCText =
+var UIText =
 /*#__PURE__*/
 function (_Component) {
-  _inherits(DCText, _Component);
+  _inherits(UIText, _Component);
 
-  function DCText(props) {
+  function UIText(props) {
     var _this;
 
-    _classCallCheck(this, DCText);
+    _classCallCheck(this, UIText);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(DCText).call(this, props));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(UIText).call(this, props));
 
     _this.handleChange = function (event) {
       var _this$props = _this.props,
@@ -422,7 +422,7 @@ function (_Component) {
     return _this;
   }
 
-  _createClass(DCText, [{
+  _createClass(UIText, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       var value = this.props.value;
@@ -453,20 +453,20 @@ function (_Component) {
     }
   }]);
 
-  return DCText;
+  return UIText;
 }(React__default.Component);
 
-var DCBoolean =
+var UIBoolean =
 /*#__PURE__*/
 function (_Component) {
-  _inherits(DCBoolean, _Component);
+  _inherits(UIBoolean, _Component);
 
-  function DCBoolean(props) {
+  function UIBoolean(props) {
     var _this;
 
-    _classCallCheck(this, DCBoolean);
+    _classCallCheck(this, UIBoolean);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(DCBoolean).call(this, props));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(UIBoolean).call(this, props));
 
     _this.handleChange = function () {
       var _this$props = _this.props,
@@ -486,7 +486,7 @@ function (_Component) {
     return _this;
   }
 
-  _createClass(DCBoolean, [{
+  _createClass(UIBoolean, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       var value = this.props.value;
@@ -510,20 +510,20 @@ function (_Component) {
     }
   }]);
 
-  return DCBoolean;
+  return UIBoolean;
 }(React__default.Component);
 
-var DCNumber =
+var UINumber =
 /*#__PURE__*/
 function (_Component) {
-  _inherits(DCNumber, _Component);
+  _inherits(UINumber, _Component);
 
-  function DCNumber(props) {
+  function UINumber(props) {
     var _this;
 
-    _classCallCheck(this, DCNumber);
+    _classCallCheck(this, UINumber);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(DCNumber).call(this, props));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(UINumber).call(this, props));
 
     _this.handleChange = function (event) {
       if (!isNaN(event.target.value)) {
@@ -547,7 +547,7 @@ function (_Component) {
     return _this;
   }
 
-  _createClass(DCNumber, [{
+  _createClass(UINumber, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       var value = this.props.value;
@@ -581,20 +581,20 @@ function (_Component) {
     }
   }]);
 
-  return DCNumber;
+  return UINumber;
 }(React__default.Component);
 
-var DCRadio =
+var UIRadio =
 /*#__PURE__*/
 function (_Component) {
-  _inherits(DCRadio, _Component);
+  _inherits(UIRadio, _Component);
 
-  function DCRadio(props) {
+  function UIRadio(props) {
     var _this;
 
-    _classCallCheck(this, DCRadio);
+    _classCallCheck(this, UIRadio);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(DCRadio).call(this, props));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(UIRadio).call(this, props));
 
     _this.handleChange = function (event, _ref) {
       var value = _ref.value;
@@ -615,7 +615,7 @@ function (_Component) {
     return _this;
   }
 
-  _createClass(DCRadio, [{
+  _createClass(UIRadio, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       var value = this.props.value;
@@ -656,20 +656,20 @@ function (_Component) {
     }
   }]);
 
-  return DCRadio;
+  return UIRadio;
 }(React__default.Component);
 
-var DCDate =
+var UIDate =
 /*#__PURE__*/
 function (_Component) {
-  _inherits(DCDate, _Component);
+  _inherits(UIDate, _Component);
 
-  function DCDate(props) {
+  function UIDate(props) {
     var _this;
 
-    _classCallCheck(this, DCDate);
+    _classCallCheck(this, UIDate);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(DCDate).call(this, props));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(UIDate).call(this, props));
 
     _this.handleChange = function (index, date) {
       var _this$props = _this.props,
@@ -710,7 +710,7 @@ function (_Component) {
     return _this;
   }
 
-  _createClass(DCDate, [{
+  _createClass(UIDate, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       var value = this.props.value;
@@ -849,20 +849,20 @@ function (_Component) {
     }
   }]);
 
-  return DCDate;
+  return UIDate;
 }(React__default.Component);
 
-var DCDropdown =
+var UIDropdown =
 /*#__PURE__*/
 function (_Component) {
-  _inherits(DCDropdown, _Component);
+  _inherits(UIDropdown, _Component);
 
-  function DCDropdown(props) {
+  function UIDropdown(props) {
     var _this;
 
-    _classCallCheck(this, DCDropdown);
+    _classCallCheck(this, UIDropdown);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(DCDropdown).call(this, props));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(UIDropdown).call(this, props));
 
     _this.handleChange = function (event, data) {
       var _this$props = _this.props,
@@ -886,7 +886,7 @@ function (_Component) {
     return _this;
   }
 
-  _createClass(DCDropdown, [{
+  _createClass(UIDropdown, [{
     key: "setOptionsAndValue",
     value: function setOptionsAndValue(options) {
       var _this2 = this;
@@ -1001,20 +1001,20 @@ function (_Component) {
     }
   }]);
 
-  return DCDropdown;
+  return UIDropdown;
 }(React__default.Component);
 
-var DCMultiInput =
+var UIMultiInput =
 /*#__PURE__*/
 function (_Component) {
-  _inherits(DCMultiInput, _Component);
+  _inherits(UIMultiInput, _Component);
 
-  function DCMultiInput(props) {
+  function UIMultiInput(props) {
     var _this;
 
-    _classCallCheck(this, DCMultiInput);
+    _classCallCheck(this, UIMultiInput);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(DCMultiInput).call(this, props));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(UIMultiInput).call(this, props));
 
     _this.handleAddEntry = function () {
       var _this$props = _this.props,
@@ -1045,7 +1045,7 @@ function (_Component) {
     return _this;
   }
 
-  _createClass(DCMultiInput, [{
+  _createClass(UIMultiInput, [{
     key: "setOptionsAndValue",
     value: function setOptionsAndValue(options) {
       var _this2 = this;
@@ -1348,22 +1348,22 @@ function (_Component) {
     }
   }]);
 
-  return DCMultiInput;
+  return UIMultiInput;
 }(React__default.Component);
 
 var formats = ['date', 'label', 'tag'];
 
-var DCStatic =
+var UIStatic =
 /*#__PURE__*/
 function (_Component) {
-  _inherits(DCStatic, _Component);
+  _inherits(UIStatic, _Component);
 
-  function DCStatic(props) {
+  function UIStatic(props) {
     var _this;
 
-    _classCallCheck(this, DCStatic);
+    _classCallCheck(this, UIStatic);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(DCStatic).call(this, props));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(UIStatic).call(this, props));
     _this.state = {
       ready: false,
       component: null,
@@ -1372,7 +1372,7 @@ function (_Component) {
     return _this;
   }
 
-  _createClass(DCStatic, [{
+  _createClass(UIStatic, [{
     key: "checkIcon",
     value: function checkIcon() {
       var _this2 = this;
@@ -1494,32 +1494,32 @@ function (_Component) {
     }
   }]);
 
-  return DCStatic;
+  return UIStatic;
 }(React__default.Component);
 
 var formComponents = {
-  DCText: DCText,
-  DCBoolean: DCBoolean,
-  DCNumber: DCNumber,
-  DCRadio: DCRadio,
-  DCDate: DCDate,
-  DCDropdown: DCDropdown,
-  DCMultiInput: DCMultiInput,
-  DCStatic: DCStatic
+  UIText: UIText,
+  UIBoolean: UIBoolean,
+  UINumber: UINumber,
+  UIRadio: UIRadio,
+  UIDate: UIDate,
+  UIDropdown: UIDropdown,
+  UIMultiInput: UIMultiInput,
+  UIStatic: UIStatic
 };
 
-var DCFormField =
+var UIFormField =
 /*#__PURE__*/
 function (_Component) {
-  _inherits(DCFormField, _Component);
+  _inherits(UIFormField, _Component);
 
-  function DCFormField() {
-    _classCallCheck(this, DCFormField);
+  function UIFormField() {
+    _classCallCheck(this, UIFormField);
 
-    return _possibleConstructorReturn(this, _getPrototypeOf(DCFormField).apply(this, arguments));
+    return _possibleConstructorReturn(this, _getPrototypeOf(UIFormField).apply(this, arguments));
   }
 
-  _createClass(DCFormField, [{
+  _createClass(UIFormField, [{
     key: "render",
     value: function render() {
       var _this$props = this.props,
@@ -1534,17 +1534,17 @@ function (_Component) {
     }
   }]);
 
-  return DCFormField;
+  return UIFormField;
 }(React__default.Component);
 
-exports.DCFormField = DCFormField;
+exports.UIFormField = UIFormField;
 });
 
 unwrapExports(bundle);
-var bundle_1 = bundle.DCFormField;
+var bundle_1 = bundle.UIFormField;
 
 var defaultVersioning = {
-  component: 'DCRadio',
+  component: 'UIRadio',
   name: 'versionIncrementation',
   displayName: 'Version incrementation',
   description: ['How should the versioning increment?'],
@@ -1629,7 +1629,7 @@ function resolveReferences(properties, returnSchema, schema, key, name, specialF
   returnSchema[name].properties[key].customType = customType;
   returnSchema[name].properties[key].description.push('Input type: ' + customType);
   returnSchema[name].properties[key].multiValue = true;
-  returnSchema[name].properties[key].component = 'DCMultiInput';
+  returnSchema[name].properties[key].component = 'UIMultiInput';
 
   if (specialFeatures) {
     returnSchema[name].properties[key].showLinks = true;
@@ -1641,14 +1641,14 @@ function resolveReferences(properties, returnSchema, schema, key, name, specialF
   });
 }
 
-function resolveLinks(properties, returnSchema, url, key, specialFeatures, route) {
+function resolveLinks(properties, returnSchema, url, namespace, key, specialFeatures, route) {
   var linkedKey = key.replace('_link_property_', '');
   var endpoints = [];
   Object.keys(properties[key].properties).forEach(function (property) {
-    endpoints.push(url + 'data/' + property);
+    endpoints.push(url + namespace + property);
   });
   returnSchema[linkedKey].endpoints = endpoints;
-  returnSchema[linkedKey].component = 'DCDropdown';
+  returnSchema[linkedKey].component = 'UIDropdown';
 
   if (specialFeatures) {
     returnSchema[linkedKey].showLinks = true;
@@ -1662,7 +1662,7 @@ function resolveLinks(properties, returnSchema, url, key, specialFeatures, route
   delete returnSchema[key];
 }
 
-function resolveDefaultProperties(schema, url, specialFeatures, route) {
+function resolveDefaultProperties(schema, url, namespace, specialFeatures, route) {
   return new Promise(function (resolve) {
     var returnSchema = JSON.parse(JSON.stringify(schema));
     var name = extractName(schema.$ref);
@@ -1678,7 +1678,7 @@ function resolveDefaultProperties(schema, url, specialFeatures, route) {
         }
 
         if (properties[key].items.hasOwnProperty('format') && properties[key].items.format === 'date-time') {
-          returnSchema.definitions[name].properties[key].component = 'DCDate';
+          returnSchema.definitions[name].properties[key].component = 'UIDate';
           returnSchema.definitions[name].properties[key].multiple = properties[key].type === 'array';
         }
 
@@ -1686,7 +1686,7 @@ function resolveDefaultProperties(schema, url, specialFeatures, route) {
       }
 
       if (key.startsWith('_link_property_')) {
-        resolveLinks(properties, returnSchema.definitions[name].properties, url, key);
+        resolveLinks(properties, returnSchema.definitions[name].properties, url, namespace, key);
       }
     });
     resolve(returnSchema);
@@ -1951,24 +1951,24 @@ function fetchDefaultOptions(url, languageCode, addPrefix) {
 
 var type = {
 	string: {
-		component: "DCText"
+		component: "UIText"
 	},
 	array: {
-		component: "DCDropdown"
+		component: "UIDropdown"
 	},
 	number: {
-		component: "DCNumber"
+		component: "UINumber"
 	},
 	boolean: {
-		component: "DCBoolean"
+		component: "UIBoolean"
 	},
 	object: {
-		component: "DCMultiInput"
+		component: "UIMultiInput"
 	}
 };
 var format = {
 	"date-time": {
-		component: "DCDate"
+		component: "UIDate"
 	}
 };
 var autofilled = [
@@ -2078,24 +2078,24 @@ function updateGSIMDataState(element, user, version, versionIncrementation) {
 
 var type$1 = {
 	string: {
-		component: "DCText"
+		component: "UIText"
 	},
 	array: {
-		component: "DCDropdown"
+		component: "UIDropdown"
 	},
 	number: {
-		component: "DCNumber"
+		component: "UINumber"
 	},
 	boolean: {
-		component: "DCBoolean"
+		component: "UIBoolean"
 	},
 	object: {
-		component: "DCMultiInput"
+		component: "UIMultiInput"
 	}
 };
 var format$1 = {
 	"date-time": {
-		component: "DCDate"
+		component: "UIDate"
 	}
 };
 var autofilled$1 = [
@@ -2159,11 +2159,11 @@ function resolveReferences$1(properties, returnSchema, schema, key, name, specia
   returnSchema[name].properties[key].customType = customType;
   returnSchema[name].properties[key].description.push('Input type: ' + customType);
 
-  if (customType === 'MultilingualText' && !specialFeatures) {
-    returnSchema[name].properties[key].component = 'DCText';
+  if (customType === 'MultilingualText') {
+    returnSchema[name].properties[key].component = specialFeatures ? 'UIMultiInput' : 'UIText';
   } else {
     returnSchema[name].properties[key].multiValue = true;
-    returnSchema[name].properties[key].component = 'DCMultiInput';
+    returnSchema[name].properties[key].component = 'UIMultiInput';
 
     if (specialFeatures) {
       returnSchema[name].properties[key].showLinks = true;
@@ -2191,14 +2191,14 @@ function resolveReferences$1(properties, returnSchema, schema, key, name, specia
   });
 }
 
-function resolveLinks$1(properties, returnSchema, url, key, specialFeatures, route) {
+function resolveLinks$1(properties, returnSchema, url, namespace, key, specialFeatures, route) {
   var linkedKey = key.replace('_link_property_', '');
   var endpoints = [];
   Object.keys(properties[key].properties).forEach(function (property) {
-    endpoints.push(url + 'data/' + property);
+    endpoints.push(url + namespace + property);
   });
   returnSchema[linkedKey].endpoints = endpoints;
-  returnSchema[linkedKey].component = 'DCDropdown';
+  returnSchema[linkedKey].component = 'UIDropdown';
 
   if (specialFeatures) {
     returnSchema[linkedKey].showLinks = true;
@@ -2222,11 +2222,11 @@ function resolveEnums(properties, returnSchema) {
     });
   });
   returnSchema.options = options;
-  returnSchema.component = 'DCDropdown';
+  returnSchema.component = 'UIDropdown';
   delete returnSchema.enum;
 }
 
-function resolveGSIMProperties(schema, url, specialFeatures, route) {
+function resolveGSIMProperties(schema, url, namespace, specialFeatures, route) {
   return new Promise(function (resolve) {
     var returnSchema = JSON.parse(JSON.stringify(schema));
     var name = extractName(schema.$ref);
@@ -2242,7 +2242,7 @@ function resolveGSIMProperties(schema, url, specialFeatures, route) {
         }
 
         if (properties[key].items.hasOwnProperty('format') && properties[key].items.format === 'date-time') {
-          returnSchema.definitions[name].properties[key].component = 'DCDate';
+          returnSchema.definitions[name].properties[key].component = 'UIDate';
           returnSchema.definitions[name].properties[key].multiple = properties[key].type === 'array';
         }
 
@@ -2250,7 +2250,7 @@ function resolveGSIMProperties(schema, url, specialFeatures, route) {
       }
 
       if (key.startsWith('_link_property_')) {
-        resolveLinks$1(properties, returnSchema.definitions[name].properties, url, key, specialFeatures, route);
+        resolveLinks$1(properties, returnSchema.definitions[name].properties, url, namespace, key, specialFeatures, route);
       }
 
       if (properties[key].hasOwnProperty('enum')) {
@@ -2265,7 +2265,7 @@ function resolveGSIMProperties(schema, url, specialFeatures, route) {
   });
 }
 
-function transformGSIMProperties(producer, schema, data, languageCode, fromSource) {
+function transformGSIMProperties(producer, schema, data, languageCode, fromSource, specialFeatures) {
   var returnData = JSON.parse(JSON.stringify(data));
   var name = extractName(schema.$ref);
   var properties = schema.definitions[name].properties;
@@ -2273,20 +2273,42 @@ function transformGSIMProperties(producer, schema, data, languageCode, fromSourc
     if (properties[property].hasOwnProperty('customType') && properties[property].customType === 'MultilingualText') {
       if (returnData.hasOwnProperty(property)) {
         if (fromSource) {
-          var text = data[property][0].languageText;
-          data[property].forEach(function (multilingual) {
-            if (multilingual.languageCode === languageCode) {
-              text = multilingual.languageText;
-            }
-          });
-          returnData[property] = text;
+          if (specialFeatures) {
+            var values = [];
+            data[property].forEach(function (multilingual) {
+              values.push({
+                option: multilingual.languageCode,
+                text: multilingual.languageText
+              });
+            });
+            returnData[property] = values;
+          } else {
+            var text = data[property][0].languageText;
+            data[property].forEach(function (multilingual) {
+              if (multilingual.languageCode === languageCode) {
+                text = multilingual.languageText;
+              }
+            });
+            returnData[property] = text;
+          }
         } else {
-          // TODO: This array overrides the array stored in the object in LDS which means it loses stored langauge texts
-          // for other language codes on save. That might not be a desired outcome
-          returnData[property] = [{
-            languageCode: languageCode,
-            languageText: data[property]
-          }];
+          if (specialFeatures) {
+            var _values = [];
+            data[property].forEach(function (multilingual) {
+              _values.push({
+                languageCode: multilingual.option,
+                languageText: multilingual.text
+              });
+            });
+            returnData[property] = _values;
+          } else {
+            // TODO: This array overrides the array stored in the object in LDS which means it loses stored langauge texts
+            // for other language codes on save. That might not be a desired outcome
+            returnData[property] = [{
+              languageCode: languageCode,
+              languageText: data[property]
+            }];
+          }
         }
       }
     }
@@ -2302,17 +2324,30 @@ function createOptions$1(response, prefix, languageCode, addPrefix) {
     cleanedPrefix = ' (' + prefix.replace(/\//ig, '') + ')';
   }
 
-  Object.keys(response).forEach(function (value) {
-    var text = response[value].name[0].languageText;
-    response[value].name.forEach(function (name) {
+  if (Array.isArray(response)) {
+    Object.keys(response).forEach(function (value) {
+      var text = response[value].name[0].languageText;
+      response[value].name.forEach(function (name) {
+        if (name.languageCode === languageCode) text = name.languageText;
+      });
+      options.push({
+        key: response[value].id,
+        text: text + cleanedPrefix,
+        value: prefix + response[value].id
+      });
+    });
+  } else {
+    var text = response.name[0].languageText;
+    response.name.forEach(function (name) {
       if (name.languageCode === languageCode) text = name.languageText;
     });
     options.push({
-      key: response[value].id,
+      key: response.id,
       text: text + cleanedPrefix,
-      value: prefix + response[value].id
+      value: prefix + response.id
     });
-  });
+  }
+
   return options;
 }
 
@@ -2499,10 +2534,10 @@ function producers$1(producer) {
   }
 }
 
-function producersSpecialProperties(producer, schema, data, languageCode, fromSource) {
+function producersSpecialProperties(producer, schema, data, languageCode, fromSource, specialFeatures) {
   switch (producer) {
     case 'GSIM':
-      return transformGSIMProperties(producer, schema, data, languageCode, fromSource);
+      return transformGSIMProperties(producer, schema, data, languageCode, fromSource, specialFeatures);
 
     case 'Default':
       return data;
@@ -2555,18 +2590,18 @@ function transformDefaultProperties(producer, schema, data, fromSource) {
   });
 }
 
-function transformProperties(producer, schema, data, languageCode, fromSource) {
+function transformProperties(producer, schema, data, languageCode, fromSource, specialFeatures) {
   return new Promise(function (resolve) {
     transformDefaultProperties(producer, schema, data, fromSource).then(function (transformedProperties) {
-      resolve(producersSpecialProperties(producer, schema, transformedProperties, languageCode, fromSource));
+      resolve(producersSpecialProperties(producer, schema, transformedProperties, languageCode, fromSource, specialFeatures));
     });
   });
 }
 
-function saveData(producer, schema, data, endpoint, languageCode) {
+function saveData(producer, schema, data, endpoint, namespace, languageCode, specialFeatures) {
   return new Promise(function (resolve, reject) {
-    transformProperties(producer, schema, data, languageCode, false).then(function (savableData) {
-      var url = endpoint + 'data/' + extractName(schema.$ref) + '/' + savableData.id;
+    transformProperties(producer, schema, data, languageCode, false, specialFeatures).then(function (savableData) {
+      var url = endpoint + namespace + extractName(schema.$ref) + '/' + savableData.id;
       putData(url, endpoint, savableData, languageCode).then(function (response) {
         resolve(response);
       }).catch(function (error) {
@@ -2668,12 +2703,12 @@ function generateDataState(producer, schema, user, languageCode) {
     resolve(dataObject);
   });
 }
-function fillDataState(producer, schema, id, endpoint, languageCode) {
+function fillDataState(producer, schema, id, endpoint, namespace, languageCode, specialFeatures) {
   return new Promise(function (resolve, reject) {
     var name = extractName(schema.$ref);
-    var url = endpoint + 'data/' + name + '/' + id;
+    var url = endpoint + namespace + name + '/' + id;
     fetchData(url, languageCode).then(function (response) {
-      transformProperties(producer, schema, response, languageCode, true).then(function (transformedData) {
+      transformProperties(producer, schema, response, languageCode, true, specialFeatures).then(function (transformedData) {
         resolve(transformedData);
       });
     }).catch(function (error) {
@@ -2691,7 +2726,7 @@ function setDataToSchema(schema, data, languageCode) {
       if (properties[key].hasOwnProperty('autofilled')) {
         properties[key].value = [data[key]];
       } else {
-        if (properties[key].component === 'DCDropdown') {
+        if (properties[key].component === 'UIDropdown') {
           if (!properties[key].options.some(function (r) {
             return data[key].includes(r.value);
           })) {
@@ -2699,7 +2734,7 @@ function setDataToSchema(schema, data, languageCode) {
           }
         }
 
-        if (properties[key].component === 'DCMultiInput') {
+        if (properties[key].component === 'UIMultiInput') {
           if (data[key].hasOwnProperty('option') && !properties[key].options.some(function (r) {
             return data[key].option === r.value;
           })) {
@@ -2760,7 +2795,7 @@ function updateAndCleanProperties(properties, returnSchema, defaultUISchema, nam
 
     if (defaultUISchema.autofilled.includes(key)) {
       returnSchema.definitions[name].properties[key].autofilled = true;
-      returnSchema.definitions[name].properties[key].component = 'DCStatic';
+      returnSchema.definitions[name].properties[key].component = 'UIStatic';
 
       if (properties[key].hasOwnProperty('format') && properties[key].format === 'date-time') {
         returnSchema.definitions[name].properties[key].format = 'date';
@@ -2826,7 +2861,7 @@ function populateOptions(producer, schema, languageCode) {
     })).then(function (options) {
       Object.keys(returnSchema.definitions[name].properties).forEach(function (key, index) {
         if (options[index] !== null) {
-          returnSchema.definitions[name].properties[key].options = options[index]; // TODO: Only works on DCDropdown. If we want it on DCMultiInput it has to be enabled in dc-react-form-fields
+          returnSchema.definitions[name].properties[key].options = options[index]; // TODO: Only works on UIDropdown. If we want it on UIMultiInput it has to be enabled in react-form-fields-library
 
           if (returnSchema.definitions[name].properties[key].options.length > 10) {
             returnSchema.definitions[name].properties[key].searchable = true;
@@ -2842,13 +2877,13 @@ function populateOptions(producer, schema, languageCode) {
   });
 }
 
-function resolveProperties(producer, schema, url, specialFeatures, route) {
+function resolveProperties(producer, schema, url, namespace, specialFeatures, route) {
   switch (producer) {
     case 'GSIM':
-      return resolveGSIMProperties(schema, url, specialFeatures, route);
+      return resolveGSIMProperties(schema, url, namespace, specialFeatures, route);
 
     case 'Default':
-      return resolveDefaultProperties(schema, url, specialFeatures, route);
+      return resolveDefaultProperties(schema, url, namespace, specialFeatures, route);
 
     default:
       return null;
@@ -2868,17 +2903,17 @@ function mergeUISchema(producer, schema) {
   }
 }
 
-var DCFormBuilder =
+var UIFormBuilder =
 /*#__PURE__*/
 function (_Component) {
-  _inherits(DCFormBuilder, _Component);
+  _inherits(UIFormBuilder, _Component);
 
-  function DCFormBuilder(props) {
+  function UIFormBuilder(props) {
     var _this;
 
-    _classCallCheck(this, DCFormBuilder);
+    _classCallCheck(this, UIFormBuilder);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(DCFormBuilder).call(this, props));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(UIFormBuilder).call(this, props));
 
     _this.handleLockClick = function () {
       _this.setState({
@@ -2927,14 +2962,16 @@ function (_Component) {
         var _this$props = _this.props,
             producer = _this$props.producer,
             endpoint = _this$props.endpoint,
+            namespace = _this$props.namespace,
             user = _this$props.user,
-            languageCode = _this$props.languageCode;
+            languageCode = _this$props.languageCode,
+            specialFeatures = _this$props.specialFeatures;
         var copiedSchema = JSON.parse(JSON.stringify(schema));
         validation(copiedSchema, data, languageCode).then(function (schemaWithoutErrors) {
           updateAutofill(producer, schemaWithoutErrors, data, user, versionIncrementation, isNew).then(function (autofilledData) {
             setAutofillAndClean(schemaWithoutErrors, autofilledData, hiddenFields).then(function (finished) {
               var savedMessage = isNew ? MESSAGES.SAVED[languageCode] : MESSAGES.UPDATED[languageCode];
-              saveData(producer, finished.returnSchema, finished.returnData, endpoint, languageCode).then(function (response) {
+              saveData(producer, finished.returnSchema, finished.returnData, endpoint, namespace, languageCode, specialFeatures).then(function (response) {
                 if (isNew) {
                   var newUrl = window.location.pathname.replace('/new', '/' + autofilledData.id);
                   window.history.pushState({}, '', newUrl);
@@ -2993,12 +3030,13 @@ function (_Component) {
         var _this$props2 = _this.props,
             producer = _this$props2.producer,
             user = _this$props2.user,
-            languageCode = _this$props2.languageCode;
+            languageCode = _this$props2.languageCode,
+            specialFeatures = _this$props2.specialFeatures;
         var copiedSchema = JSON.parse(JSON.stringify(schema));
         validation(copiedSchema, data, languageCode).then(function (schemaWithoutErrors) {
           updateAutofill(producer, schemaWithoutErrors, data, user, versionIncrementation, isNew).then(function (autofilledData) {
             setAutofillAndClean(schemaWithoutErrors, autofilledData, hiddenFields).then(function (finished) {
-              transformProperties(producer, finished.returnSchema, finished.returnData, languageCode, false).then(function (saveableData) {
+              transformProperties(producer, finished.returnSchema, finished.returnData, languageCode, false, specialFeatures).then(function (saveableData) {
                 var downloadableJson = 'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(saveableData, null, ' '));
                 var downloadLink = React__default.createElement("a", {
                   href: "data: ".concat(downloadableJson),
@@ -3049,7 +3087,7 @@ function (_Component) {
     return _this;
   }
 
-  _createClass(DCFormBuilder, [{
+  _createClass(UIFormBuilder, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       var _this2 = this;
@@ -3060,13 +3098,15 @@ function (_Component) {
           schema = _this$props3.schema,
           params = _this$props3.params,
           endpoint = _this$props3.endpoint,
+          namespace = _this$props3.namespace,
           user = _this$props3.user,
-          languageCode = _this$props3.languageCode;
-      populateOptions(producer, schema, languageCode).then(function (populatedSchema) {
+          languageCode = _this$props3.languageCode,
+          specialFeatures = _this$props3.specialFeatures;
+      populateOptions(producer, schema, namespace, languageCode).then(function (populatedSchema) {
         if (isNew) {
           _this2.newComponent(producer, populatedSchema, user, languageCode);
         } else {
-          fillDataState(producer, populatedSchema, params.id, endpoint, languageCode).then(function (filledData) {
+          fillDataState(producer, populatedSchema, params.id, endpoint, namespace, languageCode, specialFeatures).then(function (filledData) {
             setDataToSchema(populatedSchema, filledData, languageCode).then(function (filled) {
               _this2.setState({
                 data: filledData,
@@ -3105,7 +3145,9 @@ function (_Component) {
           params = _this$props4.params,
           producer = _this$props4.producer,
           schema = _this$props4.schema,
-          user = _this$props4.user;
+          user = _this$props4.user,
+          namespace = _this$props4.namespace,
+          languageCode = _this$props4.languageCode;
       if (hiddenFields !== nextState.hiddenFields) return true;
       if (fresh !== nextState.fresh) return true;
 
@@ -3114,7 +3156,7 @@ function (_Component) {
           ready: false,
           isNew: true
         }, function () {
-          populateOptions(producer, schema).then(function (populatedSchema) {
+          populateOptions(producer, schema, namespace, languageCode).then(function (populatedSchema) {
             _this3.newComponent(producer, populatedSchema, user);
           });
         });
@@ -3325,17 +3367,17 @@ function (_Component) {
     }
   }]);
 
-  return DCFormBuilder;
+  return UIFormBuilder;
 }(React.Component);
 
-function SchemaHandler(url, producer, endpoint, specialFeatures, route) {
+function SchemaHandler(url, producer, endpoint, namespace, specialFeatures, route) {
   return new Promise(function (resolve, reject) {
     fetchData(url).then(function (result) {
       Promise.all(result.map(function (schema) {
         return mergeDefaultUISchema(producer, schema);
       })).then(function (mergedSchemas) {
         Promise.all(mergedSchemas.map(function (mergedSchema) {
-          return resolveProperties(producer, mergedSchema, endpoint, specialFeatures, route);
+          return resolveProperties(producer, mergedSchema, endpoint, namespace, specialFeatures, route);
         })).then(function (resolvedSchemas) {
           Promise.all(resolvedSchemas.map(function (resolvedSchema) {
             return mergeUISchema(producer, resolvedSchema);
@@ -3385,17 +3427,17 @@ function resolveTableObject(producer, data, languageCode) {
   }
 }
 
-var DCTableBuilder =
+var UITableBuilder =
 /*#__PURE__*/
 function (_Component) {
-  _inherits(DCTableBuilder, _Component);
+  _inherits(UITableBuilder, _Component);
 
-  function DCTableBuilder(props) {
+  function UITableBuilder(props) {
     var _this;
 
-    _classCallCheck(this, DCTableBuilder);
+    _classCallCheck(this, UITableBuilder);
 
-    _this = _possibleConstructorReturn(this, _getPrototypeOf(DCTableBuilder).call(this, props));
+    _this = _possibleConstructorReturn(this, _getPrototypeOf(UITableBuilder).call(this, props));
 
     _this.searchInputOnChange = function (event) {
       _this.setState({
@@ -3450,7 +3492,7 @@ function (_Component) {
     return _this;
   }
 
-  _createClass(DCTableBuilder, [{
+  _createClass(UITableBuilder, [{
     key: "componentDidMount",
     value: function componentDidMount() {
       var _this2 = this;
@@ -3458,14 +3500,17 @@ function (_Component) {
       var _this$props2 = this.props,
           producer = _this$props2.producer,
           endpoint = _this$props2.endpoint,
+          namespace = _this$props2.namespace,
           languageCode = _this$props2.languageCode;
-      var url = endpoint + 'data/' + this.state.name;
+      var url = endpoint + namespace + this.state.name;
       var tableData = [];
       fetchData(url).then(function (result) {
-        if (Array.isArray(result) && result.length !== 0) {
+        if (Array.isArray(result)) {
           result.forEach(function (data) {
             tableData.push(resolveTableObject(producer, data, languageCode));
           });
+        } else {
+          tableData.push(resolveTableObject(producer, result, languageCode));
         }
 
         _this2.setState({
@@ -3576,9 +3621,9 @@ function (_Component) {
     }
   }]);
 
-  return DCTableBuilder;
+  return UITableBuilder;
 }(React.Component);
 
-exports.DCFormBuilder = DCFormBuilder;
+exports.UIFormBuilder = UIFormBuilder;
 exports.SchemaHandler = SchemaHandler;
-exports.DCTableBuilder = DCTableBuilder;
+exports.UITableBuilder = UITableBuilder;

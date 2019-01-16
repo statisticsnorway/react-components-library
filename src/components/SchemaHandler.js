@@ -2,7 +2,7 @@ import { fetchData } from '../utilities/http-clients/fetch'
 import { mergeDefaultUISchema, mergeUISchema, resolveProperties } from '../utilities/schema-handling'
 import { MESSAGES } from '../utilities/Enum'
 
-export function SchemaHandler (url, producer, endpoint, specialFeatures, route) {
+export function SchemaHandler (url, producer, endpoint, namespace, specialFeatures, route) {
   return new Promise((resolve, reject) => {
     fetchData(url).then(result => {
       Promise.all(
@@ -12,7 +12,7 @@ export function SchemaHandler (url, producer, endpoint, specialFeatures, route) 
       ).then(mergedSchemas => {
         Promise.all(
           mergedSchemas.map(mergedSchema => {
-            return resolveProperties(producer, mergedSchema, endpoint, specialFeatures, route)
+            return resolveProperties(producer, mergedSchema, endpoint, namespace, specialFeatures, route)
           })
         ).then(resolvedSchemas => {
           Promise.all(

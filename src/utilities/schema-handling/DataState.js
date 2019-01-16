@@ -48,13 +48,13 @@ export function generateDataState (producer, schema, user, languageCode) {
   })
 }
 
-export function fillDataState (producer, schema, id, endpoint, languageCode) {
+export function fillDataState (producer, schema, id, endpoint, namespace, languageCode, specialFeatures) {
   return new Promise((resolve, reject) => {
     const name = extractName(schema.$ref)
-    const url = endpoint + 'data/' + name + '/' + id
+    const url = endpoint + namespace + name + '/' + id
 
     fetchData(url, languageCode).then(response => {
-      transformProperties(producer, schema, response, languageCode, true).then(transformedData => {
+      transformProperties(producer, schema, response, languageCode, true, specialFeatures).then(transformedData => {
         resolve(transformedData)
       })
     }).catch(error => {
@@ -75,13 +75,13 @@ export function setDataToSchema (schema, data, languageCode) {
       if (properties[key].hasOwnProperty('autofilled')) {
         properties[key].value = [data[key]]
       } else {
-        if (properties[key].component === 'DCDropdown') {
+        if (properties[key].component === 'UIDropdown') {
           if (!properties[key].options.some(r => data[key].includes(r.value))) {
             properties[key].warning = MESSAGES.MISSING_LINK[languageCode]
           }
         }
 
-        if (properties[key].component === 'DCMultiInput') {
+        if (properties[key].component === 'UIMultiInput') {
           if (data[key].hasOwnProperty('option') && !properties[key].options.some(r => data[key].option === r.value)) {
             properties[key].warning = MESSAGES.MISSING_LINK[languageCode]
           }
