@@ -50,6 +50,11 @@ export function populateOptions (producer, schema, languageCode) {
         if (options[index] !== null) {
           returnSchema.definitions[name].properties[key].options = options[index]
 
+          // TODO: Only works on UIDropdown. If we want it on UIMultiInput it has to be enabled in react-form-fields-library
+          if (returnSchema.definitions[name].properties[key].options.length > 10) {
+            returnSchema.definitions[name].properties[key].searchable = true
+          }
+
           delete returnSchema.definitions[name].properties[key].endpoints
         }
       })

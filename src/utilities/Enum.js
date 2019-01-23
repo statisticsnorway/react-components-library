@@ -5,6 +5,10 @@ export const DIV = {
 }
 
 export const MESSAGES = {
+  CHANGES_MADE: {
+    en: 'Changes has been made since last save',
+    nb: 'Endringer er blitt gjort siden siste lagring'
+  },
   CORRECT_ERRORS: {
     en: 'Object was not saved, correct any errors and try again',
     nb: 'Objektet ble ikke lagret, rett opp feil og prøv igjen'
@@ -21,9 +25,17 @@ export const MESSAGES = {
     en: 'Simulates storing the data to LDS and generates the JSON-file to download',
     nb: 'Simuler lagring av data til LDS og generer en JSON-fil for nedlastning'
   },
+  MISSING_LINK: {
+    en: 'Selected value(s) refers to non-existent object',
+    nb: 'Valgt(e) verdi(er) referer til et ikke-eksisterende objekt'
+  },
   NAME_NOT_FOUND: {
     en: 'Found nothing matching',
     nb: 'Fant ingenting som matcher'
+  },
+  NO_CHANGES_MADE: {
+    en: 'No changes has been made since last save',
+    nb: 'Ingen endringer er blitt gjort siden siste lagring'
   },
   NOT_EMPTY: {
     en: 'Cannot be blank',

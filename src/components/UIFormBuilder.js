@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
-import { Button, Dimmer, Form, Grid, Header, Icon, Message, Popup } from 'semantic-ui-react'
+import { Button, Dimmer, Form, Grid, Header, Icon, Label, Message, Popup } from 'semantic-ui-react'
 
-import { DCFormField } from 'dc-react-form-fields-library'
+import { UIFormField } from 'react-form-fields-library'
 import { defaultVersioning } from '../producers'
 import { extractName, splitOnUppercase } from '../utilities/Common'
 import {
@@ -15,7 +15,7 @@ import { fillDataState, generateDataState, populateOptions } from '../utilities/
 import { DIV, MESSAGES, UI } from '../utilities/Enum'
 import { setDataToSchema } from '../utilities/schema-handling/DataState'
 
-class DCFormBuilder extends Component {
+class UIFormBuilder extends Component {
   constructor (props) {
     super(props)
 
@@ -33,20 +33,21 @@ class DCFormBuilder extends Component {
       name: name,
       description: this.props.schema.definitions[name].description,
       problem: false,
-      isNew: this.props.params.id === 'new'
+      isNew: this.props.params.id === 'new',
+      fresh: true
     }
   }
 
   componentDidMount () {
     const {isNew} = this.state
-    const {producer, schema, params, endpoint, user, languageCode} = this.props
+    const {producer, schema, params, endpoint, namespace, user, languageCode, specialFeatures} = this.props
 
-    populateOptions(producer, schema, languageCode).then(populatedSchema => {
+    populateOptions(producer, schema, namespace, languageCode).then(populatedSchema => {
       if (isNew) {
         this.newComponent(producer, populatedSchema, user, languageCode)
       } else {
-        fillDataState(producer, populatedSchema, params.id, endpoint, languageCode).then(filledData => {
-          setDataToSchema(populatedSchema, filledData).then(filled => {
+        fillDataState(producer, populatedSchema, params.id, endpoint, namespace, languageCode, specialFeatures).then(filledData => {
+          setDataToSchema(populatedSchema, filledData, languageCode).then(filled => {
             this.setState({
               data: filledData,
               schema: filled.returnSchema,
@@ -69,17 +70,19 @@ class DCFormBuilder extends Component {
   }
 
   shouldComponentUpdate (nextProps, nextState) {
-    const {hiddenFields, data} = this.state
-    const {params, producer, schema, user} = this.props
+    const {hiddenFields, data, fresh} = this.state
+    const {params, producer, schema, user, namespace, languageCode} = this.props
 
     if (hiddenFields !== nextState.hiddenFields) return true
+
+    if (fresh !== nextState.fresh) return true
 
     if (params.id !== nextProps.params.id && nextProps.params.id === 'new') {
       this.setState({
         ready: false,
         isNew: true
       }, () => {
-        populateOptions(producer, schema).then(populatedSchema => {
+        populateOptions(producer, schema, namespace, languageCode).then(populatedSchema => {
           this.newComponent(producer, populatedSchema, user)
         })
       })
@@ -124,6 +127,7 @@ class DCFormBuilder extends Component {
         ...this.state.data,
         [name]: value
       },
+      fresh: false,
       saved: false
     })
   }
@@ -151,7 +155,7 @@ class DCFormBuilder extends Component {
 
     this.setState({ready: false}, () => {
       const {schema, data, versionIncrementation, hiddenFields, isNew} = this.state
-      const {producer, endpoint, user, languageCode} = this.props
+      const {producer, endpoint, namespace, user, languageCode, specialFeatures} = this.props
       const copiedSchema = JSON.parse(JSON.stringify(schema))
 
       validation(copiedSchema, data, languageCode).then(schemaWithoutErrors => {
@@ -159,7 +163,7 @@ class DCFormBuilder extends Component {
           setAutofillAndClean(schemaWithoutErrors, autofilledData, hiddenFields).then(finished => {
             const savedMessage = isNew ? MESSAGES.SAVED[languageCode] : MESSAGES.UPDATED[languageCode]
 
-            saveData(producer, finished.returnSchema, finished.returnData, endpoint, languageCode).then(response => {
+            saveData(producer, finished.returnSchema, finished.returnData, endpoint, namespace, languageCode, specialFeatures).then(response => {
               if (isNew) {
                 const newUrl = window.location.pathname.replace('/new', '/' + autofilledData.id)
 
@@ -172,7 +176,8 @@ class DCFormBuilder extends Component {
                 saved: true,
                 message: MESSAGES.WAS_SAVED[languageCode] + savedMessage + ' (' + DIV.SAGA + ': ' + response[DIV.SAGA] + ')',
                 readOnly: true,
-                isNew: false
+                isNew: false,
+                fresh: true
               }, () => this.setState({ready: true}))
             }).catch(saveError => {
               this.setState({
@@ -199,13 +204,13 @@ class DCFormBuilder extends Component {
 
     this.setState({ready: false}, () => {
       const {name, schema, data, versionIncrementation, hiddenFields, isNew} = this.state
-      const {producer, user, languageCode} = this.props
+      const {producer, user, languageCode, specialFeatures} = this.props
       const copiedSchema = JSON.parse(JSON.stringify(schema))
 
       validation(copiedSchema, data, languageCode).then(schemaWithoutErrors => {
         updateAutofill(producer, schemaWithoutErrors, data, user, versionIncrementation, isNew).then(autofilledData => {
           setAutofillAndClean(schemaWithoutErrors, autofilledData, hiddenFields).then(finished => {
-            transformProperties(producer, finished.returnSchema, finished.returnData, languageCode, false).then(saveableData => {
+            transformProperties(producer, finished.returnSchema, finished.returnData, languageCode, false, specialFeatures).then(saveableData => {
               const downloadableJson = 'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(saveableData, null, ' '))
               const downloadLink = <a href={`data: ${downloadableJson}`}
                                       download={name + DIV.JSON_FILE_ENDING}>{UI.DOWNLOAD_JSON[languageCode]}</a>
@@ -233,7 +238,7 @@ class DCFormBuilder extends Component {
   }
 
   render () {
-    const {ready, readOnly, message, saved, schema, hiddenFields, name, description, problem, isNew} = this.state
+    const {ready, readOnly, message, saved, schema, hiddenFields, name, description, problem, isNew, fresh} = this.state
     const {specialFeatures, languageCode} = this.props
 
     if (problem) {
@@ -253,6 +258,13 @@ class DCFormBuilder extends Component {
 
       return (
         <Form>
+          <Popup flowing hideOnScroll position='left center'
+                 trigger={<Label attached='top right' color={fresh ? 'green' : 'orange'} circular size='big'
+                                 icon={{fitted: true, name: fresh ? 'save' : 'edit'}} />}>
+            <Icon color='blue' name='info circle' />
+            {fresh ? MESSAGES.NO_CHANGES_MADE[languageCode] : MESSAGES.CHANGES_MADE[languageCode]}
+          </Popup>
+
           <Header as='h1' content={splitOnUppercase(name)} subheader={description} dividing
                   icon={{name: formIcon, color: formIconColor, link: true, onClick: this.handleLockClick}} />
           {message !== '' && <Message color={saved ? 'green' : 'red'} content={message} />}
@@ -270,13 +282,13 @@ class DCFormBuilder extends Component {
                 {Object.keys(properties).map((property, index) => {
                   if (!properties[property].hasOwnProperty('autofilled') && properties[property].group !== 'common') {
                     if (properties[property].hasOwnProperty('hideOnChoice')) {
-                      return <DCFormField key={index} properties={properties[property]} languageCode={languageCode}
+                      return <UIFormField key={index} properties={properties[property]} languageCode={languageCode}
                                           valueChange={this.handleVisibilityChange} />
                     } else {
                       if (Array.isArray(hiddenFields) && hiddenFields.length !== 0 && hiddenFields.includes(property)) {
                         return null
                       } else {
-                        return <DCFormField key={index} properties={properties[property]} languageCode={languageCode}
+                        return <UIFormField key={index} properties={properties[property]} languageCode={languageCode}
                                             valueChange={this.handleValueChange} />
                       }
                     }
@@ -288,7 +300,7 @@ class DCFormBuilder extends Component {
               <Grid.Column>
                 {Object.keys(properties).map((property, index) => {
                   if (!properties[property].hasOwnProperty('autofilled') && properties[property].group === 'common') {
-                    return <DCFormField key={index} properties={properties[property]} languageCode={languageCode}
+                    return <UIFormField key={index} properties={properties[property]} languageCode={languageCode}
                                         valueChange={this.handleValueChange} />
                   }
 
@@ -298,7 +310,7 @@ class DCFormBuilder extends Component {
               <Grid.Column>
                 {Object.keys(properties).map((property, index) => {
                   if (properties[property].hasOwnProperty('autofilled')) {
-                    return <DCFormField key={index} properties={properties[property]} languageCode={languageCode}
+                    return <UIFormField key={index} properties={properties[property]} languageCode={languageCode}
                                         valueChange={this.handleValueChange} />
                   }
 
@@ -306,7 +318,7 @@ class DCFormBuilder extends Component {
                 })}
 
                 {!isNew &&
-                <DCFormField properties={defaultVersioning} valueChange={this.handleVersionIncrementationChange}
+                <UIFormField properties={defaultVersioning} valueChange={this.handleVersionIncrementationChange}
                              languageCode={languageCode} />
                 }
 
@@ -334,4 +346,4 @@ class DCFormBuilder extends Component {
   }
 }
 
-export default DCFormBuilder
+export default UIFormBuilder

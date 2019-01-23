@@ -8,7 +8,7 @@ import { fetchData } from '../utilities/http-clients/fetch'
 import { resolveTableHeaders, resolveTableObject } from '../utilities/table-handling'
 import { MESSAGES, TABLE, UI } from '../utilities/Enum'
 
-class DCTableBuilder extends Component {
+class UITableBuilder extends Component {
   constructor (props) {
     super(props)
 
@@ -53,15 +53,17 @@ class DCTableBuilder extends Component {
   }
 
   componentDidMount () {
-    const {producer, endpoint, languageCode} = this.props
-    const url = endpoint + 'data/' + this.state.name
+    const {producer, endpoint, namespace, languageCode} = this.props
+    const url = endpoint + namespace + this.state.name
     const tableData = []
 
     fetchData(url).then(result => {
-      if (result.length !== 0) {
+      if (Array.isArray(result)) {
         result.forEach(data => {
           tableData.push(resolveTableObject(producer, data, languageCode))
         })
+      } else {
+        tableData.push(resolveTableObject(producer, result, languageCode))
       }
 
       this.setState({
@@ -131,4 +133,4 @@ class DCTableBuilder extends Component {
   }
 }
 
-export default DCTableBuilder
+export default UITableBuilder

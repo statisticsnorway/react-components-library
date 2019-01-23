@@ -16,10 +16,10 @@ function producers (producer) {
   }
 }
 
-function producersSpecialProperties (producer, schema, data, languageCode, fromSource) {
+function producersSpecialProperties (producer, schema, data, languageCode, fromSource, specialFeatures) {
   switch (producer) {
     case 'GSIM':
-      return transformGSIMProperties(producer, schema, data, languageCode, fromSource)
+      return transformGSIMProperties(producer, schema, data, languageCode, fromSource, specialFeatures)
 
     case 'Default':
       return data
@@ -76,10 +76,10 @@ function transformDefaultProperties (producer, schema, data, fromSource) {
   })
 }
 
-export function transformProperties (producer, schema, data, languageCode, fromSource) {
+export function transformProperties (producer, schema, data, languageCode, fromSource, specialFeatures) {
   return new Promise(resolve => {
     transformDefaultProperties(producer, schema, data, fromSource).then(transformedProperties => {
-        resolve(producersSpecialProperties(producer, schema, transformedProperties, languageCode, fromSource))
+        resolve(producersSpecialProperties(producer, schema, transformedProperties, languageCode, fromSource, specialFeatures))
       }
     )
   })

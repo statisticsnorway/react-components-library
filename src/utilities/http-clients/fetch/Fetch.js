@@ -21,8 +21,20 @@ export function fetchData (url, languageCode, timeout = 3000) {
         response.json().then(
           json => resolve(json)
         )
+      } else if (response.status === 404) {
+        // TODO: LDS now responds with 404 if empty, that however should not block a form from generating, rather it should
+        // show 'No options'. This is a temporary fix to that. It is still undecided if LDS should return an empty array or 404.
+        resolve([])
       } else {
         response.text().then(text => {
+          if (text === null || text === '') {
+            try {
+              text = response.statusText.toString()
+            } catch (error) {
+              text = 'Error: '
+            }
+          }
+
           reject(text + ' (' + url + ')')
         })
       }

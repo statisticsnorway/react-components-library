@@ -1,11 +1,11 @@
-= dc-react-components-library
+= react-components-library
 
-DC React Components Library is a React Component library used for generating complex forms from JSONSchemas with Producers.
+React Components Library is a React Component library used for generating complex forms from JSONSchemas with Producers.
 
 === How it works
-* DCFormBuilder
+* UIFormBuilder
     ** This component expects `params, producer, schema`, `languageCode` and `endpoint`
-* DCTableBuilder
+* UITableBuilder
     ** This component expects `params, producer, schema, languageCode, endpoint` and `routing`
 * SchemaHandler
     ** This function expects `url, producer` and `endpoint`
@@ -13,7 +13,7 @@ DC React Components Library is a React Component library used for generating com
 The SchemaHandler fetches JSONSchemas from the provided url, then resolves its properties with help from the Producer.
 The provided endpoint should point to the data storage.
 
-DCFormBuilder and DCTableBuilder use the schema produced by SchemaHandler and builds the UI.
+UIFormBuilder and UITableBuilder use the schema produced by SchemaHandler and builds the UI.
 
 The concept of this library is to be able to produce forms and tables from data stored in
 https://github.com/statisticsnorway/linked-data-store-docmentation[LDS].
@@ -21,7 +21,7 @@ https://github.com/statisticsnorway/linked-data-store-docmentation[LDS].
 === Example:
 [source]
 ----
-import { DCFormBuilder, DCTableBuilder, SchemaHandler }  from 'dc-react-components-library'
+import { UIFormBuilder, UITableBuilder, SchemaHandler }  from 'react-components-library'
 
 class App extends Component {
   constructor (props) {
@@ -91,7 +91,7 @@ class App extends Component {
             const path = route + domain + '/:id'
 
             return <Route key={index} path={path} exact
-                          render={({match}) => <DCFormBuilder params={match.params} producer={producer}
+                          render={({match}) => <UIFormBuilder params={match.params} producer={producer}
                                                               schema={JSON.parse(JSON.stringify(schema))}
                                                               languageCode={languageCode}
                                                               specialFeatures={specialFeatures}
@@ -102,7 +102,7 @@ class App extends Component {
             const path = route + domain
 
             return <Route key={index} path={path} exact
-                          render={({match}) => <DCTableBuilder params={match.params} producer={producer}
+                          render={({match}) => <UITableBuilder params={match.params} producer={producer}
                                                                schema={JSON.parse(JSON.stringify(schema))}
                                                                languageCode={languageCode}
                                                                specialFeatures={specialFeatures}
@@ -125,17 +125,17 @@ class App extends Component {
 * This library uses https://semantic-ui.com/introduction/getting-started.html[Semantic UI] for styling and therefore
  requires your project to to have `semantic-ui-css` and `semantic-ui-react` as dependencies (since those are not packaged with this library)
 
-** Do not forget to wrap your DCFormField components inside the https://react.semantic-ui.com/[Semantic UI React]
+** Do not forget to wrap your UIFormField components inside the https://react.semantic-ui.com/[Semantic UI React]
 component `Form` (like in the example above)
 ** Also do not forget to add `import &#39;semantic-ui-css/semantic.min.css&#39;` in your `index.js`
 
-* This library also uses https://github.com/statisticsnorway/dc-react-form-fields-library[dc-react-form-fields-library] for its form fields and
- the DCDate component requires https://momentjs.com/docs/[Moment.js] and https://reactdatepicker.com/[ReactJS Datepicker]
+* This library also uses https://github.com/statisticsnorway/dc-react-form-fields-library[react-form-fields-library] for its form fields and
+ the UIDate component requires https://momentjs.com/docs/[Moment.js] and https://reactdatepicker.com/[ReactJS Datepicker]
  so if you wish to use it you need `react-datepicker` and `moment` as dependencies in your project
 
 ** Again do not forget to add the css - `import &#39;react-datepicker/dist/react-datepicker.css&#39;` in your `index.js`
 
-* Lastly the DCTableBuilder component of this library uses https://react-table.js.org/#/story/readme[React Table] so therefore when using it
+* Lastly the UITableBuilder component of this library uses https://react-table.js.org/#/story/readme[React Table] so therefore when using it
  your project needs `react-table` as a dependency
 
 ** Once more do not forget to add the css - `import &#39;react-table/react-table.css&#39;` in your `index.js`
@@ -147,7 +147,7 @@ Because JSONSchemas can have different structures the Producers are functions th
 be used by the UI, all based upon a default UISchema and alternatively special UISchemas for specific objects.
 
 The `GSIM Producer` comes with the library but if you want to use this library on another structure than GSIM you need to write	A default producer and the `GSIM Producer` comes with the library but if you want to use this library on another structure
-your own producers and provide DefaultUISchema and spesific UISchemas	than GSIMm og basic JSONSchemas you need to writeyour own producers and provide DefaultUISchema and spesific UISchemas
+your own producers and provide DefaultUISchema and spesific UISchemas than GSIMm og basic JSONSchemas you need to writeyour own producers and provide DefaultUISchema and spesific UISchemas
 
 
 === GSIM producer
@@ -164,12 +164,12 @@ in the JSONSchemas from the provided url.
 
 . In your React application run `yarn add https://github.com/statisticsnorway/dc-react-components-library.git`
 ** Optionally add `#name-of-branch` at the end to use a specific branch instead of master
-. Import functions in your React application e.g. `import { dataFetcher } from &#39;dc-react-components-library&#39;`
+. Import functions in your React application e.g. `import { dataFetcher } from &#39;react-components-library&#39;`
 
 === Useful information
 
 * Your imported library does not automatically stay up to date with the latest commits to GitHub so you have to run
-`yarn upgrade dc-react-components-library` in your React application to get the latest "build"
+`yarn upgrade react-components-library` in your React application to get the latest "build"
 
 === Test it yourself
 
