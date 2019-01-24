@@ -15,7 +15,7 @@ function producers (producer) {
   }
 }
 
-function cleanDefinitions (definitions, returnSchema) {
+export function cleanDefinitions (definitions, returnSchema) {
   Object.keys(definitions).forEach(definition => {
     Object.keys(definitions[definition].properties).forEach(property => {
       if (definitions[definition].required.includes(property)) {
@@ -27,7 +27,7 @@ function cleanDefinitions (definitions, returnSchema) {
   })
 }
 
-function updateAndCleanProperties (properties, returnSchema, defaultUISchema, name) {
+export function updateAndCleanProperties (properties, returnSchema, defaultUISchema, name) {
   Object.keys(properties).forEach(key => {
     returnSchema.definitions[name].properties[key].name = key
 
