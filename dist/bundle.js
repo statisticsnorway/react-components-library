@@ -3460,7 +3460,10 @@ function (_Component) {
     var tableColumns = [];
     tableHeaders.forEach(function (header) {
       console.log('schema');
-      console.log(schema);
+
+      var util = require('util');
+
+      console.log(util.inspect(schema, false, null, true));
       console.log('schema.definitions[name]');
       console.log(schema.definitions[name]);
       console.log('schema.definitions[name].properties[header]');

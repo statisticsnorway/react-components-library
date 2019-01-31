@@ -20,7 +20,8 @@ class UITableBuilder extends Component {
 
     tableHeaders.forEach(header => {
       console.log('schema')
-      console.log(schema)
+      const util = require('util')
+      console.log(util.inspect(schema, false, null, true))
 
       console.log('schema.definitions[name]')
       console.log(schema.definitions[name])
