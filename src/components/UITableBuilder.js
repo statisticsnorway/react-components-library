@@ -21,7 +21,6 @@ class UITableBuilder extends Component {
     tableHeaders.forEach(header => {
       if (schema.definitions[name].properties[header]) {
         const displayName = schema.definitions[name].properties[header].displayName
-
         const tableColumn = {}
 
         tableColumn['Header'] = displayName
@@ -87,7 +86,6 @@ class UITableBuilder extends Component {
 
   render () {
     const {ready, message, search, name, description, tableColumns, tableData} = this.state
-
     const {routing, languageCode} = this.props
 
     let filteredTableData = tableData
@@ -107,7 +105,7 @@ class UITableBuilder extends Component {
       return (
         <div>
           <Header as='h1' content={splitOnUppercase(name)} subheader={description} dividing
-                  icon={{name: 'list alternate outline', color: 'teal' }} />
+                  icon={{name: 'list alternate outline', color: 'teal'}} />
           <Divider hidden />
           <Popup flowing hideOnScroll position='top center'
                  trigger={<Input icon='search' placeholder={UI.SEARCH[languageCode]} value={search}
@@ -119,7 +117,7 @@ class UITableBuilder extends Component {
           <Link to={routing + '/new'}>
             <Button primary floated='right' content={UI.CREATE_NEW[languageCode] + ' ' + splitOnUppercase(name)} />
           </Link>
-          {message ? <Message negative content={message}/> : <Divider hidden />}
+          {message ? <Message negative content={message} /> : <Divider hidden />}
 
           <ReactTable sortable data={filteredTableData} resizable={false} columns={tableColumns} defaultPageSize={10}
                       noDataText={noDataText} previousText={TABLE.PREVIOUS[languageCode]}

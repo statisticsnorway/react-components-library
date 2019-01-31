@@ -2441,13 +2441,16 @@ function resolveGSIMTableObject(data, languageCode) {
     if (Object.keys(tableSchema.needsTransforming).includes(header)) {
       switch (tableSchema.needsTransforming[header]) {
         case 'MultilingualText':
-          var text = data[header][0].languageText;
-          data[header].forEach(function (multilingual) {
-            if (multilingual.languageCode === languageCode) {
-              text = multilingual.languageText;
-            }
-          });
-          tableObject[header] = text;
+          if (data[header]) {
+            var text = data[header][0].languageText;
+            data[header].forEach(function (multilingual) {
+              if (multilingual.languageCode === languageCode) {
+                text = multilingual.languageText;
+              }
+            });
+            tableObject[header] = text;
+          }
+
           break;
 
         default:
@@ -3459,42 +3462,33 @@ function (_Component) {
     var tableHeaders = resolveTableHeaders(producer);
     var tableColumns = [];
     tableHeaders.forEach(function (header) {
-      console.log('schema');
+      if (schema.definitions[name].properties[header]) {
+        var displayName = schema.definitions[name].properties[header].displayName;
+        var tableColumn = {};
+        tableColumn['Header'] = displayName;
+        tableColumn['accessor'] = header;
 
-      var util = require('util');
+        switch (header) {
+          case 'id':
+            tableColumn['Cell'] = function (props) {
+              return React__default.createElement(reactRouterDom.Link, {
+                to: routing + '/' + props.original.id
+              }, props.value);
+            };
 
-      console.log(util.inspect(schema, false, null, true));
-      console.log('schema.definitions[name]');
-      console.log(schema.definitions[name]);
-      console.log('schema.definitions[name].properties[header]');
-      console.log(schema.definitions[name].properties[header]);
-      console.log('schema.definitions[name].properties[header].displayname');
-      console.log(schema.definitions[name].properties[header].displayname);
-      var displayName = schema.definitions[name].properties[header].displayName;
-      var tableColumn = {};
-      tableColumn['Header'] = displayName;
-      tableColumn['accessor'] = header;
+            break;
 
-      switch (header) {
-        case 'name':
-          tableColumn['Cell'] = function (props) {
-            return React__default.createElement(reactRouterDom.Link, {
-              to: routing + '/' + props.original.id
-            }, props.value);
-          };
+          default:
+            tableColumn['Cell'] = function (props) {
+              return React__default.createElement("div", {
+                className: "textCenter"
+              }, props.value);
+            };
 
-          break;
+        }
 
-        default:
-          tableColumn['Cell'] = function (props) {
-            return React__default.createElement("div", {
-              className: "textCenter"
-            }, props.value);
-          };
-
+        tableColumns.push(tableColumn);
       }
-
-      tableColumns.push(tableColumn);
     });
     _this.state = {
       ready: false,
