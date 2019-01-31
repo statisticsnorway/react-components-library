@@ -3459,6 +3459,8 @@ function (_Component) {
     var tableHeaders = resolveTableHeaders(producer);
     var tableColumns = [];
     tableHeaders.forEach(function (header) {
+      console.log('schema');
+      console.log(schema);
       console.log('schema.definitions[name]');
       console.log(schema.definitions[name]);
       console.log('schema.definitions[name].properties[header]');
