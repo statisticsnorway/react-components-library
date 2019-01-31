@@ -1,0 +1,356 @@
+{
+  "options": [
+    {
+      "key": "3f04263d-407f-4e62-ae5b-f5d453642900",
+      "text": "sadfgh",
+      "value": "/AgentInRole/3f04263d-407f-4e62-ae5b-f5d453642900"
+    }
+  ],
+  "schema": {
+    "$ref": "#/definitions/Role",
+    "definitions": {
+      "MultilingualText": {
+        "type": "object",
+        "properties": {
+          "languageCode": {
+            "type": "string",
+            "description": "The language code. Use only ISO 639-1 codes.",
+            "displayName": "Language code",
+            "required": true
+          },
+          "languageText": {
+            "type": "string",
+            "description": "The text (e.g. label, title, description)",
+            "displayName": "Language text",
+            "required": true
+          }
+        }
+      },
+      "AdministrativeDetails": {
+        "type": "object",
+        "properties": {
+          "administrativeDetailType": {
+            "type": "string",
+            "description": "The type (key) of the AdministrativeDetails-attribute.",
+            "displayName": "Administrative detail type",
+            "required": true
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "One or more values (a list) for this administrativeDetailType.",
+            "displayName": "Values",
+            "required": true
+          }
+        }
+      },
+      "Role": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": [
+              "The global unique identifier (GUID) of the information object assigned by the owner agency."
+            ],
+            "displayName": "Id",
+            "required": true,
+            "name": "id",
+            "component": "UIStatic",
+            "autofilled": true
+          },
+          "name": {
+            "type": "array",
+            "description": [
+              "A term which designates a concept, in this case an information object. The identifying name will be the preferred designation. There will be many terms to designate the same information object, such as synonyms and terms in other languages.",
+              "Input type: MultilingualText",
+              "Language code: The language code. Use only ISO 639-1 codes.",
+              "Language text: The text (e.g. label, title, description)"
+            ],
+            "displayName": "Name",
+            "required": true,
+            "name": "name",
+            "component": "UIText",
+            "customType": "MultilingualText",
+            "options": [
+              {
+                "key": "nb",
+                "text": "nb",
+                "value": "nb"
+              },
+              {
+                "key": "nn",
+                "text": "nn",
+                "value": "nn"
+              },
+              {
+                "key": "en",
+                "text": "en",
+                "value": "en"
+              }
+            ]
+          },
+          "description": {
+            "type": "array",
+            "description": [
+              "The description of the information object",
+              "Input type: MultilingualText",
+              "Language code: The language code. Use only ISO 639-1 codes.",
+              "Language text: The text (e.g. label, title, description)"
+            ],
+            "displayName": "Description",
+            "required": true,
+            "name": "description",
+            "component": "UIText",
+            "customType": "MultilingualText",
+            "options": [
+              {
+                "key": "nb",
+                "text": "nb",
+                "value": "nb"
+              },
+              {
+                "key": "nn",
+                "text": "nn",
+                "value": "nn"
+              },
+              {
+                "key": "en",
+                "text": "en",
+                "value": "en"
+              }
+            ]
+          },
+          "administrativeStatus": {
+            "type": "string",
+            "description": [
+              "Indicator for access to an item."
+            ],
+            "displayName": "Administrative status",
+            "name": "administrativeStatus",
+            "component": "UIDropdown",
+            "group": "common",
+            "options": [
+              {
+                "key": "DRAFT",
+                "text": "DRAFT",
+                "value": "DRAFT"
+              },
+              {
+                "key": "INTERNAL",
+                "text": "INTERNAL",
+                "value": "INTERNAL"
+              },
+              {
+                "key": "OPEN",
+                "text": "OPEN",
+                "value": "OPEN"
+              },
+              {
+                "key": "DEPRECATED",
+                "text": "DEPRECATED",
+                "value": "DEPRECATED"
+              }
+            ]
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date",
+            "description": [
+              "The date on which the information object was created"
+            ],
+            "displayName": "Created date",
+            "required": true,
+            "name": "createdDate",
+            "component": "UIStatic",
+            "autofilled": true,
+            "multiple": false
+          },
+          "createdBy": {
+            "type": "string",
+            "description": [
+              "Information object created by."
+            ],
+            "displayName": "Created by",
+            "required": true,
+            "name": "createdBy",
+            "component": "UIStatic",
+            "autofilled": true,
+            "icon": "user"
+          },
+          "version": {
+            "type": "string",
+            "description": [
+              "Formal versioning of the information object. The version designator of the information object assigned by the owner agency. \"major.minor.patch\", e.g. \"1.12.5\"."
+            ],
+            "displayName": "Version",
+            "name": "version",
+            "component": "UIStatic",
+            "autofilled": true
+          },
+          "versionValidFrom": {
+            "type": "string",
+            "format": "date",
+            "description": [
+              "The date on which the current version of the infomation object is effective or valid."
+            ],
+            "displayName": "Version valid from",
+            "required": true,
+            "name": "versionValidFrom",
+            "component": "UIStatic",
+            "autofilled": true,
+            "multiple": false
+          },
+          "versionRationale": {
+            "type": "array",
+            "description": [
+              "The reason for making this version of the information object.",
+              "Input type: MultilingualText",
+              "Language code: The language code. Use only ISO 639-1 codes.",
+              "Language text: The text (e.g. label, title, description)"
+            ],
+            "displayName": "Version rationale",
+            "name": "versionRationale",
+            "component": "UIText",
+            "group": "common",
+            "customType": "MultilingualText",
+            "options": [
+              {
+                "key": "nb",
+                "text": "nb",
+                "value": "nb"
+              },
+              {
+                "key": "nn",
+                "text": "nn",
+                "value": "nn"
+              },
+              {
+                "key": "en",
+                "text": "en",
+                "value": "en"
+              }
+            ]
+          },
+          "lastUpdatedDate": {
+            "type": "string",
+            "format": "date",
+            "description": [
+              "The date on which the object was last updated."
+            ],
+            "displayName": "Last updated date",
+            "name": "lastUpdatedDate",
+            "component": "UIStatic",
+            "autofilled": true,
+            "multiple": false
+          },
+          "lastUpdatedBy": {
+            "type": "string",
+            "description": [
+              "Last updated by."
+            ],
+            "displayName": "Last updated by",
+            "name": "lastUpdatedBy",
+            "component": "UIStatic",
+            "autofilled": true,
+            "icon": "user"
+          },
+          "validFrom": {
+            "type": "string",
+            "format": "date",
+            "description": [
+              "The date on which the information object is effective or valid. Set this date only once (constant). The same date for all versions of this information object."
+            ],
+            "displayName": "Valid from",
+            "required": true,
+            "name": "validFrom",
+            "component": "UIStatic",
+            "autofilled": true,
+            "multiple": false
+          },
+          "validUntil": {
+            "type": "string",
+            "format": "date-time",
+            "description": [
+              "The date on which the information object is no longer effective or valid."
+            ],
+            "displayName": "Valid until",
+            "name": "validUntil",
+            "component": "UIDate",
+            "group": "common"
+          },
+          "administrativeDetails": {
+            "type": "array",
+            "description": [
+              "Administrative details (e.g. default language, documentation, localID, ...).",
+              "Input type: AdministrativeDetails",
+              "Administrative detail type: The type (key) of the AdministrativeDetails-attribute.",
+              "Values: One or more values (a list) for this administrativeDetailType."
+            ],
+            "displayName": "Administrative details",
+            "name": "administrativeDetails",
+            "component": "UIMultiInput",
+            "group": "common",
+            "customType": "AdministrativeDetails",
+            "multiValue": true,
+            "options": [
+              {
+                "key": "DEFAULTLANGUAGE",
+                "text": "DEFAULTLANGUAGE",
+                "value": "DEFAULTLANGUAGE"
+              },
+              {
+                "key": "ANNOTATION",
+                "text": "ANNOTATION",
+                "value": "ANNOTATION"
+              },
+              {
+                "key": "ALIAS",
+                "text": "ALIAS",
+                "value": "ALIAS"
+              },
+              {
+                "key": "URL",
+                "text": "URL",
+                "value": "URL"
+              },
+              {
+                "key": "DOCUMENTATION",
+                "text": "DOCUMENTATION",
+                "value": "DOCUMENTATION"
+              },
+              {
+                "key": "LIFECYCLESTATUS",
+                "text": "LIFECYCLESTATUS",
+                "value": "LIFECYCLESTATUS"
+              },
+              {
+                "key": "LOCALID",
+                "text": "LOCALID",
+                "value": "LOCALID"
+              }
+            ]
+          },
+          "agentInRoles": {
+            "type": "array",
+            "displayName": "Agent in roles",
+            "description": [
+              "Agent(s) acting in the Role(s) for this information object."
+            ],
+            "name": "agentInRoles",
+            "component": "UIDropdown",
+            "group": "common",
+            "endpoints": [
+              "http://localhost:9090/data/AgentInRole"
+            ],
+            "multiSelect": true
+          }
+        },
+        "description": "The responsible function involved in the statistical Business Process.",
+        "displayName": "Role"
+      }
+    },
+    "$schema": "http://json-schema.org/draft-04/schema#"
+  }
+}

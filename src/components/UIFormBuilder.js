@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Button, Dimmer, Form, Grid, Header, Icon, Label, Message, Popup } from 'semantic-ui-react'
+import { Button, Dimmer, Divider, Form, Grid, Header, Icon, Label, Message, Popup } from 'semantic-ui-react'
 
 import { UIFormField } from 'react-form-fields-library'
 import { defaultVersioning } from '../producers'
@@ -42,7 +42,7 @@ class UIFormBuilder extends Component {
     const {isNew} = this.state
     const {producer, schema, params, endpoint, namespace, user, languageCode, specialFeatures} = this.props
 
-    populateOptions(producer, schema, namespace, languageCode).then(populatedSchema => {
+    populateOptions(producer, schema, languageCode).then(populatedSchema => {
       if (isNew) {
         this.newComponent(producer, populatedSchema, user, languageCode)
       } else {
@@ -237,6 +237,24 @@ class UIFormBuilder extends Component {
     })
   }
 
+  refreshOptions = (event) => {
+    event.preventDefault()
+
+    this.setState({ready: false}, () => {
+      const {producer, languageCode} = this.props
+      const {schema, data} = this.state
+
+      populateOptions(producer, schema, languageCode).then(populatedSchema => {
+        setDataToSchema(populatedSchema, data, languageCode).then(filled => {
+          this.setState({
+            ready: true,
+            schema: filled.returnSchema
+          })
+        })
+      })
+    })
+  }
+
   render () {
     const {ready, readOnly, message, saved, schema, hiddenFields, name, description, problem, isNew, fresh} = this.state
     const {specialFeatures, languageCode} = this.props
@@ -317,12 +335,16 @@ class UIFormBuilder extends Component {
                   return null
                 })}
 
-                {!isNew &&
+                {/*Consider adding version identifier to UISchemas*/}
+                {!isNew && properties.hasOwnProperty('version') &&
                 <UIFormField properties={defaultVersioning} valueChange={this.handleVersionIncrementationChange}
                              languageCode={languageCode} />
                 }
 
-                <Button primary content={isNew ? UI.SAVE[languageCode] : UI.UPDATE[languageCode]}
+                <Button color='teal' icon='refresh' content={UI.REFRESH_OPTIONS[languageCode]}
+                        onClick={this.refreshOptions} />
+                <Divider hidden />
+                <Button primary content={isNew ? UI.SAVE[languageCode] : UI.UPDATE[languageCode]} icon='save'
                         onClick={this.validateAndSave} />
               </Grid.Column>
             </Grid>

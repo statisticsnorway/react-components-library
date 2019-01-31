@@ -286,6 +286,12 @@ var UI = {
     nb: 'I dag'
   }
 };
+var MESSAGE = {
+  NO_NAME: {
+    en: 'Cannot render properly without the name property',
+    nb: 'Kan ikke lage komponenten ordentlig uten name atributtet'
+  }
+};
 
 function checkValueAndType(value, type) {
   return value !== undefined && value !== '' && value !== null && _typeof(value) === type;
@@ -317,16 +323,20 @@ var InlineWarning = function InlineWarning(_ref2) {
 };
 
 var structureDescription = function structureDescription(description) {
-  return React__default$$1.createElement("div", null, description.map(function (value, index) {
-    return React__default$$1.createElement("p", {
-      key: index
-    }, value);
-  }));
+  if (Array.isArray(description)) {
+    return React__default$$1.createElement("div", null, description.map(function (value, index) {
+      return React__default$$1.createElement("p", {
+        key: index
+      }, value);
+    }));
+  } else {
+    return description;
+  }
 };
 
 var formatLinks = function formatLinks(route, value) {
   if (value !== '' && value !== undefined && value !== null) {
-    if (route === undefined) {
+    if (route === undefined || typeof route !== 'string') {
       route = '';
     }
 
@@ -636,23 +646,28 @@ function (_Component) {
           warning = _this$props2.warning,
           required = _this$props2.required,
           options = _this$props2.options;
-      var radios = Object.keys(options).map(function (key) {
-        return React__default$$1.createElement(semanticUiReact__default.Form.Radio, {
-          key: key,
-          label: options[key].text,
-          value: options[key].value,
-          checked: value === options[key].value,
-          onChange: _this2.handleChange
+
+      if (Array.isArray(options)) {
+        var radios = Object.keys(options).map(function (key) {
+          return React__default$$1.createElement(semanticUiReact__default.Form.Radio, {
+            key: key,
+            label: options[key].text,
+            value: options[key].value,
+            checked: value === options[key].value,
+            onChange: _this2.handleChange
+          });
         });
-      });
-      var component = React__default$$1.createElement(semanticUiReact__default.Form.Group, {
-        inline: true,
-        children: radios,
-        style: {
-          margin: 0
-        }
-      });
-      return fullFormField(displayName, description, error, warning, required, component);
+        var component = React__default$$1.createElement(semanticUiReact__default.Form.Group, {
+          inline: true,
+          children: radios,
+          style: {
+            margin: 0
+          }
+        });
+        return fullFormField(displayName, description, error, warning, required, component);
+      }
+
+      return null;
     }
   }]);
 
@@ -729,7 +744,7 @@ function (_Component) {
 
       var entries = _toConsumableArray(this.state.value);
 
-      if (parseInt(index) !== -1) entries.splice(parseInt(index), 1);
+      entries.splice(parseInt(index), 1);
       this.setState({
         value: entries
       }, function () {
@@ -878,8 +893,6 @@ function (_Component) {
 
     _this.state = {
       ready: false,
-      problem: false,
-      errorMessage: '',
       value: null,
       options: []
     };
@@ -939,10 +952,8 @@ function (_Component) {
     value: function render() {
       var _this$state = this.state,
           ready = _this$state.ready,
-          problem = _this$state.problem,
           value = _this$state.value,
-          options = _this$state.options,
-          errorMessage = _this$state.errorMessage;
+          options = _this$state.options;
       var _this$props2 = this.props,
           displayName = _this$props2.displayName,
           description = _this$props2.description,
@@ -964,20 +975,8 @@ function (_Component) {
           disabled: true
         });
         return fullFormField(displayName, description, error, warning, required, component);
-      }
-
-      if (ready && problem) {
+      } else {
         var _component = React__default$$1.createElement(semanticUiReact__default.Dropdown, {
-          selection: true,
-          options: [],
-          disabled: true
-        });
-
-        return fullFormField(displayName, description, error, errorMessage, required, _component);
-      }
-
-      if (ready && !problem) {
-        var _component2 = React__default$$1.createElement(semanticUiReact__default.Dropdown, {
           placeholder: options.length === 0 ? UI.NO_OPTIONS[languageCode] : cutoffString(displayName),
           value: value,
           options: options,
@@ -994,10 +993,8 @@ function (_Component) {
           }
         });
 
-        return fullFormField(displayName, description, error, warning, required, _component2, showLinks, value, route);
+        return fullFormField(displayName, description, error, warning, required, _component, showLinks, value, route);
       }
-
-      return null;
     }
   }]);
 
@@ -1071,17 +1068,29 @@ function (_Component) {
     value: function componentDidMount() {
       var _this3 = this;
 
-      if (this.props.hasOwnProperty('options')) {
-        this.setOptionsAndValue(this.props.options).then(function () {
-          return _this3.setState({
-            ready: true
+      var _this$props2 = this.props,
+          name = _this$props2.name,
+          languageCode = _this$props2.languageCode;
+
+      if (this.props.hasOwnProperty('name') && typeof name === 'string') {
+        if (this.props.hasOwnProperty('options')) {
+          this.setOptionsAndValue(this.props.options).then(function () {
+            return _this3.setState({
+              ready: true
+            });
           });
-        });
+        } else {
+          this.setOptionsAndValue([]).then(function () {
+            return _this3.setState({
+              ready: true
+            });
+          });
+        }
       } else {
-        this.setOptionsAndValue([]).then(function () {
-          return _this3.setState({
-            ready: true
-          });
+        this.setState({
+          problem: true,
+          errorMessage: MESSAGE.NO_NAME[languageCode],
+          ready: true
         });
       }
     }
@@ -1090,10 +1099,10 @@ function (_Component) {
     value: function handleInputChange(index, innerIndex, event) {
       var _this4 = this;
 
-      var _this$props2 = this.props,
-          valueChange = _this$props2.valueChange,
-          name = _this$props2.name,
-          multiValue = _this$props2.multiValue;
+      var _this$props3 = this.props,
+          valueChange = _this$props3.valueChange,
+          name = _this$props3.name,
+          multiValue = _this$props3.multiValue;
 
       var value = _toConsumableArray(this.state.value);
 
@@ -1114,9 +1123,9 @@ function (_Component) {
     value: function handleDropdownChange(index, event, data) {
       var _this5 = this;
 
-      var _this$props3 = this.props,
-          valueChange = _this$props3.valueChange,
-          name = _this$props3.name;
+      var _this$props4 = this.props,
+          valueChange = _this$props4.valueChange,
+          name = _this$props4.name;
 
       var value = _toConsumableArray(this.state.value);
 
@@ -1132,13 +1141,13 @@ function (_Component) {
     value: function handleRemoveEntry(index) {
       var _this6 = this;
 
-      var _this$props4 = this.props,
-          valueChange = _this$props4.valueChange,
-          name = _this$props4.name;
+      var _this$props5 = this.props,
+          valueChange = _this$props5.valueChange,
+          name = _this$props5.name;
 
       var entries = _toConsumableArray(this.state.value);
 
-      if (parseInt(index) !== -1) entries.splice(parseInt(index), 1);
+      entries.splice(parseInt(index), 1);
       this.setState({
         value: entries
       }, function () {
@@ -1150,9 +1159,9 @@ function (_Component) {
     value: function handleAddValueToEntry(index) {
       var _this7 = this;
 
-      var _this$props5 = this.props,
-          valueChange = _this$props5.valueChange,
-          name = _this$props5.name;
+      var _this$props6 = this.props,
+          valueChange = _this$props6.valueChange,
+          name = _this$props6.name;
 
       var entries = _toConsumableArray(this.state.value);
 
@@ -1168,16 +1177,13 @@ function (_Component) {
     value: function handleRemoveValueFromEntry(index, innerIndex) {
       var _this8 = this;
 
-      var _this$props6 = this.props,
-          valueChange = _this$props6.valueChange,
-          name = _this$props6.name;
+      var _this$props7 = this.props,
+          valueChange = _this$props7.valueChange,
+          name = _this$props7.name;
 
       var entries = _toConsumableArray(this.state.value);
 
-      if (parseInt(index) !== -1 && parseInt(innerIndex) !== -1) {
-        entries[parseInt(index)].text.splice(parseInt(innerIndex), 1);
-      }
-
+      entries[parseInt(index)].text.splice(parseInt(innerIndex), 1);
       this.setState({
         value: entries
       }, function () {
@@ -1195,17 +1201,17 @@ function (_Component) {
           value = _this$state.value,
           options = _this$state.options,
           errorMessage = _this$state.errorMessage;
-      var _this$props7 = this.props,
-          name = _this$props7.name,
-          displayName = _this$props7.displayName,
-          description = _this$props7.description,
-          error = _this$props7.error,
-          warning = _this$props7.warning,
-          required = _this$props7.required,
-          multiValue = _this$props7.multiValue,
-          languageCode = _this$props7.languageCode,
-          showLinks = _this$props7.showLinks,
-          route = _this$props7.route;
+      var _this$props8 = this.props,
+          name = _this$props8.name,
+          displayName = _this$props8.displayName,
+          description = _this$props8.description,
+          error = _this$props8.error,
+          warning = _this$props8.warning,
+          required = _this$props8.required,
+          multiValue = _this$props8.multiValue,
+          languageCode = _this$props8.languageCode,
+          showLinks = _this$props8.showLinks,
+          route = _this$props8.route;
 
       if (!ready) {
         var component = React__default$$1.createElement(semanticUiReact__default.Grid, {
@@ -1220,9 +1226,7 @@ function (_Component) {
           disabled: true
         })));
         return fullFormField(displayName, description, error, warning, required, component);
-      }
-
-      if (ready && problem) {
+      } else if (ready && problem) {
         var _component = React__default$$1.createElement(semanticUiReact__default.Grid, {
           columns: "equal"
         }, React__default$$1.createElement(semanticUiReact__default.Grid.Column, null, React__default$$1.createElement(semanticUiReact__default.Dropdown, {
@@ -1236,9 +1240,7 @@ function (_Component) {
         })));
 
         return fullFormField(displayName, description, error, errorMessage, required, _component);
-      }
-
-      if (ready && !problem) {
+      } else {
         var components = React__default$$1.createElement(semanticUiReact__default.Grid, null, value.map(function (entry, index) {
           var dropdown = React__default$$1.createElement(semanticUiReact__default.Dropdown, {
             options: options,
@@ -1343,8 +1345,6 @@ function (_Component) {
         })))));
         return fullFormField(displayName, description, error, warning, required, components);
       }
-
-      return null;
     }
   }]);
 
@@ -1406,28 +1406,22 @@ function (_Component) {
             format = _this3$props.format,
             value = _this3$props.value;
 
-        if (!formats.includes(format)) {
-          resolve(React__default$$1.createElement(semanticUiReact__default.List, {
-            style: {
-              marginTop: 0
-            },
-            items: value
-          }));
+        if (!Array.isArray(value)) {
+          resolve(null);
         } else {
-          var entries = [];
+          if (!formats.includes(format)) {
+            resolve(React__default$$1.createElement(semanticUiReact__default.List, {
+              style: {
+                marginTop: 0
+              },
+              items: value
+            }));
+          } else {
+            var entries = [];
 
-          for (var entry in value) {
-            if (value.hasOwnProperty(entry)) {
+            for (var entry in value) {
               if (format === 'date') {
-                var convertedEntry = void 0;
-
-                try {
-                  convertedEntry = moment$$1(value[entry]).format('LLL');
-                } catch (error) {
-                  convertedEntry = error;
-                }
-
-                entries.push(convertedEntry);
+                entries.push(moment$$1(value[entry]).format('LLL'));
               } else {
                 entries.push(React__default$$1.createElement(semanticUiReact__default.Label, {
                   key: entry,
@@ -1435,29 +1429,29 @@ function (_Component) {
                 }, value[entry]));
               }
             }
-          }
 
-          if (format === 'date') {
-            _this3.setState({
-              icon: React__default$$1.createElement(semanticUiReact__default.Icon, {
-                name: "calendar alternate outline",
+            if (format === 'date') {
+              _this3.setState({
+                icon: React__default$$1.createElement(semanticUiReact__default.Icon, {
+                  name: "calendar alternate outline",
+                  color: "teal",
+                  size: "large"
+                })
+              }, function () {
+                resolve(React__default$$1.createElement(semanticUiReact__default.List, {
+                  style: {
+                    marginTop: 0
+                  },
+                  items: entries
+                }));
+              });
+            } else {
+              resolve(React__default$$1.createElement(semanticUiReact__default.Label.Group, {
+                tag: format === 'tag',
                 color: "teal",
-                size: "large"
-              })
-            }, function () {
-              resolve(React__default$$1.createElement(semanticUiReact__default.List, {
-                style: {
-                  marginTop: 0
-                },
-                items: entries
+                content: entries
               }));
-            });
-          } else {
-            resolve(React__default$$1.createElement(semanticUiReact__default.Label.Group, {
-              tag: format === 'tag',
-              color: "teal",
-              content: entries
-            }));
+            }
           }
         }
       });
@@ -1489,8 +1483,16 @@ function (_Component) {
       var _this$props = this.props,
           displayName = _this$props.displayName,
           description = _this$props.description;
-      if (ready) return simpleStaticFormField(displayName, description, component, icon);
-      return null;
+
+      if (!ready) {
+        return simpleStaticFormField(displayName, description, React__default$$1.createElement(semanticUiReact__default.List, {
+          style: {
+            marginTop: 0
+          }
+        }));
+      } else {
+        return simpleStaticFormField(displayName, description, component, icon);
+      }
     }
   }]);
 
@@ -1693,7 +1695,7 @@ function resolveDefaultProperties(schema, url, namespace, specialFeatures, route
   });
 }
 
-// TODO: Rename ('DIV' is not a particularly good name)
+// TODO: Rename because 'DIV' is not a particularly good name
 var DIV = {
   JSON_FILE_ENDING: 'Example.json',
   SAGA: 'saga-execution-id'
@@ -1716,8 +1718,8 @@ var MESSAGES = {
     nb: 'Filtrere tabellen etter navn'
   },
   GENERATE_JSON: {
-    en: 'Simulates storing the data to LDS and generates the JSON-file to download',
-    nb: 'Simuler lagring av data til LDS og generer en JSON-fil for nedlastning'
+    en: 'Simulates storing the data to LDS but generate a JSON-file to download instead',
+    nb: 'Simuler lagring av data til LDS men generer en JSON-fil for nedlastning i stedet'
   },
   MISSING_LINK: {
     en: 'Selected value(s) refers to non-existent object',
@@ -1816,6 +1818,10 @@ var UI = {
     en: 'Download JSON',
     nb: 'Last ned JSON'
   },
+  REFRESH_OPTIONS: {
+    en: 'Refresh dropdowns',
+    nb: 'Oppdater nedtrekkslister'
+  },
   SAVE: {
     en: 'Save',
     nb: 'Lagre'
@@ -1852,7 +1858,7 @@ function fetchData(url, languageCode) {
         });
       } else if (response.status === 404) {
         // TODO: LDS now responds with 404 if empty, that however should not block a form from generating, rather it should
-        // show 'No options'. This is a temporary fix to that. It is still undecided if LDS should return an empty array or 404.
+        // show 'No options'. This is a temporary fix for that. It is still undecided if LDS should return an empty array or 404.
         resolve([]);
       } else {
         response.text().then(function (text) {
@@ -2302,7 +2308,7 @@ function transformGSIMProperties(producer, schema, data, languageCode, fromSourc
             });
             returnData[property] = _values;
           } else {
-            // TODO: This array overrides the array stored in the object in LDS which means it loses stored langauge texts
+            // TODO: This array overrides the array stored in the object in LDS which means it loses stored language texts
             // for other language codes on save. That might not be a desired outcome
             returnData[property] = [{
               languageCode: languageCode,
@@ -2572,7 +2578,7 @@ function transformDefaultProperties(producer, schema, data, fromSource) {
             returnData[property].forEach(function (value, index) {
               Object.keys(transformer$$1[transformable]).forEach(function (transformKey) {
                 if (fromSource) {
-                  // TODO: If this variable is an array and any of its elements is null, the input fields does not handle them
+                  // TODO: If this variable is an array and any of its elements is null, the input fields can't handle them
                   // correctly. This must either be adressed in the backend or here. Awaiting discussion.
                   returnData[property][index][transformKey] = returnData[property][index][transformer$$1[transformable][transformKey]];
                   delete returnData[property][index][transformer$$1[transformable][transformKey]];
@@ -2726,19 +2732,21 @@ function setDataToSchema(schema, data, languageCode) {
       if (properties[key].hasOwnProperty('autofilled')) {
         properties[key].value = [data[key]];
       } else {
-        if (properties[key].component === 'UIDropdown') {
-          if (!properties[key].options.some(function (r) {
-            return data[key].includes(r.value);
-          })) {
-            properties[key].warning = MESSAGES.MISSING_LINK[languageCode];
+        if (data[key] !== '' && Array.isArray(data[key]) && data[key].length > 0) {
+          if (properties[key].component === 'UIDropdown') {
+            if (!properties[key].options.some(function (r) {
+              return data[key].includes(r.value);
+            })) {
+              properties[key].warning = MESSAGES.MISSING_LINK[languageCode];
+            }
           }
-        }
 
-        if (properties[key].component === 'UIMultiInput') {
-          if (data[key].hasOwnProperty('option') && !properties[key].options.some(function (r) {
-            return data[key].option === r.value;
-          })) {
-            properties[key].warning = MESSAGES.MISSING_LINK[languageCode];
+          if (properties[key].component === 'UIMultiInput') {
+            if (data[key].hasOwnProperty('option') && !properties[key].options.some(function (r) {
+              return data[key].option === r.value;
+            })) {
+              properties[key].warning = MESSAGES.MISSING_LINK[languageCode];
+            }
           }
         }
 
@@ -2780,7 +2788,6 @@ function cleanDefinitions(definitions, returnSchema) {
     delete returnSchema.definitions[definition].required;
   });
 }
-
 function updateAndCleanProperties(properties, returnSchema, defaultUISchema, name) {
   Object.keys(properties).forEach(function (key) {
     returnSchema.definitions[name].properties[key].name = key;
@@ -2808,7 +2815,6 @@ function updateAndCleanProperties(properties, returnSchema, defaultUISchema, nam
     }
   });
 }
-
 function mergeDefaultUISchema(producer, schema) {
   return new Promise(function (resolve) {
     var defaultUISchema = producers$3(producer);
@@ -2866,8 +2872,6 @@ function populateOptions(producer, schema, languageCode) {
           if (returnSchema.definitions[name].properties[key].options.length > 10) {
             returnSchema.definitions[name].properties[key].searchable = true;
           }
-
-          delete returnSchema.definitions[name].properties[key].endpoints;
         }
       });
       resolve(returnSchema);
@@ -3067,6 +3071,29 @@ function (_Component) {
       });
     };
 
+    _this.refreshOptions = function (event) {
+      event.preventDefault();
+
+      _this.setState({
+        ready: false
+      }, function () {
+        var _this$props3 = _this.props,
+            producer = _this$props3.producer,
+            languageCode = _this$props3.languageCode;
+        var _this$state3 = _this.state,
+            schema = _this$state3.schema,
+            data = _this$state3.data;
+        populateOptions(producer, schema, languageCode).then(function (populatedSchema) {
+          setDataToSchema(populatedSchema, data, languageCode).then(function (filled) {
+            _this.setState({
+              ready: true,
+              schema: filled.returnSchema
+            });
+          });
+        });
+      });
+    };
+
     var _name = extractName(_this.props.schema.$ref);
 
     _this.state = {
@@ -3093,16 +3120,16 @@ function (_Component) {
       var _this2 = this;
 
       var isNew = this.state.isNew;
-      var _this$props3 = this.props,
-          producer = _this$props3.producer,
-          schema = _this$props3.schema,
-          params = _this$props3.params,
-          endpoint = _this$props3.endpoint,
-          namespace = _this$props3.namespace,
-          user = _this$props3.user,
-          languageCode = _this$props3.languageCode,
-          specialFeatures = _this$props3.specialFeatures;
-      populateOptions(producer, schema, namespace, languageCode).then(function (populatedSchema) {
+      var _this$props4 = this.props,
+          producer = _this$props4.producer,
+          schema = _this$props4.schema,
+          params = _this$props4.params,
+          endpoint = _this$props4.endpoint,
+          namespace = _this$props4.namespace,
+          user = _this$props4.user,
+          languageCode = _this$props4.languageCode,
+          specialFeatures = _this$props4.specialFeatures;
+      populateOptions(producer, schema, languageCode).then(function (populatedSchema) {
         if (isNew) {
           _this2.newComponent(producer, populatedSchema, user, languageCode);
         } else {
@@ -3137,17 +3164,17 @@ function (_Component) {
     value: function shouldComponentUpdate(nextProps, nextState) {
       var _this3 = this;
 
-      var _this$state3 = this.state,
-          hiddenFields = _this$state3.hiddenFields,
-          data = _this$state3.data,
-          fresh = _this$state3.fresh;
-      var _this$props4 = this.props,
-          params = _this$props4.params,
-          producer = _this$props4.producer,
-          schema = _this$props4.schema,
-          user = _this$props4.user,
-          namespace = _this$props4.namespace,
-          languageCode = _this$props4.languageCode;
+      var _this$state4 = this.state,
+          hiddenFields = _this$state4.hiddenFields,
+          data = _this$state4.data,
+          fresh = _this$state4.fresh;
+      var _this$props5 = this.props,
+          params = _this$props5.params,
+          producer = _this$props5.producer,
+          schema = _this$props5.schema,
+          user = _this$props5.user,
+          namespace = _this$props5.namespace,
+          languageCode = _this$props5.languageCode;
       if (hiddenFields !== nextState.hiddenFields) return true;
       if (fresh !== nextState.fresh) return true;
 
@@ -3198,21 +3225,21 @@ function (_Component) {
     value: function render() {
       var _this5 = this;
 
-      var _this$state4 = this.state,
-          ready = _this$state4.ready,
-          readOnly = _this$state4.readOnly,
-          message = _this$state4.message,
-          saved = _this$state4.saved,
-          schema = _this$state4.schema,
-          hiddenFields = _this$state4.hiddenFields,
-          name = _this$state4.name,
-          description = _this$state4.description,
-          problem = _this$state4.problem,
-          isNew = _this$state4.isNew,
-          fresh = _this$state4.fresh;
-      var _this$props5 = this.props,
-          specialFeatures = _this$props5.specialFeatures,
-          languageCode = _this$props5.languageCode;
+      var _this$state5 = this.state,
+          ready = _this$state5.ready,
+          readOnly = _this$state5.readOnly,
+          message = _this$state5.message,
+          saved = _this$state5.saved,
+          schema = _this$state5.schema,
+          hiddenFields = _this$state5.hiddenFields,
+          name = _this$state5.name,
+          description = _this$state5.description,
+          problem = _this$state5.problem,
+          isNew = _this$state5.isNew,
+          fresh = _this$state5.fresh;
+      var _this$props6 = this.props,
+          specialFeatures = _this$props6.specialFeatures,
+          languageCode = _this$props6.languageCode;
 
       if (problem) {
         return React__default.createElement("div", null, React__default.createElement(semanticUiReact.Header, {
@@ -3330,13 +3357,21 @@ function (_Component) {
           }
 
           return null;
-        }), !isNew && React__default.createElement(bundle_1, {
+        }), !isNew && properties.hasOwnProperty('version') && React__default.createElement(bundle_1, {
           properties: defaultVersioning,
           valueChange: this.handleVersionIncrementationChange,
           languageCode: languageCode
         }), React__default.createElement(semanticUiReact.Button, {
+          color: "teal",
+          icon: "refresh",
+          content: UI.REFRESH_OPTIONS[languageCode],
+          onClick: this.refreshOptions
+        }), React__default.createElement(semanticUiReact.Divider, {
+          hidden: true
+        }), React__default.createElement(semanticUiReact.Button, {
           primary: true,
           content: isNew ? UI.SAVE[languageCode] : UI.UPDATE[languageCode],
+          icon: "save",
           onClick: this.validateAndSave
         }))), specialFeatures && React__default.createElement(semanticUiReact.Popup, {
           flowing: true,

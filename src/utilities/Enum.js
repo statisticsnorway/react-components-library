@@ -1,4 +1,4 @@
-// TODO: Rename ('DIV' is not a particularly good name)
+// TODO: Rename because 'DIV' is not a particularly good name
 export const DIV = {
   JSON_FILE_ENDING: 'Example.json',
   SAGA: 'saga-execution-id'
@@ -22,8 +22,8 @@ export const MESSAGES = {
     nb: 'Filtrere tabellen etter navn'
   },
   GENERATE_JSON: {
-    en: 'Simulates storing the data to LDS and generates the JSON-file to download',
-    nb: 'Simuler lagring av data til LDS og generer en JSON-fil for nedlastning'
+    en: 'Simulates storing the data to LDS but generate a JSON-file to download instead',
+    nb: 'Simuler lagring av data til LDS men generer en JSON-fil for nedlastning i stedet'
   },
   MISSING_LINK: {
     en: 'Selected value(s) refers to non-existent object',
@@ -123,6 +123,10 @@ export const UI = {
   DOWNLOAD_JSON: {
     en: 'Download JSON',
     nb: 'Last ned JSON'
+  },
+  REFRESH_OPTIONS: {
+    en: 'Refresh dropdowns',
+    nb: 'Oppdater nedtrekkslister'
   },
   SAVE: {
     en: 'Save',

@@ -54,8 +54,6 @@ export function populateOptions (producer, schema, languageCode) {
           if (returnSchema.definitions[name].properties[key].options.length > 10) {
             returnSchema.definitions[name].properties[key].searchable = true
           }
-
-          delete returnSchema.definitions[name].properties[key].endpoints
         }
       })
 

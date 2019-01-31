@@ -1,0 +1,561 @@
+{
+  "schema": {
+    "$ref": "#/definitions/Agent",
+    "definitions": {
+      "MultilingualText": {
+        "type": "object",
+        "properties": {
+          "languageCode": {
+            "type": "string",
+            "description": "The language code. Use only ISO 639-1 codes.",
+            "displayName": "Language code",
+            "required": true
+          },
+          "languageText": {
+            "type": "string",
+            "description": "The text (e.g. label, title, description)",
+            "displayName": "Language text",
+            "required": true
+          }
+        }
+      },
+      "AdministrativeDetails": {
+        "type": "object",
+        "properties": {
+          "administrativeDetailType": {
+            "type": "string",
+            "description": "The type (key) of the AdministrativeDetails-attribute.",
+            "displayName": "Administrative detail type",
+            "required": true
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "One or more values (a list) for this administrativeDetailType.",
+            "displayName": "Values",
+            "required": true
+          }
+        }
+      },
+      "AgentDetails": {
+        "type": "object",
+        "properties": {
+          "agentDetailType": {
+            "type": "string",
+            "description": "The type (key) of the AgentDetails-attribute.",
+            "displayName": "Agent detail type",
+            "required": true
+          },
+          "values": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "One or more values (a list) for this agentDetailType.",
+            "displayName": "Values",
+            "required": true
+          }
+        }
+      },
+      "Agent": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": [
+              "The global unique identifier (GUID) of the information object assigned by the owner agency."
+            ],
+            "displayName": "Id",
+            "required": true,
+            "name": "id",
+            "component": "UIStatic",
+            "autofilled": true,
+            "value": [
+              "20303141-21d4-4c4f-a705-2feed4333e08"
+            ]
+          },
+          "name": {
+            "type": "array",
+            "description": [
+              "A term which designates a concept, in this case an information object. The identifying name will be the preferred designation. There will be many terms to designate the same information object, such as synonyms and terms in other languages.",
+              "Input type: MultilingualText",
+              "Language code: The language code. Use only ISO 639-1 codes.",
+              "Language text: The text (e.g. label, title, description)"
+            ],
+            "displayName": "Name",
+            "required": true,
+            "name": "name",
+            "component": "UIText",
+            "customType": "MultilingualText",
+            "options": [
+              {
+                "key": "nb",
+                "text": "nb",
+                "value": "nb"
+              },
+              {
+                "key": "nn",
+                "text": "nn",
+                "value": "nn"
+              },
+              {
+                "key": "en",
+                "text": "en",
+                "value": "en"
+              }
+            ],
+            "value": "Test"
+          },
+          "description": {
+            "type": "array",
+            "description": [
+              "The description of the information object",
+              "Input type: MultilingualText",
+              "Language code: The language code. Use only ISO 639-1 codes.",
+              "Language text: The text (e.g. label, title, description)"
+            ],
+            "displayName": "Description",
+            "required": true,
+            "name": "description",
+            "component": "UIText",
+            "customType": "MultilingualText",
+            "options": [
+              {
+                "key": "nb",
+                "text": "nb",
+                "value": "nb"
+              },
+              {
+                "key": "nn",
+                "text": "nn",
+                "value": "nn"
+              },
+              {
+                "key": "en",
+                "text": "en",
+                "value": "en"
+              }
+            ],
+            "value": "Testing some stuff"
+          },
+          "administrativeStatus": {
+            "type": "string",
+            "description": [
+              "Indicator for access to an item."
+            ],
+            "displayName": "Administrative status",
+            "name": "administrativeStatus",
+            "component": "UIDropdown",
+            "group": "common",
+            "options": [
+              {
+                "key": "DRAFT",
+                "text": "DRAFT",
+                "value": "DRAFT"
+              },
+              {
+                "key": "INTERNAL",
+                "text": "INTERNAL",
+                "value": "INTERNAL"
+              },
+              {
+                "key": "OPEN",
+                "text": "OPEN",
+                "value": "OPEN"
+              },
+              {
+                "key": "DEPRECATED",
+                "text": "DEPRECATED",
+                "value": "DEPRECATED"
+              }
+            ],
+            "value": "OPEN"
+          },
+          "createdDate": {
+            "type": "string",
+            "format": "date",
+            "description": [
+              "The date on which the information object was created"
+            ],
+            "displayName": "Created date",
+            "required": true,
+            "name": "createdDate",
+            "component": "UIStatic",
+            "autofilled": true,
+            "multiple": false,
+            "value": [
+              "2019-01-31T09:17:24.921Z"
+            ]
+          },
+          "createdBy": {
+            "type": "string",
+            "description": [
+              "Information object created by."
+            ],
+            "displayName": "Created by",
+            "required": true,
+            "name": "createdBy",
+            "component": "UIStatic",
+            "autofilled": true,
+            "icon": "user",
+            "value": [
+              "Test user"
+            ]
+          },
+          "version": {
+            "type": "string",
+            "description": [
+              "Formal versioning of the information object. The version designator of the information object assigned by the owner agency. \"major.minor.patch\", e.g. \"1.12.5\"."
+            ],
+            "displayName": "Version",
+            "name": "version",
+            "component": "UIStatic",
+            "autofilled": true,
+            "value": [
+              "1.0.0"
+            ]
+          },
+          "versionValidFrom": {
+            "type": "string",
+            "format": "date",
+            "description": [
+              "The date on which the current version of the infomation object is effective or valid."
+            ],
+            "displayName": "Version valid from",
+            "required": true,
+            "name": "versionValidFrom",
+            "component": "UIStatic",
+            "autofilled": true,
+            "multiple": false,
+            "value": [
+              "2019-01-31T09:17:24.921Z"
+            ]
+          },
+          "versionRationale": {
+            "type": "array",
+            "description": [
+              "The reason for making this version of the information object.",
+              "Input type: MultilingualText",
+              "Language code: The language code. Use only ISO 639-1 codes.",
+              "Language text: The text (e.g. label, title, description)"
+            ],
+            "displayName": "Version rationale",
+            "name": "versionRationale",
+            "component": "UIText",
+            "group": "common",
+            "customType": "MultilingualText",
+            "options": [
+              {
+                "key": "nb",
+                "text": "nb",
+                "value": "nb"
+              },
+              {
+                "key": "nn",
+                "text": "nn",
+                "value": "nn"
+              },
+              {
+                "key": "en",
+                "text": "en",
+                "value": "en"
+              }
+            ],
+            "value": "It's a good thing"
+          },
+          "lastUpdatedDate": {
+            "type": "string",
+            "format": "date",
+            "description": [
+              "The date on which the object was last updated."
+            ],
+            "displayName": "Last updated date",
+            "name": "lastUpdatedDate",
+            "component": "UIStatic",
+            "autofilled": true,
+            "multiple": false,
+            "value": [
+              "2019-01-31T09:17:24.921Z"
+            ]
+          },
+          "lastUpdatedBy": {
+            "type": "string",
+            "description": [
+              "Last updated by."
+            ],
+            "displayName": "Last updated by",
+            "name": "lastUpdatedBy",
+            "component": "UIStatic",
+            "autofilled": true,
+            "icon": "user",
+            "value": [
+              "Test user"
+            ]
+          },
+          "validFrom": {
+            "type": "string",
+            "format": "date",
+            "description": [
+              "The date on which the information object is effective or valid. Set this date only once (constant). The same date for all versions of this information object."
+            ],
+            "displayName": "Valid from",
+            "required": true,
+            "name": "validFrom",
+            "component": "UIStatic",
+            "autofilled": true,
+            "multiple": false,
+            "value": [
+              "2019-01-31T09:17:24.921Z"
+            ]
+          },
+          "validUntil": {
+            "type": "string",
+            "format": "date-time",
+            "description": [
+              "The date on which the information object is no longer effective or valid."
+            ],
+            "displayName": "Valid until",
+            "name": "validUntil",
+            "component": "UIDate",
+            "group": "common",
+            "value": ""
+          },
+          "administrativeDetails": {
+            "type": "array",
+            "description": [
+              "Administrative details (e.g. default language, documentation, localID, ...).",
+              "Input type: AdministrativeDetails",
+              "Administrative detail type: The type (key) of the AdministrativeDetails-attribute.",
+              "Values: One or more values (a list) for this administrativeDetailType."
+            ],
+            "displayName": "Administrative details",
+            "name": "administrativeDetails",
+            "component": "UIMultiInput",
+            "group": "common",
+            "customType": "AdministrativeDetails",
+            "multiValue": true,
+            "options": [
+              {
+                "key": "DEFAULTLANGUAGE",
+                "text": "DEFAULTLANGUAGE",
+                "value": "DEFAULTLANGUAGE"
+              },
+              {
+                "key": "ANNOTATION",
+                "text": "ANNOTATION",
+                "value": "ANNOTATION"
+              },
+              {
+                "key": "ALIAS",
+                "text": "ALIAS",
+                "value": "ALIAS"
+              },
+              {
+                "key": "URL",
+                "text": "URL",
+                "value": "URL"
+              },
+              {
+                "key": "DOCUMENTATION",
+                "text": "DOCUMENTATION",
+                "value": "DOCUMENTATION"
+              },
+              {
+                "key": "LIFECYCLESTATUS",
+                "text": "LIFECYCLESTATUS",
+                "value": "LIFECYCLESTATUS"
+              },
+              {
+                "key": "LOCALID",
+                "text": "LOCALID",
+                "value": "LOCALID"
+              }
+            ],
+            "value": [
+              {
+                "text": [
+                  "Norwegian"
+                ],
+                "option": "DEFAULTLANGUAGE"
+              }
+            ]
+          },
+          "agentInRoles": {
+            "type": "array",
+            "displayName": "Agent in roles",
+            "description": [
+              "Agent(s) acting in the Role(s) for this information object."
+            ],
+            "name": "agentInRoles",
+            "component": "UIDropdown",
+            "group": "common",
+            "endpoints": [
+              "http://localhost:9090/data/AgentInRole"
+            ],
+            "multiSelect": true,
+            "options": [],
+            "value": []
+          },
+          "agentType": {
+            "type": "string",
+            "description": [
+              "The type of agent."
+            ],
+            "displayName": "Agent type",
+            "required": true,
+            "name": "agentType",
+            "component": "UIDropdown",
+            "options": [
+              {
+                "key": "INDIVIDUAL",
+                "text": "INDIVIDUAL",
+                "value": "INDIVIDUAL"
+              },
+              {
+                "key": "ORGANIZATION",
+                "text": "ORGANIZATION",
+                "value": "ORGANIZATION"
+              },
+              {
+                "key": "SYSTEM",
+                "text": "SYSTEM",
+                "value": "SYSTEM"
+              }
+            ],
+            "value": "INDIVIDUAL"
+          },
+          "parentAgents": {
+            "type": "array",
+            "displayName": "Parent agents",
+            "name": "parentAgents",
+            "component": "UIDropdown",
+            "description": [
+              null
+            ],
+            "endpoints": [
+              "http://localhost:9090/data/Agent"
+            ],
+            "multiSelect": true,
+            "options": [
+              {
+                "key": "1eb48d8f-0c5a-4f2e-9792-e6f48b497163",
+                "text": "Jalapenios",
+                "value": "/Agent/1eb48d8f-0c5a-4f2e-9792-e6f48b497163"
+              },
+              {
+                "key": "63782b71-82cf-4906-943e-6a2522025a3d",
+                "text": "Testing",
+                "value": "/Agent/63782b71-82cf-4906-943e-6a2522025a3d"
+              },
+              {
+                "key": "65535180-06ff-49c8-9bb4-d599898f7937",
+                "text": "YOLO!",
+                "value": "/Agent/65535180-06ff-49c8-9bb4-d599898f7937"
+              },
+              {
+                "key": "8838292d-e685-4fa8-a33e-a8214ed696b7",
+                "text": "Agent boy!",
+                "value": "/Agent/8838292d-e685-4fa8-a33e-a8214ed696b7"
+              },
+              {
+                "key": "9798f793-3771-46e8-9783-0aecac90e832",
+                "text": "ewwrtyuert",
+                "value": "/Agent/9798f793-3771-46e8-9783-0aecac90e832"
+              },
+              {
+                "key": "cb4aa860-f902-4621-b824-5c96d0eee2ea",
+                "text": "Dandy apples",
+                "value": "/Agent/cb4aa860-f902-4621-b824-5c96d0eee2ea"
+              },
+              {
+                "key": "d6873d02-260d-489e-8c24-61c40f6b91e6",
+                "text": "dsfghjhhdgsgty563",
+                "value": "/Agent/d6873d02-260d-489e-8c24-61c40f6b91e6"
+              },
+              {
+                "key": "ec7f26f2-6c0f-4900-a6e1-48de93a50f18",
+                "text": "New boy!",
+                "value": "/Agent/ec7f26f2-6c0f-4900-a6e1-48de93a50f18"
+              },
+              {
+                "key": "f6fa1cd7-37f3-44a8-a43b-758acc42dec1",
+                "text": "esfrgdthfraetsrtdhjfthtrawterytjyty43645ytd",
+                "value": "/Agent/f6fa1cd7-37f3-44a8-a43b-758acc42dec1"
+              }
+            ],
+            "value": [
+              "/Agent/cb4aa860-f902-4621-b824-5c96d0eee2ea"
+            ]
+          },
+          "isExternal": {
+            "type": "boolean",
+            "default": false,
+            "description": [
+              "Is this an external agent?"
+            ],
+            "displayName": "Is external",
+            "required": true,
+            "name": "isExternal",
+            "component": "UIBoolean",
+            "value": false
+          },
+          "agentDetails": {
+            "type": "array",
+            "description": [
+              "Agent details (e.g. contackt adress, email, phone, mobile ...).",
+              "Input type: AgentDetails",
+              "Agent detail type: The type (key) of the AgentDetails-attribute.",
+              "Values: One or more values (a list) for this agentDetailType."
+            ],
+            "displayName": "Agent details",
+            "name": "agentDetails",
+            "component": "UIMultiInput",
+            "customType": "AgentDetails",
+            "multiValue": true,
+            "options": [
+              {
+                "key": "CONTACT_EMAIL",
+                "text": "CONTACT_EMAIL",
+                "value": "CONTACT_EMAIL"
+              },
+              {
+                "key": "CONTACT_MOBILE",
+                "text": "CONTACT_MOBILE",
+                "value": "CONTACT_MOBILE"
+              },
+              {
+                "key": "CONTACT_PHONE",
+                "text": "CONTACT_PHONE",
+                "value": "CONTACT_PHONE"
+              },
+              {
+                "key": "CONTACT_ADDRESS",
+                "text": "CONTACT_ADDRESS",
+                "value": "CONTACT_ADDRESS"
+              }
+            ],
+            "value": [
+              {
+                "text": [
+                  "01234567"
+                ],
+                "option": "CONTACT_MOBILE"
+              },
+              {
+                "text": [
+                  "yo@hello.com"
+                ],
+                "option": "CONTACT_EMAIL"
+              }
+            ]
+          }
+        },
+        "description": "An actor that performs a role in relation to the statistical Business Process.",
+        "displayName": "Agent"
+      }
+    },
+    "$schema": "http://json-schema.org/draft-04/schema#"
+  }
+}

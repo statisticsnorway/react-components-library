@@ -75,15 +75,17 @@ export function setDataToSchema (schema, data, languageCode) {
       if (properties[key].hasOwnProperty('autofilled')) {
         properties[key].value = [data[key]]
       } else {
-        if (properties[key].component === 'UIDropdown') {
-          if (!properties[key].options.some(r => data[key].includes(r.value))) {
-            properties[key].warning = MESSAGES.MISSING_LINK[languageCode]
+        if (data[key] !== '' && (Array.isArray(data[key]) && data[key].length > 0)) {
+          if (properties[key].component === 'UIDropdown') {
+            if (!properties[key].options.some(r => data[key].includes(r.value))) {
+              properties[key].warning = MESSAGES.MISSING_LINK[languageCode]
+            }
           }
-        }
 
-        if (properties[key].component === 'UIMultiInput') {
-          if (data[key].hasOwnProperty('option') && !properties[key].options.some(r => data[key].option === r.value)) {
-            properties[key].warning = MESSAGES.MISSING_LINK[languageCode]
+          if (properties[key].component === 'UIMultiInput') {
+            if (data[key].hasOwnProperty('option') && !properties[key].options.some(r => data[key].option === r.value)) {
+              properties[key].warning = MESSAGES.MISSING_LINK[languageCode]
+            }
           }
         }
 
