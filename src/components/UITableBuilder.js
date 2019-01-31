@@ -19,40 +19,29 @@ class UITableBuilder extends Component {
     const tableColumns = []
 
     tableHeaders.forEach(header => {
-      console.log('schema')
-      const util = require('util')
-      console.log(util.inspect(schema, false, null, true))
+      if (schema.definitions[name].properties[header]) {
+        const displayName = schema.definitions[name].properties[header].displayName
 
-      console.log('schema.definitions[name]')
-      console.log(schema.definitions[name])
+        const tableColumn = {}
 
-      console.log('schema.definitions[name].properties[header]')
-      console.log(schema.definitions[name].properties[header])
+        tableColumn['Header'] = displayName
+        tableColumn['accessor'] = header
 
-      console.log('schema.definitions[name].properties[header].displayname')
-      console.log(schema.definitions[name].properties[header].displayname)
+        switch (header) {
+          case 'id':
+            tableColumn['Cell'] = props => (
+              <Link to={routing + '/' + props.original.id}>
+                {props.value}
+              </Link>
+            )
+            break
 
+          default:
+            tableColumn['Cell'] = props => (<div className='textCenter'>{props.value}</div>)
+        }
 
-      const displayName = schema.definitions[name].properties[header].displayName
-      const tableColumn = {}
-
-      tableColumn['Header'] = displayName
-      tableColumn['accessor'] = header
-
-      switch (header) {
-        case 'name':
-          tableColumn['Cell'] = props => (
-            <Link to={routing + '/' + props.original.id}>
-              {props.value}
-            </Link>
-          )
-          break
-
-        default:
-          tableColumn['Cell'] = props => (<div className='textCenter'>{props.value}</div>)
+        tableColumns.push(tableColumn)
       }
-
-      tableColumns.push(tableColumn)
     })
 
     this.state = {
@@ -98,6 +87,9 @@ class UITableBuilder extends Component {
 
   render () {
     const {ready, message, search, name, description, tableColumns, tableData} = this.state
+    console.log('message')
+    console.log(message)
+
     const {routing, languageCode} = this.props
 
     let filteredTableData = tableData
@@ -117,32 +109,32 @@ class UITableBuilder extends Component {
       return (
         <div>
           <Header as='h1' content={splitOnUppercase(name)} subheader={description} dividing
-                  icon={{name: 'list alternate outline', color: 'teal'}} />
-          <Divider hidden />
+                  icon={{name: 'list alternate outline', color: 'teal'}}/>
+          <Divider hidden/>
           <Popup flowing hideOnScroll position='top center'
                  trigger={<Input icon='search' placeholder={UI.SEARCH[languageCode]} value={search}
-                                 onChange={this.searchInputOnChange} />}>
-            <Icon color='blue' name='info circle' />
+                                 onChange={this.searchInputOnChange}/>}>
+            <Icon color='blue' name='info circle'/>
             {MESSAGES.FILTER_BY_NAME[languageCode]}
           </Popup>
           <Label color='teal' size='large' circular>{Object.keys(filteredTableData).length}</Label>
           <Link to={routing + '/new'}>
-            <Button primary floated='right' content={UI.CREATE_NEW[languageCode] + ' ' + splitOnUppercase(name)} />
+            <Button primary floated='right' content={UI.CREATE_NEW[languageCode] + ' ' + splitOnUppercase(name)}/>
           </Link>
-          {message ? <Message negative content={message} /> : <Divider hidden />}
+          {message ? <Message negative content={message}/> : <Divider hidden/>}
 
           <ReactTable sortable data={filteredTableData} resizable={false} columns={tableColumns} defaultPageSize={10}
                       noDataText={noDataText} previousText={TABLE.PREVIOUS[languageCode]}
                       nextText={TABLE.NEXT[languageCode]} ofText={TABLE.OF[languageCode]}
                       pageText={TABLE.PAGE[languageCode]} loadingText={TABLE.LOADING[languageCode]}
-                      rowsText={TABLE.ROWS[languageCode]} className='-highlight' />
+                      rowsText={TABLE.ROWS[languageCode]} className='-highlight'/>
         </div>
       )
     }
 
     return (
       <Header as='h1' content={splitOnUppercase(name)} subheader={description} dividing
-              icon={{name: 'spinner', color: 'teal', loading: true}} />
+              icon={{name: 'spinner', color: 'teal', loading: true}}/>
     )
   }
 }
