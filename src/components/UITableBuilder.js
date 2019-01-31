@@ -19,6 +19,16 @@ class UITableBuilder extends Component {
     const tableColumns = []
 
     tableHeaders.forEach(header => {
+      console.log('schema.definitions[name]')
+      console.log(schema.definitions[name])
+
+      console.log('schema.definitions[name].properties[header]')
+      console.log(schema.definitions[name].properties[header])
+
+      console.log('schema.definitions[name].properties[header].displayname')
+      console.log(schema.definitions[name].properties[header].displayname)
+
+
       const displayName = schema.definitions[name].properties[header].displayName
       const tableColumn = {}
 
