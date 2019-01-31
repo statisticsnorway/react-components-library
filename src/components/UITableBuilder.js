@@ -87,8 +87,6 @@ class UITableBuilder extends Component {
 
   render () {
     const {ready, message, search, name, description, tableColumns, tableData} = this.state
-    console.log('message')
-    console.log(message)
 
     const {routing, languageCode} = this.props
 
@@ -109,32 +107,32 @@ class UITableBuilder extends Component {
       return (
         <div>
           <Header as='h1' content={splitOnUppercase(name)} subheader={description} dividing
-                  icon={{name: 'list alternate outline', color: 'teal'}}/>
-          <Divider hidden/>
+                  icon={{name: 'list alternate outline', color: 'teal' }} />
+          <Divider hidden />
           <Popup flowing hideOnScroll position='top center'
                  trigger={<Input icon='search' placeholder={UI.SEARCH[languageCode]} value={search}
-                                 onChange={this.searchInputOnChange}/>}>
-            <Icon color='blue' name='info circle'/>
+                                 onChange={this.searchInputOnChange} />}>
+            <Icon color='blue' name='info circle' />
             {MESSAGES.FILTER_BY_NAME[languageCode]}
           </Popup>
           <Label color='teal' size='large' circular>{Object.keys(filteredTableData).length}</Label>
           <Link to={routing + '/new'}>
-            <Button primary floated='right' content={UI.CREATE_NEW[languageCode] + ' ' + splitOnUppercase(name)}/>
+            <Button primary floated='right' content={UI.CREATE_NEW[languageCode] + ' ' + splitOnUppercase(name)} />
           </Link>
-          {message ? <Message negative content={message}/> : <Divider hidden/>}
+          {message ? <Message negative content={message}/> : <Divider hidden />}
 
           <ReactTable sortable data={filteredTableData} resizable={false} columns={tableColumns} defaultPageSize={10}
                       noDataText={noDataText} previousText={TABLE.PREVIOUS[languageCode]}
                       nextText={TABLE.NEXT[languageCode]} ofText={TABLE.OF[languageCode]}
                       pageText={TABLE.PAGE[languageCode]} loadingText={TABLE.LOADING[languageCode]}
-                      rowsText={TABLE.ROWS[languageCode]} className='-highlight'/>
+                      rowsText={TABLE.ROWS[languageCode]} className='-highlight' />
         </div>
       )
     }
 
     return (
       <Header as='h1' content={splitOnUppercase(name)} subheader={description} dividing
-              icon={{name: 'spinner', color: 'teal', loading: true}}/>
+              icon={{name: 'spinner', color: 'teal', loading: true}} />
     )
   }
 }
