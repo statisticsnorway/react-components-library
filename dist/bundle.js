@@ -2317,6 +2317,14 @@ function transformGSIMProperties(producer, schema, data, languageCode, fromSourc
 }
 
 function createOptions$1(response, prefix, languageCode, addPrefix) {
+  console.log('response');
+  console.log(response);
+  console.log('prefix');
+  console.log(prefix);
+  console.log('languageCode');
+  console.log(languageCode);
+  console.log('addPrefix');
+  console.log(addPrefix);
   var options = [];
   var cleanedPrefix = '';
 
@@ -2350,7 +2358,6 @@ function createOptions$1(response, prefix, languageCode, addPrefix) {
 
   return options;
 }
-
 function fetchGSIMOptions(url, languageCode, addPrefix) {
   return new Promise(function (resolve, reject) {
     fetchData(url).then(function (response) {
@@ -2780,7 +2787,6 @@ function cleanDefinitions(definitions, returnSchema) {
     delete returnSchema.definitions[definition].required;
   });
 }
-
 function updateAndCleanProperties(properties, returnSchema, defaultUISchema, name) {
   Object.keys(properties).forEach(function (key) {
     returnSchema.definitions[name].properties[key].name = key;
@@ -2808,7 +2814,6 @@ function updateAndCleanProperties(properties, returnSchema, defaultUISchema, nam
     }
   });
 }
-
 function mergeDefaultUISchema(producer, schema) {
   return new Promise(function (resolve) {
     var defaultUISchema = producers$3(producer);
@@ -3454,6 +3459,12 @@ function (_Component) {
     var tableHeaders = resolveTableHeaders(producer);
     var tableColumns = [];
     tableHeaders.forEach(function (header) {
+      console.log('schema.definitions[name]');
+      console.log(schema.definitions[name]);
+      console.log('schema.definitions[name].properties[header]');
+      console.log(schema.definitions[name].properties[header]);
+      console.log('schema.definitions[name].properties[header].displayname');
+      console.log(schema.definitions[name].properties[header].displayname);
       var displayName = schema.definitions[name].properties[header].displayName;
       var tableColumn = {};
       tableColumn['Header'] = displayName;
