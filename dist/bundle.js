@@ -2155,8 +2155,6 @@ var DefaultGSIMUISchema = {
 };
 
 function resolveReferences$1(properties, returnSchema, schema, key, name, specialFeatures, route) {
-  var util = require('util');
-
   var customType = extractName(properties[key].items.$ref);
   returnSchema[name].properties[key].customType = customType;
   returnSchema[name].properties[key].description.push('Input type: ' + customType);
@@ -2190,8 +2188,6 @@ function resolveReferences$1(properties, returnSchema, schema, key, name, specia
     }
 
     returnSchema[name].properties[key].description.push(schema[customType].properties[property].displayName + ': ' + returnSchema[customType].properties[property].description);
-    console.log('returnSchema');
-    console.log(util.inspect(returnSchema, false, null, true));
   });
 }
 
