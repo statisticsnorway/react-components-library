@@ -1,15 +1,6 @@
 import { fetchData } from '../../utilities/http-clients/fetch'
 
 export function createOptions (response, prefix, languageCode, addPrefix) {
-  console.log('response')
-  console.log(response)
-  console.log('prefix')
-  console.log(prefix)
-  console.log('languageCode')
-  console.log(languageCode)
-  console.log('addPrefix')
-  console.log(addPrefix)
-
   const options = []
 
   let cleanedPrefix = ''
