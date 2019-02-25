@@ -1,0 +1,70 @@
+{
+  "type": {
+    "string": {
+      "component": "UIText"
+    },
+    "array": {
+      "component": "UIDropdown"
+    },
+    "number": {
+      "component": "UINumber"
+    },
+    "boolean": {
+      "component": "UIBoolean"
+    },
+    "object": {
+      "component": "UIMultiInput"
+    }
+  },
+  "format": {
+    "date-time": {
+      "component": "UIDate"
+    }
+  },
+  "autofilled": [
+    "createdBy",
+    "createdDate",
+    "id",
+    "lastUpdatedBy",
+    "lastUpdatedDate",
+    "version",
+    "versionValidFrom",
+    "validFrom"
+  ],
+  "groups": {
+    "common": [
+      "administrativeDetails",
+      "administrativeStatus",
+      "agentInRoles",
+      "validUntil",
+      "versionRationale"
+    ]
+  },
+  "transformer": {
+    "AdministrativeDetails": {
+      "text": "values",
+      "option": "administrativeDetailType"
+    },
+    "AgentDetails": {
+      "text": "values",
+      "option": "agentDetailType"
+    }
+  },
+  "table": {
+    "defaultTableHeaders": [
+      "name",
+      "description",
+      "id"
+    ],
+    "needsTransforming": {
+      "name": "MultilingualText",
+      "description": "MultilingualText"
+    }
+  },
+  "icons": {
+    "user": [
+      "createdBy",
+      "lastUpdatedBy"
+    ]
+  }
+}
