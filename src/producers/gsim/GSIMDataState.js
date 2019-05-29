@@ -1,5 +1,3 @@
-import moment from 'moment'
-
 import { setVersion } from '../../utilities/Common'
 
 const uuidv4 = require('uuid/v4')
@@ -10,7 +8,9 @@ export function generateGSIMDataState (element, user) {
     case 'lastUpdatedDate':
     case 'versionValidFrom':
     case 'validFrom':
-      return moment()
+      const now = new Date()
+
+      return now.toISOString()
 
     case 'id':
       return uuidv4()
@@ -33,7 +33,9 @@ export function updateNewGSIMDataState (element, user) {
     case 'lastUpdatedDate':
     case 'versionValidFrom':
     case 'validFrom':
-      return moment()
+      const now = new Date()
+
+      return now.toISOString()
 
     case 'version':
       return '1.0.0'
@@ -51,7 +53,9 @@ export function updateGSIMDataState (element, user, version, versionIncrementati
   switch (element) {
     case 'lastUpdatedDate':
     case 'versionValidFrom':
-      return moment()
+      const now = new Date()
+
+      return now.toISOString()
 
     case 'version':
       return setVersion(version, versionIncrementation)

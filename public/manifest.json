@@ -1,6 +1,6 @@
 {
-  "short_name": "React Components Library Testing",
-  "name": "A simple React application for testing React Components Library",
+  "short_name": "React Components Library",
+  "name": "React Components Library",
   "icons": [
     {
       "src": "favicon.ico",

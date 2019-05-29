@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Link, Route } from 'react-router-dom'
 import { Container, Dropdown, Icon, Label, Menu, Message } from 'semantic-ui-react'
 
-import { UIFormBuilder, UITableBuilder, SchemaHandler } from '../components'
+import { SchemaHandler, UIFormBuilder, UITableBuilder } from '../components'
 import { extractName, handleRoute, splitOnUppercase } from '../utilities/Common'
 
 class Forms extends Component {
@@ -16,7 +16,7 @@ class Forms extends Component {
   }
 
   componentDidMount () {
-    const {producer, endpoint, namespace, specialFeatures, route} = this.props
+    const { producer, endpoint, namespace, specialFeatures, route } = this.props
     const updatedUrl = endpoint + handleRoute(namespace) + '?schema=embed'
 
     SchemaHandler(updatedUrl, producer, endpoint, namespace, specialFeatures, route).then(schemas => {
@@ -34,8 +34,8 @@ class Forms extends Component {
   }
 
   render () {
-    const {ready, schemas, message} = this.state
-    const {producer, route, endpoint, namespace, languageCode, specialFeatures} = this.props
+    const { ready, schemas, message } = this.state
+    const { producer, route, endpoint, namespace, languageCode, specialFeatures } = this.props
 
     return (
       <div>
@@ -65,29 +65,29 @@ class Forms extends Component {
             </Dropdown.Menu>
           </Dropdown>
         </Menu>
-        <Container fluid style={{marginTop: '5em'}}>
+        <Container fluid style={{ marginTop: '5em' }}>
           {ready && message !== '' && <Message error content={message} />}
           {ready && schemas.map((schema, index) => {
             const domain = extractName(schema.$ref)
             const path = route + domain + '/:id'
 
             return <Route key={index} path={path} exact
-                          render={({match}) => <UIFormBuilder params={match.params} producer={producer}
-                                                              schema={JSON.parse(JSON.stringify(schema))}
-                                                              languageCode={languageCode} namespace={namespace}
-                                                              specialFeatures={specialFeatures}
-                                                              endpoint={endpoint} user='Test user' />} />
+                          render={({ match }) => <UIFormBuilder params={match.params} producer={producer}
+                                                                schema={JSON.parse(JSON.stringify(schema))}
+                                                                languageCode={languageCode} namespace={namespace}
+                                                                specialFeatures={specialFeatures}
+                                                                endpoint={endpoint} user='Test user' />} />
           })}
           {ready && schemas.map((schema, index) => {
             const domain = extractName(schema.$ref)
             const path = route + domain
 
             return <Route key={index} path={path} exact
-                          render={({match}) => <UITableBuilder params={match.params} producer={producer}
-                                                               schema={JSON.parse(JSON.stringify(schema))}
-                                                               languageCode={languageCode} namespace={namespace}
-                                                               specialFeatures={specialFeatures}
-                                                               endpoint={endpoint} routing={path} />} />
+                          render={({ match }) => <UITableBuilder params={match.params} producer={producer}
+                                                                 schema={JSON.parse(JSON.stringify(schema))}
+                                                                 languageCode={languageCode} namespace={namespace}
+                                                                 specialFeatures={specialFeatures}
+                                                                 endpoint={endpoint} routing={path} />} />
           })}
         </Container>
       </div>

@@ -9,7 +9,6 @@ var React__default = _interopDefault(React);
 var semanticUiReact = require('semantic-ui-react');
 var semanticUiReact__default = _interopDefault(semanticUiReact);
 var reactDatepicker = _interopDefault(require('react-datepicker'));
-var moment = _interopDefault(require('moment'));
 var ReactTable = _interopDefault(require('react-table'));
 var reactRouterDom = require('react-router-dom');
 
@@ -131,7 +130,7 @@ function _possibleConstructorReturn(self, call) {
 }
 
 function unwrapExports (x) {
-	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x.default : x;
+	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
 }
 
 function createCommonjsModule(fn, module) {
@@ -145,10 +144,9 @@ Object.defineProperty(exports, '__esModule', { value: true });
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
 
-var React__default$$1 = _interopDefault(React__default);
+var React__default$1 = _interopDefault(React__default);
 
 var DatePicker = _interopDefault(reactDatepicker);
-var moment$$1 = _interopDefault(moment);
 
 function _typeof(obj) {
   if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
@@ -306,7 +304,7 @@ function cutoffString(string) {
 
 var InlineError = function InlineError(_ref) {
   var text = _ref.text;
-  return React__default$$1.createElement("span", {
+  return React__default$1.createElement("span", {
     style: {
       color: '#db2828'
     }
@@ -315,7 +313,7 @@ var InlineError = function InlineError(_ref) {
 
 var InlineWarning = function InlineWarning(_ref2) {
   var text = _ref2.text;
-  return React__default$$1.createElement("span", {
+  return React__default$1.createElement("span", {
     style: {
       color: '#ffd700'
     }
@@ -324,8 +322,8 @@ var InlineWarning = function InlineWarning(_ref2) {
 
 var structureDescription = function structureDescription(description) {
   if (Array.isArray(description)) {
-    return React__default$$1.createElement("div", null, description.map(function (value, index) {
-      return React__default$$1.createElement("p", {
+    return React__default$1.createElement("div", null, description.map(function (value, index) {
+      return React__default$1.createElement("p", {
         key: index
       }, value);
     }));
@@ -341,14 +339,14 @@ var formatLinks = function formatLinks(route, value) {
     }
 
     if (Array.isArray(value)) {
-      return React__default$$1.createElement("div", null, value.map(function (thing, index) {
-        return React__default$$1.createElement("a", {
+      return React__default$1.createElement("div", null, value.map(function (thing, index) {
+        return React__default$1.createElement("a", {
           key: index,
           href: route + thing
-        }, UI.LINK, " #", index + 1, React__default$$1.createElement("br", null));
+        }, UI.LINK, " #", index + 1, React__default$1.createElement("br", null));
       }));
     } else {
-      return React__default$$1.createElement("div", null, React__default$$1.createElement("a", {
+      return React__default$1.createElement("div", null, React__default$1.createElement("a", {
         href: route + value
       }, UI.LINK));
     }
@@ -357,31 +355,31 @@ var formatLinks = function formatLinks(route, value) {
   }
 };
 function fullFormField(displayName, description, error, warning, required, component, showLinks, value, route) {
-  return React__default$$1.createElement(semanticUiReact__default.Form.Field, {
+  return React__default$1.createElement(semanticUiReact__default.Form.Field, {
     error: !!error,
     required: required
-  }, React__default$$1.createElement(semanticUiReact__default.Popup, {
+  }, React__default$1.createElement(semanticUiReact__default.Popup, {
     hideOnScroll: true,
     position: "top left",
     header: displayName,
     wide: "very",
-    trigger: React__default$$1.createElement("label", null, displayName),
+    trigger: React__default$1.createElement("label", null, displayName),
     content: structureDescription(description)
-  }), component, showLinks && formatLinks(route, value), warning && !error && React__default$$1.createElement(InlineWarning, {
+  }), component, showLinks && formatLinks(route, value), warning && !error && React__default$1.createElement(InlineWarning, {
     text: warning
-  }), error && !warning && React__default$$1.createElement(InlineError, {
+  }), error && !warning && React__default$1.createElement(InlineError, {
     text: error
-  }), error && warning && React__default$$1.createElement("div", null, React__default$$1.createElement(InlineError, {
+  }), error && warning && React__default$1.createElement("div", null, React__default$1.createElement(InlineError, {
     text: error
-  }), React__default$$1.createElement(semanticUiReact__default.Divider, {
+  }), React__default$1.createElement(semanticUiReact__default.Divider, {
     hidden: true,
     fitted: true
-  }), React__default$$1.createElement(InlineWarning, {
+  }), React__default$1.createElement(InlineWarning, {
     text: warning
   })));
 }
 function simpleFormField(displayName, description, component) {
-  return React__default$$1.createElement(semanticUiReact__default.Form.Field, null, React__default$$1.createElement(semanticUiReact__default.Popup, {
+  return React__default$1.createElement(semanticUiReact__default.Form.Field, null, React__default$1.createElement(semanticUiReact__default.Popup, {
     hideOnScroll: true,
     position: "top left",
     header: displayName,
@@ -392,13 +390,13 @@ function simpleFormField(displayName, description, component) {
 }
 function simpleStaticFormField(displayName, description, component) {
   var icon = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
-  return React__default$$1.createElement(semanticUiReact__default.Form.Field, null, React__default$$1.createElement(semanticUiReact__default.Popup, {
+  return React__default$1.createElement(semanticUiReact__default.Form.Field, null, React__default$1.createElement(semanticUiReact__default.Popup, {
     hideOnScroll: true,
     position: "top left",
     header: displayName,
     wide: "very",
     content: structureDescription(description),
-    trigger: React__default$$1.createElement("label", null, displayName, " ", icon)
+    trigger: React__default$1.createElement("label", null, displayName, " ", icon)
   }), component);
 }
 
@@ -451,8 +449,7 @@ function (_Component) {
           error = _this$props2.error,
           warning = _this$props2.warning,
           required = _this$props2.required;
-      var component = React__default$$1.createElement(semanticUiReact__default.TextArea, {
-        autoHeight: true,
+      var component = React__default$1.createElement(semanticUiReact__default.TextArea, {
         rows: 1,
         name: name,
         placeholder: cutoffString(displayName),
@@ -511,7 +508,7 @@ function (_Component) {
       var _this$props2 = this.props,
           displayName = _this$props2.displayName,
           description = _this$props2.description;
-      var component = React__default$$1.createElement(semanticUiReact__default.Checkbox, {
+      var component = React__default$1.createElement(semanticUiReact__default.Checkbox, {
         label: displayName,
         onChange: this.handleChange,
         checked: value
@@ -576,7 +573,7 @@ function (_Component) {
           error = _this$props2.error,
           warning = _this$props2.warning,
           required = _this$props2.required;
-      var component = React__default$$1.createElement(semanticUiReact__default.Input, {
+      var component = React__default$1.createElement(semanticUiReact__default.Input, {
         icon: {
           name: 'hashtag',
           color: 'teal'
@@ -649,7 +646,7 @@ function (_Component) {
 
       if (Array.isArray(options)) {
         var radios = Object.keys(options).map(function (key) {
-          return React__default$$1.createElement(semanticUiReact__default.Form.Radio, {
+          return React__default$1.createElement(semanticUiReact__default.Form.Radio, {
             key: key,
             label: options[key].text,
             value: options[key].value,
@@ -657,7 +654,7 @@ function (_Component) {
             onChange: _this2.handleChange
           });
         });
-        var component = React__default$$1.createElement(semanticUiReact__default.Form.Group, {
+        var component = React__default$1.createElement(semanticUiReact__default.Form.Group, {
           inline: true,
           children: radios,
           style: {
@@ -685,6 +682,14 @@ function (_Component) {
     _classCallCheck(this, UIDate);
 
     _this = _possibleConstructorReturn(this, _getPrototypeOf(UIDate).call(this, props));
+
+    _this.convertDate = function (date) {
+      if (date !== null && typeof date === 'string') {
+        return new Date(date);
+      } else {
+        return date;
+      }
+    };
 
     _this.handleChange = function (index, date) {
       var _this$props = _this.props,
@@ -729,7 +734,7 @@ function (_Component) {
     key: "componentDidMount",
     value: function componentDidMount() {
       var value = this.props.value;
-      if (checkValueAndType(value, 'object')) this.setState({
+      if (checkValueAndType(value, 'string' || checkValueAndType(value, 'array'))) this.setState({
         value: value
       });
     }
@@ -765,7 +770,7 @@ function (_Component) {
           required = _this$props3.required,
           multiple = _this$props3.multiple,
           languageCode = _this$props3.languageCode;
-      var icon = React__default$$1.createElement(semanticUiReact__default.Icon, {
+      var icon = React__default$1.createElement(semanticUiReact__default.Icon, {
         name: "calendar alternate outline",
         size: "big",
         style: {
@@ -776,64 +781,63 @@ function (_Component) {
       var component;
 
       if (multiple) {
-        component = React__default$$1.createElement(semanticUiReact__default.Grid, null, value.map(function (entry, index) {
-          var datePicker = React__default$$1.createElement(DatePicker, {
-            selected: value[index],
+        component = React__default$1.createElement(semanticUiReact__default.Grid, null, value.map(function (entry, index) {
+          var datePicker = React__default$1.createElement(DatePicker, {
+            selected: _this3.convertDate(value[index]),
             onChange: _this3.handleChange.bind(_this3, index),
-            dateFormat: "DD/MM/YYYY",
             placeholderText: cutoffString(displayName),
             showWeekNumbers: true,
             dropdownMode: "select",
             todayButton: UI.TODAY[languageCode]
           });
-          return React__default$$1.createElement(semanticUiReact__default.Grid.Row, {
+          return React__default$1.createElement(semanticUiReact__default.Grid.Row, {
             key: index
-          }, React__default$$1.createElement(semanticUiReact__default.Grid.Column, {
+          }, React__default$1.createElement(semanticUiReact__default.Grid.Column, {
             width: 1,
             style: {
               margin: 0,
               paddingRight: 0,
               paddingTop: '0.35rem'
             }
-          }, React__default$$1.createElement(semanticUiReact__default.Container, {
+          }, React__default$1.createElement(semanticUiReact__default.Container, {
             textAlign: "center"
-          }, React__default$$1.createElement(semanticUiReact__default.Header, {
+          }, React__default$1.createElement(semanticUiReact__default.Header, {
             as: "h4",
             color: "teal",
             content: index + 1 + '.',
             style: {
               marginBottom: 0
             }
-          }), React__default$$1.createElement(semanticUiReact__default.Icon, {
+          }), React__default$1.createElement(semanticUiReact__default.Icon, {
             link: true,
             name: "close",
             color: "red",
             onClick: _this3.handleRemoveEntry.bind(_this3, index)
-          }))), React__default$$1.createElement(semanticUiReact__default.Grid.Column, {
+          }))), React__default$1.createElement(semanticUiReact__default.Grid.Column, {
             width: 15,
             style: {
               margin: 0,
               paddingLeft: 0
             }
-          }, React__default$$1.createElement(semanticUiReact__default.Form.Group, {
+          }, React__default$1.createElement(semanticUiReact__default.Form.Group, {
             inline: true,
             style: {
               margin: 0
             },
-            children: React__default$$1.createElement("div", null, datePicker, icon)
+            children: React__default$1.createElement("div", null, datePicker, icon)
           })));
-        }), React__default$$1.createElement(semanticUiReact__default.Grid.Row, {
+        }), React__default$1.createElement(semanticUiReact__default.Grid.Row, {
           style: {
             paddingTop: 0
           }
-        }, React__default$$1.createElement(semanticUiReact__default.Grid.Column, {
+        }, React__default$1.createElement(semanticUiReact__default.Grid.Column, {
           width: 16,
           style: {
             margin: 0
           }
-        }, React__default$$1.createElement(semanticUiReact__default.Container, {
+        }, React__default$1.createElement(semanticUiReact__default.Container, {
           textAlign: "right"
-        }, React__default$$1.createElement(semanticUiReact__default.Icon, {
+        }, React__default$1.createElement(semanticUiReact__default.Icon, {
           link: true,
           name: "plus",
           color: "green",
@@ -841,22 +845,21 @@ function (_Component) {
           onClick: this.handleAddEntry
         })))));
       } else {
-        var datePicker = React__default$$1.createElement(DatePicker, {
-          selected: value,
+        var datePicker = React__default$1.createElement(DatePicker, {
+          selected: this.convertDate(value),
           onChange: this.handleChange.bind(this, null),
           isClearable: true,
-          dateFormat: "DD/MM/YYYY",
           placeholderText: cutoffString(displayName),
           showWeekNumbers: true,
           dropdownMode: "select",
           todayButton: UI.TODAY[languageCode]
         });
-        component = React__default$$1.createElement(semanticUiReact__default.Form.Group, {
+        component = React__default$1.createElement(semanticUiReact__default.Form.Group, {
           inline: true,
           style: {
             margin: 0
           },
-          children: React__default$$1.createElement("div", null, datePicker, icon)
+          children: React__default$1.createElement("div", null, datePicker, icon)
         });
       }
 
@@ -967,7 +970,7 @@ function (_Component) {
           route = _this$props2.route;
 
       if (!ready) {
-        var component = React__default$$1.createElement(semanticUiReact__default.Dropdown, {
+        var component = React__default$1.createElement(semanticUiReact__default.Dropdown, {
           placeholder: cutoffString(displayName),
           selection: true,
           options: [],
@@ -976,7 +979,7 @@ function (_Component) {
         });
         return fullFormField(displayName, description, error, warning, required, component);
       } else {
-        var _component = React__default$$1.createElement(semanticUiReact__default.Dropdown, {
+        var _component = React__default$1.createElement(semanticUiReact__default.Dropdown, {
           placeholder: options.length === 0 ? UI.NO_OPTIONS[languageCode] : cutoffString(displayName),
           value: value,
           options: options,
@@ -1214,35 +1217,35 @@ function (_Component) {
           route = _this$props8.route;
 
       if (!ready) {
-        var component = React__default$$1.createElement(semanticUiReact__default.Grid, {
+        var component = React__default$1.createElement(semanticUiReact__default.Grid, {
           columns: "equal"
-        }, React__default$$1.createElement(semanticUiReact__default.Grid.Column, null, React__default$$1.createElement(semanticUiReact__default.Dropdown, {
+        }, React__default$1.createElement(semanticUiReact__default.Grid.Column, null, React__default$1.createElement(semanticUiReact__default.Dropdown, {
           selection: true,
           options: [],
           loading: true,
           fluid: true
-        })), React__default$$1.createElement(semanticUiReact__default.Grid.Column, null, React__default$$1.createElement(semanticUiReact__default.Input, {
+        })), React__default$1.createElement(semanticUiReact__default.Grid.Column, null, React__default$1.createElement(semanticUiReact__default.Input, {
           placeholder: displayName,
           disabled: true
         })));
         return fullFormField(displayName, description, error, warning, required, component);
       } else if (ready && problem) {
-        var _component = React__default$$1.createElement(semanticUiReact__default.Grid, {
+        var _component = React__default$1.createElement(semanticUiReact__default.Grid, {
           columns: "equal"
-        }, React__default$$1.createElement(semanticUiReact__default.Grid.Column, null, React__default$$1.createElement(semanticUiReact__default.Dropdown, {
+        }, React__default$1.createElement(semanticUiReact__default.Grid.Column, null, React__default$1.createElement(semanticUiReact__default.Dropdown, {
           selection: true,
           options: [],
           disabled: true,
           fluid: true
-        })), React__default$$1.createElement(semanticUiReact__default.Grid.Column, null, React__default$$1.createElement(semanticUiReact__default.Input, {
+        })), React__default$1.createElement(semanticUiReact__default.Grid.Column, null, React__default$1.createElement(semanticUiReact__default.Input, {
           placeholder: displayName,
           disabled: true
         })));
 
         return fullFormField(displayName, description, error, errorMessage, required, _component);
       } else {
-        var components = React__default$$1.createElement(semanticUiReact__default.Grid, null, value.map(function (entry, index) {
-          var dropdown = React__default$$1.createElement(semanticUiReact__default.Dropdown, {
+        var components = React__default$1.createElement(semanticUiReact__default.Grid, null, value.map(function (entry, index) {
+          var dropdown = React__default$1.createElement(semanticUiReact__default.Dropdown, {
             options: options,
             value: entry.option,
             selection: true,
@@ -1252,42 +1255,42 @@ function (_Component) {
             fluid: !!multiValue,
             onChange: _this9.handleDropdownChange.bind(_this9, index)
           });
-          return React__default$$1.createElement(semanticUiReact__default.Grid.Row, {
+          return React__default$1.createElement(semanticUiReact__default.Grid.Row, {
             key: index
-          }, React__default$$1.createElement(semanticUiReact__default.Grid.Column, {
+          }, React__default$1.createElement(semanticUiReact__default.Grid.Column, {
             width: 1,
             style: {
               margin: 0,
               paddingRight: 0,
               paddingTop: '0.2rem'
             }
-          }, React__default$$1.createElement(semanticUiReact__default.Container, {
+          }, React__default$1.createElement(semanticUiReact__default.Container, {
             textAlign: "center"
-          }, React__default$$1.createElement(semanticUiReact__default.Header, {
+          }, React__default$1.createElement(semanticUiReact__default.Header, {
             as: "h4",
             color: "teal",
             content: index + 1 + '.',
             style: {
               marginBottom: 0
             }
-          }), React__default$$1.createElement(semanticUiReact__default.Icon, {
+          }), React__default$1.createElement(semanticUiReact__default.Icon, {
             link: true,
             name: "close",
             color: "red",
             onClick: _this9.handleRemoveEntry.bind(_this9, index)
-          }))), multiValue && React__default$$1.createElement(semanticUiReact__default.Grid.Column, {
+          }))), multiValue && React__default$1.createElement(semanticUiReact__default.Grid.Column, {
             width: 8,
             style: {
               margin: 0,
               paddingLeft: 0
             }
-          }, dropdown, showLinks && formatLinks(route, entry.option)), multiValue && React__default$$1.createElement(semanticUiReact__default.Grid.Column, {
+          }, dropdown, showLinks && formatLinks(route, entry.option)), multiValue && React__default$1.createElement(semanticUiReact__default.Grid.Column, {
             width: 7,
             style: {
               margin: 0
             }
           }, entry.text.map(function (innerValue, innerIndex) {
-            var action = React__default$$1.createElement(semanticUiReact__default.Button, {
+            var action = React__default$1.createElement(semanticUiReact__default.Button, {
               basic: true,
               icon: {
                 name: 'close',
@@ -1295,7 +1298,7 @@ function (_Component) {
               },
               onClick: _this9.handleRemoveValueFromEntry.bind(_this9, index, innerIndex)
             });
-            return React__default$$1.createElement(semanticUiReact__default.Input, {
+            return React__default$1.createElement(semanticUiReact__default.Input, {
               key: innerIndex,
               action: action,
               style: {
@@ -1306,18 +1309,18 @@ function (_Component) {
               name: name + innerIndex,
               onChange: _this9.handleInputChange.bind(_this9, index, innerIndex)
             });
-          }), React__default$$1.createElement(semanticUiReact__default.Icon, {
+          }), React__default$1.createElement(semanticUiReact__default.Icon, {
             link: true,
             name: "plus",
             color: "green",
             onClick: _this9.handleAddValueToEntry.bind(_this9, index)
-          })), !multiValue && React__default$$1.createElement(semanticUiReact__default.Grid.Column, {
+          })), !multiValue && React__default$1.createElement(semanticUiReact__default.Grid.Column, {
             width: 15,
             style: {
               margin: 0,
               paddingLeft: 0
             }
-          }, React__default$$1.createElement(semanticUiReact__default.Input, {
+          }, React__default$1.createElement(semanticUiReact__default.Input, {
             name: name,
             placeholder: cutoffString(displayName),
             value: entry.text,
@@ -1325,18 +1328,18 @@ function (_Component) {
             onChange: _this9.handleInputChange.bind(_this9, index, index),
             action: dropdown
           }), showLinks && formatLinks(route, entry.option)));
-        }), React__default$$1.createElement(semanticUiReact__default.Grid.Row, {
+        }), React__default$1.createElement(semanticUiReact__default.Grid.Row, {
           style: {
             paddingTop: 0
           }
-        }, React__default$$1.createElement(semanticUiReact__default.Grid.Column, {
+        }, React__default$1.createElement(semanticUiReact__default.Grid.Column, {
           width: 16,
           style: {
             margin: 0
           }
-        }, React__default$$1.createElement(semanticUiReact__default.Container, {
+        }, React__default$1.createElement(semanticUiReact__default.Container, {
           textAlign: "right"
-        }, React__default$$1.createElement(semanticUiReact__default.Icon, {
+        }, React__default$1.createElement(semanticUiReact__default.Icon, {
           link: true,
           name: "plus",
           color: "green",
@@ -1380,7 +1383,7 @@ function (_Component) {
       return new Promise(function (resolve) {
         if (_this2.props.hasOwnProperty('icon')) {
           _this2.setState({
-            icon: React__default$$1.createElement(semanticUiReact__default.Icon, {
+            icon: React__default$1.createElement(semanticUiReact__default.Icon, {
               name: _this2.props.icon,
               color: "teal"
             })
@@ -1410,7 +1413,7 @@ function (_Component) {
           resolve(null);
         } else {
           if (!formats.includes(format)) {
-            resolve(React__default$$1.createElement(semanticUiReact__default.List, {
+            resolve(React__default$1.createElement(semanticUiReact__default.List, {
               style: {
                 marginTop: 0
               },
@@ -1421,9 +1424,10 @@ function (_Component) {
 
             for (var entry in value) {
               if (format === 'date') {
-                entries.push(moment$$1(value[entry]).format('LLL'));
+                var date = new Date(value[entry]);
+                entries.push(date.toLocaleDateString('en-GB'));
               } else {
-                entries.push(React__default$$1.createElement(semanticUiReact__default.Label, {
+                entries.push(React__default$1.createElement(semanticUiReact__default.Label, {
                   key: entry,
                   color: "teal"
                 }, value[entry]));
@@ -1432,13 +1436,13 @@ function (_Component) {
 
             if (format === 'date') {
               _this3.setState({
-                icon: React__default$$1.createElement(semanticUiReact__default.Icon, {
+                icon: React__default$1.createElement(semanticUiReact__default.Icon, {
                   name: "calendar alternate outline",
                   color: "teal",
                   size: "large"
                 })
               }, function () {
-                resolve(React__default$$1.createElement(semanticUiReact__default.List, {
+                resolve(React__default$1.createElement(semanticUiReact__default.List, {
                   style: {
                     marginTop: 0
                   },
@@ -1446,7 +1450,7 @@ function (_Component) {
                 }));
               });
             } else {
-              resolve(React__default$$1.createElement(semanticUiReact__default.Label.Group, {
+              resolve(React__default$1.createElement(semanticUiReact__default.Label.Group, {
                 tag: format === 'tag',
                 color: "teal",
                 content: entries
@@ -1485,7 +1489,7 @@ function (_Component) {
           description = _this$props.description;
 
       if (!ready) {
-        return simpleStaticFormField(displayName, description, React__default$$1.createElement(semanticUiReact__default.List, {
+        return simpleStaticFormField(displayName, description, React__default$1.createElement(semanticUiReact__default.List, {
           style: {
             marginTop: 0
           }
@@ -1529,7 +1533,7 @@ function (_Component) {
           valueChange = _this$props.valueChange,
           languageCode = _this$props.languageCode;
       var FormComponent = formComponents[properties.component];
-      return React__default$$1.createElement(FormComponent, _extends({}, properties, {
+      return React__default$1.createElement(FormComponent, _extends({}, properties, {
         valueChange: valueChange,
         languageCode: languageCode
       }));
@@ -1852,14 +1856,10 @@ function fetchData(url, languageCode) {
         'Content-Type': 'application/json; charset=utf-8'
       }
     }).then(function (response) {
-      if (response.ok) {
+      if (response.status >= 200 && response.status < 300 || response.status === 404) {
         response.json().then(function (json) {
           return resolve(json);
         });
-      } else if (response.status === 404) {
-        // TODO: LDS now responds with 404 if empty, that however should not block a form from generating, rather it should
-        // show 'No options'. This is a temporary fix for that. It is still undecided if LDS should return an empty array or 404.
-        resolve([]);
       } else {
         response.text().then(function (text) {
           if (text === null || text === '') {
@@ -1898,7 +1898,7 @@ function putData(url, endpoint, data, languageCode) {
         'Content-Type': 'application/json; charset=utf-8'
       }
     }).then(function (response) {
-      if (response.ok) {
+      if (response.status >= 200 && response.status < 300) {
         response.json().then(function (json) {
           return resolve(json);
         });
@@ -2030,7 +2030,8 @@ function generateGSIMDataState(element, user) {
     case 'lastUpdatedDate':
     case 'versionValidFrom':
     case 'validFrom':
-      return moment();
+      var now = new Date();
+      return now.toISOString();
 
     case 'id':
       return uuidv4$1();
@@ -2052,7 +2053,8 @@ function updateNewGSIMDataState(element, user) {
     case 'lastUpdatedDate':
     case 'versionValidFrom':
     case 'validFrom':
-      return moment();
+      var now = new Date();
+      return now.toISOString();
 
     case 'version':
       return '1.0.0';
@@ -2069,7 +2071,8 @@ function updateGSIMDataState(element, user, version, versionIncrementation) {
   switch (element) {
     case 'lastUpdatedDate':
     case 'versionValidFrom':
-      return moment();
+      var now = new Date();
+      return now.toISOString();
 
     case 'version':
       return setVersion(version, versionIncrementation);
@@ -2417,13 +2420,13 @@ var DescribedValueDomainUISchema = {
 function mergeGSIMUISchema(schema) {
   return new Promise(function (resolve) {
     var returnSchema = JSON.parse(JSON.stringify(schema));
-    var name$$1 = extractName(schema.$ref);
-    var properties = JSON.parse(JSON.stringify(schema.definitions[name$$1].properties));
+    var name = extractName(schema.$ref);
+    var properties = JSON.parse(JSON.stringify(schema.definitions[name].properties));
 
-    if (DescribedValueDomainUISchema.name === name$$1) {
+    if (DescribedValueDomainUISchema.name === name) {
       Object.keys(properties).forEach(function (key) {
         if (DescribedValueDomainUISchema.hideOnChoice.hasOwnProperty(key)) {
-          returnSchema.definitions[name$$1].properties[key].hideOnChoice = DescribedValueDomainUISchema.hideOnChoice[key];
+          returnSchema.definitions[name].properties[key].hideOnChoice = DescribedValueDomainUISchema.hideOnChoice[key];
         }
       });
     }
@@ -2568,24 +2571,24 @@ function transformDefaultProperties(producer, schema, data, fromSource) {
     var returnData = JSON.parse(JSON.stringify(data));
     var name = extractName(schema.$ref);
     var properties = schema.definitions[name].properties;
-    var transformer$$1 = producers$1(producer).transformer;
+    var transformer = producers$1(producer).transformer;
     Object.keys(properties).forEach(function (property) {
       if (checkEmpty(returnData[property])) {
         delete returnData[property];
       }
 
-      Object.keys(transformer$$1).forEach(function (transformable) {
+      Object.keys(transformer).forEach(function (transformable) {
         if (properties[property].hasOwnProperty('customType') && properties[property].customType === transformable) {
           if (Array.isArray(returnData[property]) && returnData[property].length !== 0) {
             returnData[property].forEach(function (value, index) {
-              Object.keys(transformer$$1[transformable]).forEach(function (transformKey) {
+              Object.keys(transformer[transformable]).forEach(function (transformKey) {
                 if (fromSource) {
                   // TODO: If this variable is an array and any of its elements is null, the input fields can't handle them
                   // correctly. This must either be adressed in the backend or here. Awaiting discussion.
-                  returnData[property][index][transformKey] = returnData[property][index][transformer$$1[transformable][transformKey]];
-                  delete returnData[property][index][transformer$$1[transformable][transformKey]];
+                  returnData[property][index][transformKey] = returnData[property][index][transformer[transformable][transformKey]];
+                  delete returnData[property][index][transformer[transformable][transformKey]];
                 } else {
-                  returnData[property][index][transformer$$1[transformable][transformKey]] = returnData[property][index][transformKey];
+                  returnData[property][index][transformer[transformable][transformKey]] = returnData[property][index][transformKey];
                   delete returnData[property][index][transformKey];
                 }
               });
@@ -3663,6 +3666,6 @@ function (_Component) {
   return UITableBuilder;
 }(React.Component);
 
-exports.UIFormBuilder = UIFormBuilder;
 exports.SchemaHandler = SchemaHandler;
+exports.UIFormBuilder = UIFormBuilder;
 exports.UITableBuilder = UITableBuilder;

@@ -4,7 +4,7 @@ import populateOptionsResult from './populateOptionsResult'
 import { fetchGSIMOptions } from '../../producers/gsim/GSIMOptions'
 import { populateOptions } from '../../utilities/schema-handling'
 
-jest.mock('../../producers/gsim/GSIMOptions', () => ({fetchGSIMOptions: jest.fn()}))
+jest.mock('../../producers/gsim/GSIMOptions', () => ({ fetchGSIMOptions: jest.fn() }))
 fetchGSIMOptions.mockImplementation(() => Promise.resolve(populateOptionsInitial.options))
 
 describe('Options', () => {

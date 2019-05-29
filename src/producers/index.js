@@ -2,7 +2,7 @@ export const GSIM = {
   name: 'GSIM',
   producer: 'GSIM',
   endpoint: 'http://localhost:9090/',
-  namespace: 'data/',
+  namespace: 'ns/',
   route: '/gsim/',
   languageCode: 'en',
   specialFeatures: false
@@ -12,7 +12,7 @@ export const Default = {
   name: 'Default',
   producer: 'Default',
   endpoint: 'http://localhost:9090/',
-  namespace: 'data/',
+  namespace: 'ns/',
   route: '/default/',
   languageCode: 'en',
   specialFeatures: false

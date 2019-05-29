@@ -39,8 +39,8 @@ class UIFormBuilder extends Component {
   }
 
   componentDidMount () {
-    const {isNew} = this.state
-    const {producer, schema, params, endpoint, namespace, user, languageCode, specialFeatures} = this.props
+    const { isNew } = this.state
+    const { producer, schema, params, endpoint, namespace, user, languageCode, specialFeatures } = this.props
 
     populateOptions(producer, schema, languageCode).then(populatedSchema => {
       if (isNew) {
@@ -52,7 +52,7 @@ class UIFormBuilder extends Component {
               data: filledData,
               schema: filled.returnSchema,
               hiddenFields: filled.returnHiddenFields
-            }, () => this.setState({ready: true}))
+            }, () => this.setState({ ready: true }))
           })
         }).catch(error => {
           this.setState({
@@ -70,8 +70,8 @@ class UIFormBuilder extends Component {
   }
 
   shouldComponentUpdate (nextProps, nextState) {
-    const {hiddenFields, data, fresh} = this.state
-    const {params, producer, schema, user, namespace, languageCode} = this.props
+    const { hiddenFields, data, fresh } = this.state
+    const { params, producer, schema, user, namespace, languageCode } = this.props
 
     if (hiddenFields !== nextState.hiddenFields) return true
 
@@ -94,7 +94,7 @@ class UIFormBuilder extends Component {
   }
 
   newComponent (producer, schema, user, languageCode) {
-    const {name} = this.state
+    const { name } = this.state
     const properties = schema.definitions[name].properties
 
     generateDataState(producer, schema, user, languageCode).then(generatedDataState => {
@@ -111,13 +111,13 @@ class UIFormBuilder extends Component {
         message: '',
         saved: false,
         readOnly: false
-      }, () => this.setState({ready: true}))
+      }, () => this.setState({ ready: true }))
     })
   }
 
   handleLockClick = () => {
-    this.setState({readOnly: !this.state.readOnly}, () => {
-      if (!this.state.readOnly) this.setState({message: ''})
+    this.setState({ readOnly: !this.state.readOnly }, () => {
+      if (!this.state.readOnly) this.setState({ message: '' })
     })
   }
 
@@ -153,9 +153,9 @@ class UIFormBuilder extends Component {
   validateAndSave = (event) => {
     event.preventDefault()
 
-    this.setState({ready: false}, () => {
-      const {schema, data, versionIncrementation, hiddenFields, isNew} = this.state
-      const {producer, endpoint, namespace, user, languageCode, specialFeatures} = this.props
+    this.setState({ ready: false }, () => {
+      const { schema, data, versionIncrementation, hiddenFields, isNew } = this.state
+      const { producer, endpoint, namespace, user, languageCode, specialFeatures } = this.props
       const copiedSchema = JSON.parse(JSON.stringify(schema))
 
       validation(copiedSchema, data, languageCode).then(schemaWithoutErrors => {
@@ -178,13 +178,13 @@ class UIFormBuilder extends Component {
                 readOnly: true,
                 isNew: false,
                 fresh: true
-              }, () => this.setState({ready: true}))
+              }, () => this.setState({ ready: true }))
             }).catch(saveError => {
               this.setState({
                 schema: schemaWithoutErrors,
                 saved: false,
                 message: MESSAGES.WAS_NOT_SAVED[languageCode] + ' ' + saveError
-              }, () => this.setState({ready: true}))
+              }, () => this.setState({ ready: true }))
             })
           })
         })
@@ -202,9 +202,9 @@ class UIFormBuilder extends Component {
   simulateSaveAndDownloadJson = (event) => {
     event.preventDefault()
 
-    this.setState({ready: false}, () => {
-      const {name, schema, data, versionIncrementation, hiddenFields, isNew} = this.state
-      const {producer, user, languageCode, specialFeatures} = this.props
+    this.setState({ ready: false }, () => {
+      const { name, schema, data, versionIncrementation, hiddenFields, isNew } = this.state
+      const { producer, user, languageCode, specialFeatures } = this.props
       const copiedSchema = JSON.parse(JSON.stringify(schema))
 
       validation(copiedSchema, data, languageCode).then(schemaWithoutErrors => {
@@ -221,7 +221,7 @@ class UIFormBuilder extends Component {
                 saved: true,
                 message: downloadLink
               }, () => {
-                this.setState({ready: true})
+                this.setState({ ready: true })
               })
             })
           })
@@ -240,9 +240,9 @@ class UIFormBuilder extends Component {
   refreshOptions = (event) => {
     event.preventDefault()
 
-    this.setState({ready: false}, () => {
-      const {producer, languageCode} = this.props
-      const {schema, data} = this.state
+    this.setState({ ready: false }, () => {
+      const { producer, languageCode } = this.props
+      const { schema, data } = this.state
 
       populateOptions(producer, schema, languageCode).then(populatedSchema => {
         setDataToSchema(populatedSchema, data, languageCode).then(filled => {
@@ -256,14 +256,14 @@ class UIFormBuilder extends Component {
   }
 
   render () {
-    const {ready, readOnly, message, saved, schema, hiddenFields, name, description, problem, isNew, fresh} = this.state
-    const {specialFeatures, languageCode} = this.props
+    const { ready, readOnly, message, saved, schema, hiddenFields, name, description, problem, isNew, fresh } = this.state
+    const { specialFeatures, languageCode } = this.props
 
     if (problem) {
       return (
         <div>
           <Header as='h1' content={splitOnUppercase(name)} subheader={description} dividing
-                  icon={{name: 'warning', color: 'red'}} />
+                  icon={{ name: 'warning', color: 'red' }} />
           {message !== '' && <Message negative content={message} />}
         </div>
       )
@@ -278,13 +278,13 @@ class UIFormBuilder extends Component {
         <Form>
           <Popup flowing hideOnScroll position='left center'
                  trigger={<Label attached='top right' color={fresh ? 'green' : 'orange'} circular size='big'
-                                 icon={{fitted: true, name: fresh ? 'save' : 'edit'}} />}>
+                                 icon={{ fitted: true, name: fresh ? 'save' : 'edit' }} />}>
             <Icon color='blue' name='info circle' />
             {fresh ? MESSAGES.NO_CHANGES_MADE[languageCode] : MESSAGES.CHANGES_MADE[languageCode]}
           </Popup>
 
           <Header as='h1' content={splitOnUppercase(name)} subheader={description} dividing
-                  icon={{name: formIcon, color: formIconColor, link: true, onClick: this.handleLockClick}} />
+                  icon={{ name: formIcon, color: formIconColor, link: true, onClick: this.handleLockClick }} />
           {message !== '' && <Message color={saved ? 'green' : 'red'} content={message} />}
           <Dimmer.Dimmable dimmed={readOnly}>
             <Dimmer active={readOnly} style={{
@@ -295,7 +295,7 @@ class UIFormBuilder extends Component {
               borderRadius: '.3rem',
               zIndex: 1
             }} />
-            <Grid columns='equal' style={{padding: '0.5rem', zIndex: 0}} divided>
+            <Grid columns='equal' style={{ padding: '0.5rem', zIndex: 0 }} divided>
               <Grid.Column>
                 {Object.keys(properties).map((property, index) => {
                   if (!properties[property].hasOwnProperty('autofilled') && properties[property].group !== 'common') {
@@ -363,7 +363,7 @@ class UIFormBuilder extends Component {
 
     return (
       <Header as='h1' content={splitOnUppercase(name)} subheader={description} dividing
-              icon={{name: 'spinner', color: 'teal', loading: true}} />
+              icon={{ name: 'spinner', color: 'teal', loading: true }} />
     )
   }
 }

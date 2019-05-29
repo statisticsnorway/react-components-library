@@ -130,8 +130,8 @@ component `Form` (like in the example above)
 ** Also do not forget to add `import &#39;semantic-ui-css/semantic.min.css&#39;` in your `index.js`
 
 * This library also uses https://github.com/statisticsnorway/react-form-fields-library[react-form-fields-library] for its form fields and
- the UIDate component requires https://momentjs.com/docs/[Moment.js] and https://reactdatepicker.com/[ReactJS Datepicker]
- so if you wish to use it you need `react-datepicker` and `moment` as dependencies in your project
+ the UIDate component requires https://reactdatepicker.com/[ReactJS Datepicker]
+ so if you wish to use it you need `react-datepicker` as a dependency in your project
 
 ** Again do not forget to add the css - `import &#39;react-datepicker/dist/react-datepicker.css&#39;` in your `index.js`
 
@@ -146,16 +146,15 @@ component `Form` (like in the example above)
 Because JSONSchemas can have different structures the Producers are functions that merges, resolves, builds and populates the schema to
 be used by the UI, all based upon a default UISchema and alternatively special UISchemas for specific objects.
 
-The `GSIM Producer` comes with the library but if you want to use this library on another structure than GSIM you need to write	A default producer and the `GSIM Producer` comes with the library but if you want to use this library on another structure
-your own producers and provide DefaultUISchema and spesific UISchemas than GSIMm og basic JSONSchemas you need to writeyour own producers and provide DefaultUISchema and spesific UISchemas
-
+The `GSIM Producer` comes with the library but if you want to use this library on another structure than GSIM you need to write	a producer yourself.
+Alternatively you could try the default producer which just handles basic JSONSchemas.
 
 === GSIM producer
 
 * The producer requires a 'DefaultGSIMUISchema'. This schema specifies which type of component that shall be rendered based on the property type
 in the JSONSchemas from the provided url.
 * The producer generates the state which is necessary to be able to save object to the datastore.
-* If the JSONSchemas has 'GSIM' specific properties like '$ref' an '_link_property_' this is handled in the GSIMProperties.
+* If the JSONSchemas has 'GSIM' specific properties this is handled in the GSIMProperties.
 * The GSIMTableData returns a tableObject based on the settings of table in DefaultGSIMUISchema.
 * The GSIMOptions makes it possible to generate options to dropdowns based om how the data are saved in the model.
 * Some UISchema requires special treatment. In GSIMUISchemas these are imported and handled explicitly.
@@ -164,75 +163,12 @@ in the JSONSchemas from the provided url.
 
 . In your React application run `yarn add https://github.com/statisticsnorway/react-components-library.git`
 ** Optionally add `#name-of-branch` at the end to use a specific branch instead of master
-. Import functions in your React application e.g. `import { dataFetcher } from &#39;react-components-library&#39;`
 
-=== Useful information
-
-* Your imported library does not automatically stay up to date with the latest commits to GitHub so you have to run
-`yarn upgrade react-components-library` in your React application to get the latest "build"
+Your imported library does not automatically stay up to date with the latest commits to GitHub so you have to run
+`yarn upgrade react-components-library` in your React application to get the latest "build".
 
 === Test it yourself
 
-The first time you clone the repository, remember to run `yarn install`
+The first time you clone the repository, remember to run `yarn install`.
 
-An App.js is added to the library for test purpose. Run `yarn start` and navigate to `http://localhost:3000/`
-
-===== Alternatively try a more optimized production build:
-
-. Run `yarn build:example`
-. Optionally run `yarn global add serve` (if you do not have https://github.com/zeit/serve/[serve])
-. Run `serve -s build`
-. Navigate to `http://localhost:5000/`
-
-=== Examples of functions in use with linked-data-store
-
-Precondition:
-lds is up and running on localhost:9090
-
-dataFetcher
-
-[source]
-----
-const url = 'http://localhost:9090/data/AgentInRole/'
-
-dataFetcher(url).then((result) => console.log('Result from url ' + url + ': ',result)).catch((reason) => console.log('Error: ', reason))
-----
-
-dataSaver
-
-[source]
-----
-const ldsSaveUrl = 'http://localhost:9090/data/Agent/b02e7d00-e740-11e8-9e27-758293bd596e'
-
-const data = {
-  "id": "b02e7d00-e740-11e8-9e27-758293bd596e",
-  "name":
-    [{"languageCode": "nb",
-      "languageText": "c"}],
-  "description":
-    [{"languageCode": "nb",
-      "languageText": "c"}],
-  "createdDate": "2018-11-13T12:36:53.092Z",
-  "createdBy": "Test",
-  "version": "1.0.0",
-  "versionValidFrom": "2018-11-13T12:36:53.093Z",
-  "lastUpdatedDate": "2018-11-13T12:36:53.093Z",
-  "lastUpdatedBy": "Test",
-  "validFrom": "2018-11-13T12:36:53.093Z",
-  "validUntil": "2019-11-13T12:36:53.093Z",
-  "agentType": "ORGANIZATION",
-  "isExternal": false
-}
-
-dataSaver(ldsSaveUrl, data).then((result) => console.log('Result from url ' + ldsSaveUrl + ': ', result)).catch((reason) => console.log('Error: ', reason))
-----
-
-dataDeleter
-
-[source]
-----
- const ldsDeleteUrl = 'http://localhost:9090/data/Agent/'
- const id = 'b02e7d00-e740-11e8-9e27-758293bd596e'
-
-  dataDeleter(ldsDeleteUrl, id).then((result) => console.log('Result from url ' + ldsDeleteUrl + ': ', result)).catch((reason) => console.log('Error: ', reason))
-----
+An App.js is added to the library for test purpose. Run `yarn start` and navigate to `http://localhost:3000/`.

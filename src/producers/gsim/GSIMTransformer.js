@@ -13,7 +13,7 @@ export function transformGSIMProperties (producer, schema, data, languageCode, f
             const values = []
 
             data[property].forEach(multilingual => {
-              values.push({option: multilingual.languageCode, text: multilingual.languageText})
+              values.push({ option: multilingual.languageCode, text: multilingual.languageText })
             })
 
             returnData[property] = values
@@ -33,14 +33,14 @@ export function transformGSIMProperties (producer, schema, data, languageCode, f
             const values = []
 
             data[property].forEach(multilingual => {
-              values.push({languageCode: multilingual.option, languageText: multilingual.text})
+              values.push({ languageCode: multilingual.option, languageText: multilingual.text })
             })
 
             returnData[property] = values
           } else {
             // TODO: This array overrides the array stored in the object in LDS which means it loses stored language texts
             // for other language codes on save. That might not be a desired outcome
-            returnData[property] = [{languageCode: languageCode, languageText: data[property]}]
+            returnData[property] = [{ languageCode: languageCode, languageText: data[property] }]
           }
         }
       }
