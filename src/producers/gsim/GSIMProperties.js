@@ -24,7 +24,7 @@ function resolveReferences (properties, returnSchema, schema, key, name, special
       const options = []
 
       schema[customType].properties[property].enum.forEach(value => {
-        options.push({key: value, text: value, value: value})
+        options.push({ key: value, text: value, value: value })
       })
 
       returnSchema[name].properties[key].options = options
@@ -68,7 +68,7 @@ function resolveEnums (properties, returnSchema) {
   const options = []
 
   properties.enum.forEach(value => {
-    options.push({key: value, text: value, value: value})
+    options.push({ key: value, text: value, value: value })
   })
 
   returnSchema.options = options

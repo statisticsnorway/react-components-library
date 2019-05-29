@@ -17,14 +17,10 @@ export function fetchData (url, languageCode, timeout = 3000) {
         'Content-Type': 'application/json; charset=utf-8'
       }
     }).then(response => {
-      if (response.ok) {
+      if ((response.status >= 200 && response.status < 300) || response.status === 404) {
         response.json().then(
           json => resolve(json)
         )
-      } else if (response.status === 404) {
-        // TODO: LDS now responds with 404 if empty, that however should not block a form from generating, rather it should
-        // show 'No options'. This is a temporary fix for that. It is still undecided if LDS should return an empty array or 404.
-        resolve([])
       } else {
         response.text().then(text => {
           if (text === null || text === '') {

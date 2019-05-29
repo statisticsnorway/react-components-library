@@ -20,8 +20,6 @@ export default {
     })
   ],
   external: [
-    'axios',
-    'moment',
     'react',
     'react-datepicker',
     'react-dom',

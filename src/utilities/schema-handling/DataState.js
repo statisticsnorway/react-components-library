@@ -99,6 +99,6 @@ export function setDataToSchema (schema, data, languageCode) {
       }
     })
 
-    resolve({returnSchema, returnHiddenFields})
+    resolve({ returnSchema, returnHiddenFields })
   })
 }

@@ -69,6 +69,6 @@ export function setAutofillAndClean (schema, data, hiddenFields) {
       }
     })
 
-    resolve({returnSchema, returnData})
+    resolve({ returnSchema, returnData })
   })
 }

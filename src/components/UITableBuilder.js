@@ -12,7 +12,7 @@ class UITableBuilder extends Component {
   constructor (props) {
     super(props)
 
-    const {producer, schema, routing} = this.props
+    const { producer, schema, routing } = this.props
     const name = extractName(schema.$ref)
     const description = schema.definitions[name].description
     const tableHeaders = resolveTableHeaders(producer)
@@ -55,7 +55,7 @@ class UITableBuilder extends Component {
   }
 
   componentDidMount () {
-    const {producer, endpoint, namespace, languageCode} = this.props
+    const { producer, endpoint, namespace, languageCode } = this.props
     const url = endpoint + namespace + this.state.name
     const tableData = []
 
@@ -81,12 +81,12 @@ class UITableBuilder extends Component {
   }
 
   searchInputOnChange = (event) => {
-    this.setState({search: event.target.value})
+    this.setState({ search: event.target.value })
   }
 
   render () {
-    const {ready, message, search, name, description, tableColumns, tableData} = this.state
-    const {routing, languageCode} = this.props
+    const { ready, message, search, name, description, tableColumns, tableData } = this.state
+    const { routing, languageCode } = this.props
 
     let filteredTableData = tableData
     let noDataText = ''
@@ -105,7 +105,7 @@ class UITableBuilder extends Component {
       return (
         <div>
           <Header as='h1' content={splitOnUppercase(name)} subheader={description} dividing
-                  icon={{name: 'list alternate outline', color: 'teal'}} />
+                  icon={{ name: 'list alternate outline', color: 'teal' }} />
           <Divider hidden />
           <Popup flowing hideOnScroll position='top center'
                  trigger={<Input icon='search' placeholder={UI.SEARCH[languageCode]} value={search}
@@ -130,7 +130,7 @@ class UITableBuilder extends Component {
 
     return (
       <Header as='h1' content={splitOnUppercase(name)} subheader={description} dividing
-              icon={{name: 'spinner', color: 'teal', loading: true}} />
+              icon={{ name: 'spinner', color: 'teal', loading: true }} />
     )
   }
 }
